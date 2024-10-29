@@ -45,5 +45,27 @@ namespace UrbanSystem.Web.Controllers
 
             return RedirectToAction(nameof(All));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(string id)
+        {
+            bool isIdValid = Guid.TryParse(id, out Guid guidId);
+
+            if (!isIdValid)
+            {
+                return RedirectToAction(nameof(All));
+            }
+
+            var suggestion = await _context
+                .Suggestions
+                .FirstOrDefaultAsync(m => m.Id == guidId);
+
+            if (suggestion == null)
+            {
+                return RedirectToAction(nameof(All));
+            }
+
+            return View(suggestion);
+        }
     }
 }
