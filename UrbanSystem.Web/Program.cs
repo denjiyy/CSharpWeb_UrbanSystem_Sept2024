@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using UrbanSystem.Data;
+
 namespace UrbanSystem.Web
 {
     public class Program
@@ -5,6 +8,13 @@ namespace UrbanSystem.Web
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();

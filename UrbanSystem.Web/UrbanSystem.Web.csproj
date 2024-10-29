@@ -7,7 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CinemaApp.Common\UrbanSystem.Common.csproj" />
+    <ProjectReference Include="..\UrbanSystem.Data\UrbanSystem.Data.csproj" />
     <ProjectReference Include="..\UrbanSystem.Web.ViewModels\UrbanSystem.Web.ViewModels.csproj" />
   </ItemGroup>
 
