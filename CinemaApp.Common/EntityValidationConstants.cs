@@ -12,19 +12,14 @@ namespace UrbanSystem.Common
         public static class Suggestion
         {
             public const int TitleMaxLength = 50;
+            public const int TitleMinLength = 5;
             public const int CategoryMaxLength = 20;
+            public const int CategoryMinLength = 2;
             public const int DescriptionMaxLength = 200;
-        }
-
-        public static class Comment
-        {
-            public const int ContentMaxLength = 100;
-        }
-
-        public static class Province
-        {
+            public const int DescriptionMinLength = 10;
             public const int CityNameMaxLength = 30;
             public const int StreetMaxLength = 40;
+            public const int StreetMinLength = 4;
         }
     }
 }

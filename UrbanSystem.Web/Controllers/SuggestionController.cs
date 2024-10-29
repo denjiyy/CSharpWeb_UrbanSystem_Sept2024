@@ -33,12 +33,24 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(Suggestion suggestion)
+        public async Task<IActionResult> Add(SuggestionFormViewModel suggestionModel)
         {
             if (!ModelState.IsValid)
             {
-                return View(suggestion);
+                return View(suggestionModel);
             }
+
+            Suggestion suggestion = new Suggestion
+            {
+                Title = suggestionModel.Title,
+                Category = suggestionModel.Category,
+                AttachmentUrl = suggestionModel.AttachmentUrl,
+                Description = suggestionModel.Description,
+                CityName = suggestionModel.CityName,
+                Priority = suggestionModel.Priority,
+                Status = suggestionModel.Status,
+                StreetName = suggestionModel.StreetName
+            };
 
             await _context.Suggestions.AddAsync(suggestion);
             await _context.SaveChangesAsync();
