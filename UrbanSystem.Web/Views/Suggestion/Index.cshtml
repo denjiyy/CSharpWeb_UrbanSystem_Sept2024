@@ -1,0 +1,34 @@
+﻿@using UrbanSystem.Data.Models
+@model IEnumerable<Suggestion>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggestions</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Suggestions</h2>
+            <a href="@Url.Action("Add", "Suggestions")" class="btn btn-primary">Add Suggestion</a>
+        </div>
+        <div class="row">
+            @foreach (var suggestion in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@suggestion.Title</h5>
+                            <p class="card-text text-muted">Click below for more details</p>
+                            @Html.ActionLink("View Details", "Details", "Suggestions", new { id = suggestion.Id }, new { @class = "btn btn-primary" })
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+</html>
