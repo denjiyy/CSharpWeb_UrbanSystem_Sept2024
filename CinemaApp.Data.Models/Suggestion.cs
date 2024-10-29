@@ -30,9 +30,8 @@ namespace UrbanSystem.Data.Models
 
         public string Priority { get; set; } = "Medium";
 
-        public Guid ProvinceId { get; set; }
-        public Province Province { get; set; } = null!;
+        public string StreetName { get; set; } = null!;
 
-        public ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
+        public string CityName { get; set; } = null!;
     }
 }

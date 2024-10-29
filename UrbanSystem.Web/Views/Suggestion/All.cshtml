@@ -13,7 +13,7 @@
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">Suggestions</h2>
-            <a href="@Url.Action("Add", "Suggestions")" class="btn btn-primary">Add Suggestion</a>
+            <a href="@Url.Action("Add", "Suggestion")" class="btn btn-primary">Add Suggestion</a>
         </div>
         <div class="row">
             @foreach (var suggestion in Model)
@@ -23,7 +23,7 @@
                         <div class="card-body">
                             <h5 class="card-title">@suggestion.Title</h5>
                             <p class="card-text text-muted">Click below for more details</p>
-                            @Html.ActionLink("View Details", "Details", "Suggestions", new { id = suggestion.Id }, new { @class = "btn btn-primary" })
+                            @Html.ActionLink("View Details", "Details", "Suggestion", new { id = suggestion.Id }, new { @class = "btn btn-primary" })
                         </div>
                     </div>
                 </div>

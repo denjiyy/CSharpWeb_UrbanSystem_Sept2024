@@ -21,9 +21,7 @@ namespace UrbanSystem.Data
             
         }
 
-        public virtual DbSet<Province> Provinces { get; set; } = null!;
         public virtual DbSet<Suggestion> Suggestions { get; set; } = null!;
-        public virtual DbSet<Comment> Comments { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

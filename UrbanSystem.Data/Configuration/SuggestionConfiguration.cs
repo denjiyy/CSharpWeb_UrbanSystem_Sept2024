@@ -31,11 +31,6 @@ namespace UrbanSystem.Data.Configuration
             builder.Property(s => s.Priority)
                 .IsRequired();
 
-            builder.HasOne(s => s.Province)
-                .WithMany(m => m.Suggestions)
-                .HasForeignKey(s => s.ProvinceId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasData(SeedSuggestions());
         }
 
@@ -55,7 +50,8 @@ namespace UrbanSystem.Data.Configuration
                     Upvotes = 10,
                     Downvotes = 2,
                     Priority = "High",
-                    ProvinceId = Guid.Parse("b55cfa08-7e8e-4f1b-9f0f-dc7e4fbc6d97") // Sofia
+                    CityName = "Sofia",
+                    StreetName = "Ne znam"
                 },
                 new Suggestion
                 {
@@ -69,7 +65,8 @@ namespace UrbanSystem.Data.Configuration
                     Upvotes = 25,
                     Downvotes = 1,
                     Priority = "Medium",
-                    ProvinceId = Guid.Parse("b55cfa08-7e8e-4f1b-9f0f-dc7e4fbc6d97") // Sofia
+                    CityName = "Sofia",
+                    StreetName = "Ne znam"
                 },
                 new Suggestion
                 {
@@ -83,7 +80,8 @@ namespace UrbanSystem.Data.Configuration
                     Upvotes = 15,
                     Downvotes = 0,
                     Priority = "High",
-                    ProvinceId = Guid.Parse("c86d7f51-e3c4-4f62-b557-b7bffdecbfe9") // Plovdiv
+                    CityName = "Blagoevgrad",
+                    StreetName = "Polk. Drangov 4"
                 }
             };
         }
