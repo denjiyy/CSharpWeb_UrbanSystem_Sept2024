@@ -1,38 +1,39 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using static UrbanSystem.Common.EntityValidationConstants.Suggestion;
+using static UrbanSystem.Common.EntityValidationMessages.Suggestion;
 
 namespace UrbanSystem.Web.ViewModels.Suggestions
 {
     public class SuggestionFormViewModel
     {
-        [Required]
+        [Required(ErrorMessage = TitleRequiredMessage)]
         [MinLength(TitleMinLength)]
         [MaxLength(TitleMaxLength)]
         public string Title { get; set; } = null!;
 
-        [Required]
+        [Required(ErrorMessage = CategoryRequiredMessage)]
         [MinLength(CategoryMinLength)]
         [MaxLength(CategoryMaxLength)]
         public string Category { get; set; } = null!;
 
         public string? AttachmentUrl { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = DescriptionRequiredMessage)]
         [MinLength(DescriptionMinLength)]
         [MaxLength(DescriptionMaxLength)]
         public string Description { get; set; } = null!;
 
-        [Required]
+        [Required(ErrorMessage = CityNameRequiredMessage)]
         [MaxLength(CityNameMaxLength)]
         public string CityName { get; set; } = null!;
 
-        [Required]
+        [Required(ErrorMessage = PriorityRequiredMessage)]
         public string Priority { get; set; } = "Medium";
 
-        [Required]
+        [Required(ErrorMessage = StatusRequiredMessage)]
         public string Status { get; set; } = "Open";
 
-        [Required]
+        [Required(ErrorMessage = StreetNameRequiredMessage)]
         [MinLength(StreetMinLength)]
         [MaxLength(StreetMaxLength)]
         public string StreetName { get; set; } = null!;
