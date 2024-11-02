@@ -10,12 +10,12 @@ using UrbanSystem.Data;
 
 namespace UrbanSystem.Web.Infrastructure.Extensions
 {
-    public static class ExtensionMethods
+    public static class ApplicationBuilderExtensions
     {
         public static IApplicationBuilder ApplyMigrations(this IApplicationBuilder app)
         {
-            using var serviceScope = app.ApplicationServices.CreateScope();
-            
+            using IServiceScope serviceScope = app.ApplicationServices.CreateScope();
+
             ApplicationDbContext context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>()!;
             context.Database.Migrate();
 

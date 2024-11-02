@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
-using static UrbanSystem.Web.Infrastructure.Extensions.ExtensionMethods;
+using static UrbanSystem.Web.Infrastructure.Extensions.ApplicationBuilderExtensions;
 
 namespace UrbanSystem.Web
 {
