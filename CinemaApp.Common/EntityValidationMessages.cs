@@ -18,5 +18,16 @@ namespace UrbanSystem.Common
             public const string StatusRequiredMessage = "Please select the status of the issue!";
             public const string StreetNameRequiredMessage = "Please enter the name of the street, where the issue is located!";
         }
+
+        public static class Location
+        {
+            public const string CityNameRequiredMessage = "City name is required!";
+            public const string CityNameMaxLengthMessage = "City name cannot exceed 30 characters!";
+            public const string StreetNameRequiredMessage = "Street name is required!";
+            public const string StreetNameMaxLengthMessage = "Street name cannot exceed 20 characters!";
+            public const string CityPictureRequiredMessage = "City picture URL is required!";
+            public const string CityPictureDisplayMessage = "City picture URL";
+            public const string UrlErrorMessage = "Please enter a valid URL!";
+        }
     }
 }
