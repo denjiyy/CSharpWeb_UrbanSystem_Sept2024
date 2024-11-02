@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static UrbanSystem.Common.EntityValidationConstants.Location;
 using static UrbanSystem.Common.EntityValidationConstants.Suggestion;
 using static UrbanSystem.Common.EntityValidationMessages.Suggestion;
 
@@ -34,8 +35,7 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
         public string Status { get; set; } = "Open";
 
         [Required(ErrorMessage = StreetNameRequiredMessage)]
-        [MinLength(StreetMinLength)]
-        [MaxLength(StreetMaxLength)]
+        [MaxLength(StreetNameMaxLength)]
         public string StreetName { get; set; } = null!;
     }
 }

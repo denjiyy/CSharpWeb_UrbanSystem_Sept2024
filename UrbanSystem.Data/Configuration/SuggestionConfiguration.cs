@@ -49,9 +49,7 @@ namespace UrbanSystem.Data.Configuration
                     Status = "Pending",
                     Upvotes = 10,
                     Downvotes = 2,
-                    Priority = "High",
-                    CityName = "Sofia",
-                    StreetName = "Ne znam"
+                    Priority = "High"
                 },
                 new Suggestion
                 {
@@ -64,9 +62,7 @@ namespace UrbanSystem.Data.Configuration
                     Status = "Approved",
                     Upvotes = 25,
                     Downvotes = 1,
-                    Priority = "Medium",
-                    CityName = "Sofia",
-                    StreetName = "Ne znam"
+                    Priority = "Medium"
                 },
                 new Suggestion
                 {
@@ -79,9 +75,7 @@ namespace UrbanSystem.Data.Configuration
                     Status = "In Review",
                     Upvotes = 15,
                     Downvotes = 0,
-                    Priority = "High",
-                    CityName = "Blagoevgrad",
-                    StreetName = "Polk. Drangov 4"
+                    Priority = "High"
                 }
             };
         }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
+using static UrbanSystem.Web.Infrastructure.Extensions.ExtensionMethods;
 
 namespace UrbanSystem.Web
 {
@@ -9,7 +10,7 @@ namespace UrbanSystem.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? null!;
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -40,6 +41,7 @@ namespace UrbanSystem.Web
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
+            app.ApplyMigrations();
             app.Run();
         }
     }

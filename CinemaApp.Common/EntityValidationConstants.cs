@@ -17,9 +17,12 @@ namespace UrbanSystem.Common
             public const int CategoryMinLength = 2;
             public const int DescriptionMaxLength = 200;
             public const int DescriptionMinLength = 10;
+        }
+
+        public static class Location
+        {
             public const int CityNameMaxLength = 30;
-            public const int StreetMaxLength = 40;
-            public const int StreetMinLength = 4;
+            public const int StreetNameMaxLength = 40;
         }
     }
 }

@@ -46,10 +46,8 @@ namespace UrbanSystem.Web.Controllers
                 Category = suggestionModel.Category,
                 AttachmentUrl = suggestionModel.AttachmentUrl,
                 Description = suggestionModel.Description,
-                CityName = suggestionModel.CityName,
                 Priority = suggestionModel.Priority,
-                Status = suggestionModel.Status,
-                StreetName = suggestionModel.StreetName
+                Status = suggestionModel.Status
             };
 
             await _context.Suggestions.AddAsync(suggestion);

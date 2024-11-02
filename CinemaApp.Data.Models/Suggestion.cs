@@ -30,8 +30,6 @@ namespace UrbanSystem.Data.Models
 
         public string Priority { get; set; } = "Medium";
 
-        public string StreetName { get; set; } = null!;
-
-        public string CityName { get; set; } = null!;
+        public virtual ICollection<SuggestionLocation> SuggestionsLocations { get; set; } = new HashSet<SuggestionLocation>();
     }
 }
