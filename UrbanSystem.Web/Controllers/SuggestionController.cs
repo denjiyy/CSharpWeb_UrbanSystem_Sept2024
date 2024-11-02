@@ -27,7 +27,7 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Add()
+        public IActionResult Add()
         {
             return View();
         }

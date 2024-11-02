@@ -13,5 +13,7 @@ namespace UrbanSystem.Web.ViewModels.Locations
         public string CityName { get; set; } = null!;
 
         public string StreetName { get; set; } = null!;
+
+        public string CityPicture { get; set; } = null!;
     }
 }

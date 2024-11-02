@@ -14,15 +14,17 @@ namespace UrbanSystem.Web.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> All()
         {
             var locations = await _context.Locations
                 .Select(l => new LocationInfoViewModel()
                 {
                     Id = l.Id.ToString(),
                     CityName = l.CityName,
-                    StreetName = l.StreetName
+                    StreetName = l.StreetName,
+                    CityPicture = l.CityPicture
                 })
+                .OrderBy(l => l.CityName)
                 .ToListAsync();
 
             return View(locations);
