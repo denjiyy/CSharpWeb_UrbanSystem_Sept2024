@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
+using UrbanSystem.Data.Models;
 using static UrbanSystem.Web.Infrastructure.Extensions.ApplicationBuilderExtensions;
 
 namespace UrbanSystem.Web
@@ -16,6 +18,13 @@ namespace UrbanSystem.Web
             {
                 options.UseSqlServer(connectionString);
             });
+
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+                {
+
+                })
+                .AddRoles<IdentityRole<Guid>>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
@@ -35,11 +44,13 @@ namespace UrbanSystem.Web
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.MapRazorPages();
 
             app.ApplyMigrations();
             app.Run();

@@ -12,7 +12,7 @@ using UrbanSystem.Data;
 namespace UrbanSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241102170318_Initial")]
+    [Migration("20241104125711_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -24,6 +24,207 @@ namespace UrbanSystem.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("UrbanSystem.Data.Models.ApplicationUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
 
             modelBuilder.Entity("UrbanSystem.Data.Models.Location", b =>
                 {
@@ -52,189 +253,189 @@ namespace UrbanSystem.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("60a86f03-612b-4c99-91e1-0694f232ffac"),
+                            Id = new Guid("533735bd-a096-4cc8-b68c-3f3a11c136ee"),
                             CityName = "Blagoevgrad",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4_-_panoramio_%2826%29.jpg/1024px-%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4_-_panoramio_%2826%29.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("1c09875e-ba28-49a5-a0c1-0e4f40789a05"),
+                            Id = new Guid("0cbe8dd8-9a99-4a52-93ae-031de0b92dbd"),
                             CityName = "Burgas",
                             CityPicture = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/08/19/fe/30/getlstd-property-photo.jpg?w=1200&h=-1&s=1",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("c047ae71-5df0-4172-b4cd-10d243dc12e3"),
+                            Id = new Guid("af80702f-26ff-4bb1-8e98-678fb30e9838"),
                             CityName = "Dobrich",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dobrich_Sunrise%2C_Winter_2014.JPG/1280px-Dobrich_Sunrise%2C_Winter_2014.JPG",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("6da07bdd-d02f-4479-bb70-9255e2f4b555"),
+                            Id = new Guid("382ddb37-0ab9-47f8-bae1-86fc3c316168"),
                             CityName = "Gabrovo",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/TownHall_Gabrovo.jpg/1280px-TownHall_Gabrovo.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("027da436-7968-47a6-a8dc-cbcc5e6c32e3"),
+                            Id = new Guid("31f0e66e-5e36-4a21-8958-40a9d314932b"),
                             CityName = "Haskovo",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Haskovo2.jpg/1024px-Haskovo2.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("5dc7c48b-1f1a-4296-a626-253ad3802999"),
+                            Id = new Guid("6430e049-1fa1-4709-bebe-7c6bae19264c"),
                             CityName = "Kardzhali",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/5/5d/%D0%98%D1%81%D1%82%D0%BE%D1%80%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D1%8F%D1%82_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%9A%D1%8A%D1%80%D0%B4%D0%B6%D0%B0%D0%BB%D0%B8.JPG",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("9559b732-38c3-46ef-bf2c-6d38eb0c96bd"),
+                            Id = new Guid("fd7cf26c-4f13-425a-a60d-405ac53ede4e"),
                             CityName = "Kyustendil",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Kyustendil_25.jpg/1024px-Kyustendil_25.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("8b3e82c2-3c2e-4a58-ae1b-144d851e780b"),
+                            Id = new Guid("e34865ee-03d7-4ae0-b232-5352349c7872"),
                             CityName = "Lovech",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bulgaria-Lovech-03.jpg/1024px-Bulgaria-Lovech-03.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("82052a5d-8f31-47c2-8c67-8daf0b7fed1e"),
+                            Id = new Guid("3a1faff9-45ac-40cd-9d1f-a8ef5da5df0b"),
                             CityName = "Montana",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/4/47/Montana-downtown.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("cd0e30d0-a278-4860-8391-22c906be01fc"),
+                            Id = new Guid("583db53a-5f51-4e22-ba89-e8f4c9a6703b"),
                             CityName = "Pazardzhik",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Pazardzhik_City_Centre.jpg/1024px-Pazardzhik_City_Centre.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("49f24254-3b2a-4235-8450-4c42c0c38a04"),
+                            Id = new Guid("837b5063-f8ac-4eed-9c71-b68d471bf406"),
                             CityName = "Pernik",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Pernik-culture-palace-left.jpg/1920px-Pernik-culture-palace-left.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("fa132c6d-ce0a-473d-812f-fef3b2bdff5c"),
+                            Id = new Guid("f2c810d9-ec81-4a3f-90c6-3397f5b57e92"),
                             CityName = "Pleven",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/%D0%9F%D0%BB%D0%B5%D0%B2%D0%B5%D0%BD_%D0%BC%D0%B0%D1%80%D1%82_2014_-_panoramio_%281%29.jpg/1280px-%D0%9F%D0%BB%D0%B5%D0%B2%D0%B5%D0%BD_%D0%BC%D0%B0%D1%80%D1%82_2014_-_panoramio_%281%29.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("4ad02b13-1e86-46f8-8557-a80ad7e14c49"),
+                            Id = new Guid("004bbeb9-d272-4605-a933-ea1d149bc50a"),
                             CityName = "Plovdiv",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Bulgaria_Bulgaria-0785_-_Roman_Theatre_of_Philippopolis_%287432772486%29.jpg/1280px-Bulgaria_Bulgaria-0785_-_Roman_Theatre_of_Philippopolis_%287432772486%29.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("ecdfff5c-d6c4-4b34-9402-8e72cffe0150"),
+                            Id = new Guid("f8e3c7c2-5ee9-4349-a1c3-72a36c7b5770"),
                             CityName = "Razgrad",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/%D0%95%D1%82%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%81%D0%BA%D0%B8_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%B3%D1%80%D0%B0%D0%B4_%D0%A0%D0%B0%D0%B7%D0%B3%D1%80%D0%B0%D0%B4.jpg/1280px-%D0%95%D1%82%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%81%D0%BA%D0%B8_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%B3%D1%80%D0%B0%D0%B4_%D0%A0%D0%B0%D0%B7%D0%B3%D1%80%D0%B0%D0%B4.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("cb6e03b8-3962-437f-b1c0-ed5519c63ce3"),
+                            Id = new Guid("951a2d76-0411-4d66-8e35-44e29be3701f"),
                             CityName = "Ruse",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B0_%D0%B2_%D0%A0%D1%83%D1%81%D0%B5.jpg/1280px-%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B0_%D0%B2_%D0%A0%D1%83%D1%81%D0%B5.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("86700afb-f5aa-4674-a08d-0dc6021d9547"),
+                            Id = new Guid("03aca43d-2b21-4d9a-abbc-fbd33e00a0de"),
                             CityName = "Shumen",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/5/51/Shumen_chitalishte_Dobri_Voynikov.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("28778296-6002-4c85-a8fa-5c1e5ab7f171"),
+                            Id = new Guid("e213d2f4-40f3-4c5a-832c-cf73b47b99c5"),
                             CityName = "Silistra",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Silistra-art-gallery-Minkov.jpg/1024px-Silistra-art-gallery-Minkov.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("7ea41fe5-968c-4aaa-a4ff-627af458ef2f"),
+                            Id = new Guid("332c9c44-dc07-4f5d-81a2-4610f64653c8"),
                             CityName = "Sliven",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Municipality_of_Sliven_Photo.jpg/1280px-Municipality_of_Sliven_Photo.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("0a6949c2-b71b-4459-9dbf-b707b36f908e"),
+                            Id = new Guid("9e27b7ba-aaf6-4c48-813a-9583e9d76468"),
                             CityName = "Smolyan",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/%D0%A1%D0%BC%D0%BE%D0%BB%D1%8F%D0%BD_2691396959_f63b323fab_o.jpg/1024px-%D0%A1%D0%BC%D0%BE%D0%BB%D1%8F%D0%BD_2691396959_f63b323fab_o.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("6f24000a-2a39-4e8b-a92d-0e3423bac138"),
+                            Id = new Guid("623cb010-b1b1-4542-8afb-620955fdc787"),
                             CityName = "Sofia",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Catedral_de_Alejandro_Nevski_--_2019_--_Sof%C3%ADa%2C_Bulgaria.jpg/1280px-Catedral_de_Alejandro_Nevski_--_2019_--_Sof%C3%ADa%2C_Bulgaria.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("87a35164-ad2c-47b3-a1d7-311b50bf3e59"),
+                            Id = new Guid("d9d1b4e4-f7f7-4420-8a7e-76f361f7857b"),
                             CityName = "Stara Zagora",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/3/33/Samarsko_Zname_Panorama.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("c9bb15bf-4792-4448-a6ab-2e56c9cda049"),
+                            Id = new Guid("daa7c335-f704-43d9-8082-ba899904451c"),
                             CityName = "Targovishte",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Targovishte-MainSquare.jpg/1280px-Targovishte-MainSquare.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("ec565054-bc04-4ff4-a4d1-eed3828be81e"),
+                            Id = new Guid("76e8abf7-9729-43e9-959b-6ad1bf11e4cd"),
                             CityName = "Varna",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/en/thumb/7/79/Dramatheatrevarna.jpg/1280px-Dramatheatrevarna.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("b54a51da-8ad5-4bbc-b465-4ccf7e7a544a"),
+                            Id = new Guid("656b8e02-dd6f-49f6-bacd-23747498734e"),
                             CityName = "Veliko Tarnovo",
                             CityPicture = "https://traventuria.com/wp-content/uploads/2016/10/veliko-tarnovo-1.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("1284fc8e-e476-406d-b1dd-b1624b47cbdb"),
+                            Id = new Guid("7e3347be-c0aa-4b98-9262-6297a38e7898"),
                             CityName = "Vidin",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/7/70/Theater_House_in_Vidin_%2827460729905%29.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("8e83492a-d696-423c-8db9-61d2702f8781"),
+                            Id = new Guid("3596c33c-f4e8-4418-9e92-a901851b1b89"),
                             CityName = "Vratsa",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Vratsa_12.jpg/1024px-Vratsa_12.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("b6ad5550-6939-4b3d-b54b-406025780fca"),
+                            Id = new Guid("d99a90e4-03db-48c7-936c-c6587139ecdd"),
                             CityName = "Yambol",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/YAMBOL_new_center.jpg/1920px-YAMBOL_new_center.jpg",
                             StreetName = "Main Street"
@@ -289,38 +490,38 @@ namespace UrbanSystem.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("8c436947-3669-4dcf-9cb0-dfcae594737a"),
+                            Id = new Guid("1c05e02a-fccb-421c-9ea3-f0304655d973"),
                             Category = "Transport",
                             Description = "Implement more frequent bus routes during peak hours to reduce congestion.",
                             Downvotes = 2,
                             Priority = "High",
                             Status = "Pending",
                             Title = "Improve Public Transport",
-                            UploadedOn = new DateTime(2024, 11, 2, 17, 3, 18, 103, DateTimeKind.Utc).AddTicks(7197),
+                            UploadedOn = new DateTime(2024, 11, 4, 12, 57, 11, 269, DateTimeKind.Utc).AddTicks(3019),
                             Upvotes = 10
                         },
                         new
                         {
-                            Id = new Guid("ebd159f0-38e3-4a9d-99e7-401efec54589"),
+                            Id = new Guid("0e21d8d8-d70e-4d74-ba70-0f37ce9eb143"),
                             Category = "Environment",
                             Description = "Renovate the central park by adding new benches, lighting, and a playground area.",
                             Downvotes = 1,
                             Priority = "Medium",
                             Status = "Approved",
                             Title = "Park Renovation",
-                            UploadedOn = new DateTime(2024, 11, 2, 17, 3, 18, 103, DateTimeKind.Utc).AddTicks(7202),
+                            UploadedOn = new DateTime(2024, 11, 4, 12, 57, 11, 269, DateTimeKind.Utc).AddTicks(3083),
                             Upvotes = 25
                         },
                         new
                         {
-                            Id = new Guid("1c3a7ec6-9c2b-4a10-8730-8724c325f7e8"),
+                            Id = new Guid("9b989244-fdd0-4033-8518-cd693e9a7b35"),
                             Category = "Waste Management",
                             Description = "Introduce a recycling program and increase the frequency of waste collection.",
                             Downvotes = 0,
                             Priority = "High",
                             Status = "In Review",
                             Title = "Waste Management System",
-                            UploadedOn = new DateTime(2024, 11, 2, 17, 3, 18, 103, DateTimeKind.Utc).AddTicks(7205),
+                            UploadedOn = new DateTime(2024, 11, 4, 12, 57, 11, 269, DateTimeKind.Utc).AddTicks(3090),
                             Upvotes = 15
                         });
                 });
@@ -338,6 +539,57 @@ namespace UrbanSystem.Data.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("SuggestionsLocations");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.HasOne("UrbanSystem.Data.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.HasOne("UrbanSystem.Data.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UrbanSystem.Data.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.HasOne("UrbanSystem.Data.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("UrbanSystem.Data.Models.SuggestionLocation", b =>
