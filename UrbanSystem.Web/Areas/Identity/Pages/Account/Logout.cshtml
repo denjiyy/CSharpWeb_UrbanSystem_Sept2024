@@ -9,9 +9,16 @@
     @{
         if (User.Identity?.IsAuthenticated ?? false)
         {
-            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
+            <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                <!-- Form to be auto-submitted by JavaScript -->
             </form>
+
+            <script>
+                // Auto-submit the logout form when the page loads
+                document.addEventListener("DOMContentLoaded", function() {
+                    document.getElementById("logoutForm").submit();
+                });
+            </script>
         }
         else
         {
