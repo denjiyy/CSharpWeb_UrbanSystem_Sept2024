@@ -1,4 +1,4 @@
-﻿@model IEnumerable<UrbanSystem.Web.ViewModels.Locations.LocationInfoViewModel>
+﻿@model IEnumerable<UrbanSystem.Web.ViewModels.Locations.LocationDetailsViewModel>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -25,7 +25,8 @@
                             <h5 class="card-title">@location.CityName</h5>
                         </div>
                         <div class="card-footer text-center">
-                            <a href="#" class="btn btn-primary">View Suggestions For This City</a>
+                            <p>Location Id: @location.Id</p>
+                            <a asp-action="Details" asp-controller="Location" asp-route-id="@location.Id" class="btn btn-primary">View Suggestions For This City</a>
                         </div>
                     </div>
                 </div>

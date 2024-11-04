@@ -41,5 +41,9 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
         [Required(ErrorMessage = StreetNameRequiredMessage)]
         [MaxLength(StreetNameMaxLength)]
         public string StreetName { get; set; } = null!;
+
+        public Guid CityId { get; set; }
+
+        public IEnumerable<CityOption> Cities { get; set; } = new HashSet<CityOption>();
     }
 }
