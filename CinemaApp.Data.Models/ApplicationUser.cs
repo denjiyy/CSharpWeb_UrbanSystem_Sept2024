@@ -15,8 +15,6 @@ namespace UrbanSystem.Data.Models
             Id = Guid.NewGuid();
         }
 
-        // TODO: Add more props to the user
-
-
+        public virtual ICollection<ApplicationUserSuggestion> UsersSuggestions { get; set; } = new HashSet<ApplicationUserSuggestion>();
     }
 }

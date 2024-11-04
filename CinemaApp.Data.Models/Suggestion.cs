@@ -31,5 +31,7 @@ namespace UrbanSystem.Data.Models
         public string Priority { get; set; } = "Medium";
 
         public virtual ICollection<SuggestionLocation> SuggestionsLocations { get; set; } = new HashSet<SuggestionLocation>();
+
+        public virtual ICollection<ApplicationUserSuggestion> UsersSuggestions { get; set; } = new HashSet<ApplicationUserSuggestion>();
     }
 }
