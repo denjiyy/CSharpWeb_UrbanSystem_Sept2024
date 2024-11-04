@@ -1,5 +1,4 @@
-﻿@using UrbanSystem.Data.Models
-@model Suggestion
+﻿@model UrbanSystem.Web.ViewModels.Suggestions.SuggestionIndexViewModel
 
 <!DOCTYPE html>
 <html lang="en">
@@ -31,7 +30,7 @@
                     </div>
                 }
 
-                <p class="card-text">Uploaded On: @Model.UploadedOn.ToString("yyyy-MM-dd")</p>
+                <p class="card-text">Uploaded On: @Model.UploadedOn</p>
                 <p class="card-text">Status: @Model.Status</p>
                 <p class="card-text">Upvotes: <span id="upvoteCount">@Model.Upvotes</span></p>
                 <p class="card-text">Downvotes: <span id="downvoteCount">@Model.Downvotes</span></p>

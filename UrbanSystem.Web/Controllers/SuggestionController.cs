@@ -68,18 +68,6 @@ namespace UrbanSystem.Web.Controllers
             var location = await _context.Locations
                 .FirstOrDefaultAsync(l => l.Id == suggestionModel.CityId);
 
-            //if (!ModelState.IsValid)
-            //{
-            //    var errorMessages = ModelState.Values
-            //        .SelectMany(v => v.Errors)
-            //        .Select(e => e.ErrorMessage)
-            //        .ToList();
-
-            //    ViewData["Errors"] = errorMessages;
-
-            //    return View(suggestionModel);
-            //}
-
             var suggestion = new Suggestion
             {
                 Title = suggestionModel.Title,
@@ -116,24 +104,42 @@ namespace UrbanSystem.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(string id)
         {
-            Guid suggestionId = Guid.Empty;
-            var isGuidIdValid = IsGuidIdValid(id, ref suggestionId);
-
-            if (!isGuidIdValid)
+            if (!Guid.TryParse(id, out Guid suggestionId))
             {
+                TempData["ErrorMessage"] = "Invalid suggestion ID.";
                 return RedirectToAction(nameof(All));
             }
 
-            var suggestion = await _context
-                .Suggestions
-                .FirstOrDefaultAsync(m => m.Id == suggestionId);
+            var suggestion = await _context.Suggestions
+                .Include(s => s.SuggestionsLocations)
+                    .ThenInclude(sl => sl.Location)
+                .FirstOrDefaultAsync(s => s.Id == suggestionId);
 
             if (suggestion == null)
             {
+                TempData["ErrorMessage"] = "Suggestion not found.";
                 return RedirectToAction(nameof(All));
             }
 
-            return View(suggestion);
+            var viewModel = new SuggestionIndexViewModel
+            {
+                Id = suggestion.Id.ToString(),
+                Title = suggestion.Title,
+                Category = suggestion.Category,
+                AttachmentUrl = suggestion.AttachmentUrl,
+                Description = suggestion.Description,
+                UploadedOn = suggestion.UploadedOn.ToString("dd/MM/yyyy"),
+                Status = suggestion.Status,
+                Upvotes = suggestion.Upvotes,
+                Downvotes = suggestion.Downvotes,
+                Priority = suggestion.Priority,
+                LocationNames = suggestion.SuggestionsLocations
+                    .Select(sl => sl.Location.CityName)
+                    .ToList()
+            };
+
+            return View(viewModel);
         }
+
     }
 }

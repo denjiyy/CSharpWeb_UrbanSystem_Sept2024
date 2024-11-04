@@ -62,35 +62,38 @@ namespace UrbanSystem.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(string? id)
         {
-            Guid locationGuid = Guid.Empty;
-            var isGuidValid = this.IsGuidIdValid(id, ref locationGuid);
-
-            if (!isGuidValid)
+            if (!Guid.TryParse(id, out Guid locationGuid))
             {
+                TempData["ErrorMessage"] = "Invalid location ID.";
                 return RedirectToAction(nameof(All));
             }
 
-            Location location = await _context
-                .Locations
-                .FirstOrDefaultAsync(l => l.Id == locationGuid)!;
+            var location = await _context.Locations
+                .Include(l => l.SuggestionsLocations)
+                    .ThenInclude(sl => sl.Suggestion)
+                .FirstOrDefaultAsync(l => l.Id == locationGuid);
 
             if (location == null)
             {
+                TempData["ErrorMessage"] = "Location not found.";
                 return RedirectToAction(nameof(All));
             }
 
-            LocationDetailsViewModel details = new LocationDetailsViewModel()
+            var details = new LocationDetailsViewModel
             {
+                Id = location.Id.ToString(),
                 CityName = location.CityName,
                 StreetName = location.StreetName,
                 CityPicture = location.CityPicture,
                 Suggestions = location.SuggestionsLocations
-                     .Select(sl => new SuggestionLocationViewModel()
-                     {
-                         Id = sl.Suggestion.Id.ToString(),
-                         Title = sl.Suggestion.Title,
-                         UploadedOn = sl.Suggestion.UploadedOn.ToString()
-                     }).ToList()
+                    .Select(sl => new SuggestionLocationViewModel
+                    {
+                        Id = sl.Suggestion.Id.ToString(),
+                        Title = sl.Suggestion.Title,
+                        UploadedOn = sl.Suggestion.UploadedOn.ToString("dd/MM/yyyy")
+                    })
+                    .OrderBy(s => s.UploadedOn)
+                    .ToList()
             };
 
             return View(details);
