@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Security.Claims;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Web.ViewModels.Locations;
@@ -12,10 +14,12 @@ namespace UrbanSystem.Web.Controllers
     public class SuggestionController : BaseController
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public SuggestionController(ApplicationDbContext context)
+        public SuggestionController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -46,18 +50,7 @@ namespace UrbanSystem.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var cities = await _context.Locations
-                .Select(l => new CityOption
-                {
-                    Value = l.Id.ToString(),
-                    Text = l.CityName
-                })
-                .ToListAsync();
-
-            var viewModel = new SuggestionFormViewModel
-            {
-                Cities = cities
-            };
+            var viewModel = await LoadLocations();
 
             return View(viewModel);
         }
@@ -65,8 +58,31 @@ namespace UrbanSystem.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(SuggestionFormViewModel suggestionModel)
         {
+            string? userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            if (!Guid.TryParse(userId, out Guid parsedUserId))
+            {
+                return NotFound("User ID is not valid");
+            }
+
+            var user = await _context.Users.FindAsync(parsedUserId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
             var location = await _context.Locations
                 .FirstOrDefaultAsync(l => l.Id == suggestionModel.CityId);
+
+            if (location == null)
+            {
+                ModelState.AddModelError("", "The specified location does not exist.");
+                return View(suggestionModel);
+            }
 
             var suggestion = new Suggestion
             {
@@ -78,25 +94,26 @@ namespace UrbanSystem.Web.Controllers
                 Status = suggestionModel.Status
             };
 
-            await _context.Suggestions.AddAsync(suggestion);
+            _context.Suggestions.Add(suggestion);
             await _context.SaveChangesAsync();
 
-            if (location != null)
+            var applicationUserSuggestion = new ApplicationUserSuggestion
             {
-                var suggestionLocation = new SuggestionLocation
-                {
-                    SuggestionId = suggestion.Id,
-                    LocationId = location.Id
-                };
+                ApplicationUserId = user.Id,
+                SuggestionId = suggestion.Id
+            };
 
-                await _context.SuggestionsLocations.AddAsync(suggestionLocation);
-                await _context.SaveChangesAsync();
-            }
-            else
+            _context.UsersSuggestions.Add(applicationUserSuggestion);
+
+            var suggestionLocation = new SuggestionLocation
             {
-                ModelState.AddModelError("", "The specified location does not exist.");
-                return View(suggestionModel);
-            }
+                SuggestionId = suggestion.Id,
+                LocationId = location.Id
+            };
+
+            _context.SuggestionsLocations.Add(suggestionLocation);
+
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(All));
         }
@@ -140,6 +157,5 @@ namespace UrbanSystem.Web.Controllers
 
             return View(viewModel);
         }
-
     }
 }

@@ -21,7 +21,7 @@ namespace UrbanSystem.Data.Configuration
 
             builder.HasOne(us => us.User)
                 .WithMany(u => u.UsersSuggestions)
-                .HasForeignKey(us => us.SuggestionId);
+                .HasForeignKey(us => us.ApplicationUserId);
         }
     }
 }

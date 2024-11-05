@@ -11,7 +11,7 @@ namespace UrbanSystem.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public LocationController(ApplicationDbContext context)
+        public LocationController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
