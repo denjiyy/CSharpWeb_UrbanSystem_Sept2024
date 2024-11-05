@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using UrbanSystem.Web.ViewModels.Suggestions;
 
 namespace UrbanSystem.Web.Controllers
 {
+    [Authorize]
     public class SuggestionController : BaseController
     {
         private readonly ApplicationDbContext _context;
@@ -23,6 +25,7 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> All()
         {
             var suggestions = await _context.Suggestions
@@ -119,6 +122,7 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(string id)
         {
             if (!Guid.TryParse(id, out Guid suggestionId))

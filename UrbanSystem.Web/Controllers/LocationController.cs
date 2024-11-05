@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
@@ -7,6 +8,7 @@ using UrbanSystem.Web.ViewModels.SuggestionsLocations;
 
 namespace UrbanSystem.Web.Controllers
 {
+    [Authorize]
     public class LocationController : BaseController
     {
         private readonly ApplicationDbContext _context;
@@ -17,6 +19,7 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> All()
         {
             var locations = await _context.Locations
@@ -60,6 +63,7 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(string? id)
         {
             if (!Guid.TryParse(id, out Guid locationGuid))
