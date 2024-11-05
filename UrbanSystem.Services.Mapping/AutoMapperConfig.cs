@@ -1,4 +1,4 @@
-﻿namespace CinemaApp.Services.Mapping
+﻿namespace UrbanSystem.Services.Mapping
 {
     using System.Reflection;
 

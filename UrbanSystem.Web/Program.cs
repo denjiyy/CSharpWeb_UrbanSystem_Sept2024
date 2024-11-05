@@ -1,9 +1,11 @@
+using UrbanSystem.Services.Mapping;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
 using static UrbanSystem.Web.Infrastructure.Extensions.ApplicationBuilderExtensions;
+using UrbanSystem.Web.ViewModels;
+using System.Reflection;
 
 namespace UrbanSystem.Web
 {
@@ -39,6 +41,8 @@ namespace UrbanSystem.Web
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
+
+            AutoMapperConfig.RegisterMappings(typeof(ErrorViewModel).GetTypeInfo().Assembly);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

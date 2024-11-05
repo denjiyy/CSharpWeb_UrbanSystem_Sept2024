@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CinemaApp.Common\UrbanSystem.Common.csproj" />
     <ProjectReference Include="..\UrbanSystem.Data\UrbanSystem.Data.csproj" />
+    <ProjectReference Include="..\UrbanSystem.Services.Mapping\UrbanSystem.Services.Mapping.csproj" />
     <ProjectReference Include="..\UrbanSystem.Web.Infrastructure\UrbanSystem.Web.Infrastructure.csproj" />
     <ProjectReference Include="..\UrbanSystem.Web.ViewModels\UrbanSystem.Web.ViewModels.csproj" />
   </ItemGroup>
