@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
+using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.SuggestionsLocations;
 
@@ -12,25 +13,19 @@ namespace UrbanSystem.Web.Controllers
     public class LocationController : BaseController
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILocationService _locationService;
 
-        public LocationController(ApplicationDbContext context) : base(context)
+        public LocationController(ApplicationDbContext context, ILocationService locationService) : base(context)
         {
             _context = context;
+            _locationService = locationService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> All()
         {
-            var locations = await _context.Locations
-                .Select(l => new LocationDetailsViewModel()
-                {
-                    Id = l.Id.ToString(),
-                    CityName = l.CityName,
-                    CityPicture = l.CityPicture
-                })
-                .OrderBy(l => l.CityName)
-                .ToListAsync();
+            var locations = await _locationService.GetAllOrderedByNameAsync();
 
             return View(locations);
         }

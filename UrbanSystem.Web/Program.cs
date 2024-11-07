@@ -9,6 +9,8 @@ using System.Reflection;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Data.Repository;
 using UrbanSystem.Web.Infrastructure.Extensions;
+using UrbanSystem.Services.Data.Contracts;
+using UrbanSystem.Services.Data;
 
 namespace UrbanSystem.Web
 {
@@ -39,11 +41,8 @@ namespace UrbanSystem.Web
                 options.LoginPath = "/Identity/Account/Login";
             });
 
-            /*builder.Services.AddScoped<IRepository<Suggestion, Guid>, BaseRepository<Suggestion, Guid>>();
-            builder.Services.AddScoped<IRepository<Location, Guid>, BaseRepository<Location, Guid>>();
-            builder.Services.AddScoped<IRepository<SuggestionLocation, object>, BaseRepository<SuggestionLocation, object>>();
-            builder.Services.AddScoped<IRepository<ApplicationUserSuggestion, object>, BaseRepository<ApplicationUserSuggestion, object>>();*/
             builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly);
+            builder.Services.AddScoped<ILocationService, LocationService>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();

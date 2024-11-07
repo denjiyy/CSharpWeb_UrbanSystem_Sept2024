@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UrbanSystem.Data\UrbanSystem.Data.csproj" />
+    <ProjectReference Include="..\UrbanSystem.Web.ViewModels\UrbanSystem.Web.ViewModels.csproj" />
+  </ItemGroup>
+
 </Project>

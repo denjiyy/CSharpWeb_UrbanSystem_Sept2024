@@ -70,7 +70,7 @@ namespace UrbanSystem.Data.Repository
             return await _dbSet.ToListAsync();
         }
 
-        public IEnumerable<TType> GetAllAttached()
+        public IQueryable<TType> GetAllAttached()
         {
             return _dbSet.AsQueryable();
         }

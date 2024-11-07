@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
+using UrbanSystem.Services.Mapping;
 using UrbanSystem.Web.ViewModels.Suggestions;
 using UrbanSystem.Web.ViewModels.SuggestionsLocations;
 
 namespace UrbanSystem.Web.ViewModels.Locations
 {
-    public class LocationDetailsViewModel
+    public class LocationDetailsViewModel : IMapFrom<Location>
     {
         public string Id { get; set; } = null!;
 
