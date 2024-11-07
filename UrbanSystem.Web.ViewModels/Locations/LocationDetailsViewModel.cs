@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ using UrbanSystem.Web.ViewModels.SuggestionsLocations;
 
 namespace UrbanSystem.Web.ViewModels.Locations
 {
-    public class LocationDetailsViewModel : IMapFrom<Location>
+    public class LocationDetailsViewModel : IMapFrom<Location>, IHaveCustomMappings
     {
         public string Id { get; set; } = null!;
 
@@ -21,5 +22,11 @@ namespace UrbanSystem.Web.ViewModels.Locations
         public string CityPicture { get; set; } = null!;
 
         public IEnumerable<SuggestionLocationViewModel> Suggestions { get; set; } = new HashSet<SuggestionLocationViewModel>();
+
+        public void CreateMappings(IProfileExpression configuration)
+        {
+            configuration.CreateMap<Location, LocationDetailsViewModel>()
+                .ForMember(d => d.Suggestions, x => x.MapFrom(s => s.SuggestionsLocations.Select(sl => sl.Suggestion)));
+        }
     }
 }

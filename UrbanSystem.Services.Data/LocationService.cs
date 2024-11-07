@@ -9,6 +9,7 @@ using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Services.Mapping;
 using UrbanSystem.Web.ViewModels.Locations;
+using UrbanSystem.Web.ViewModels.SuggestionsLocations;
 
 namespace UrbanSystem.Services.Data
 {
@@ -40,9 +41,22 @@ namespace UrbanSystem.Services.Data
             return locations;
         }
 
-        public Task<LocationDetailsViewModel> GetLocationDetailsByIdAsync(Guid id)
+        public async Task<LocationDetailsViewModel> GetLocationDetailsByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var location = await _locationRepository
+                .GetAllAttached()
+                .Include(l => l.SuggestionsLocations)
+                .ThenInclude(sl => sl.Suggestion)
+                .FirstOrDefaultAsync(l => l.Id == id);
+
+            LocationDetailsViewModel? viewModel = null;
+            if (location != null)
+            {
+                viewModel = new LocationDetailsViewModel();
+                AutoMapperConfig.MapperInstance.Map(location, viewModel);
+            }
+
+            return viewModel;
         }
     }
 }

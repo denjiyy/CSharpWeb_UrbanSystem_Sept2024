@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UrbanSystem.Services.Mapping
 {
-    public interface IMapTo<T>
+    public interface IHaveCustomMappings<T>
     {
     }
 }
