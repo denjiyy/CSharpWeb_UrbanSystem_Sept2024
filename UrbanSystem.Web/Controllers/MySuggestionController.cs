@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
+using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Web.ViewModels.Suggestions;
 
 namespace UrbanSystem.Web.Controllers
@@ -14,11 +15,13 @@ namespace UrbanSystem.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IRepository<Suggestion, Guid> _repository;
 
-        public MySuggestionController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)
+        public MySuggestionController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IRepository<Suggestion, Guid> repository) : base(context)
         {
             _userManager = userManager;
             _context = context;
+            _repository = repository;
         }
 
         [HttpGet]
