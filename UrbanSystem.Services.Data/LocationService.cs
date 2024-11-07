@@ -21,9 +21,12 @@ namespace UrbanSystem.Services.Data
             _locationRepository = locationRepository;
         }
 
-        public Task AddLocationAsync(LocationFormViewModel model)
+        public async Task AddLocationAsync(LocationFormViewModel model)
         {
-            throw new NotImplementedException();
+            Location location = new Location();
+            AutoMapperConfig.MapperInstance.Map(model, location);
+
+            await _locationRepository.AddAsync(location);
         }
 
         public async Task<IEnumerable<LocationDetailsViewModel>> GetAllOrderedByNameAsync()

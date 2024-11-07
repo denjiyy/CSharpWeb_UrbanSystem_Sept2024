@@ -44,15 +44,7 @@ namespace UrbanSystem.Web.Controllers
                 return View(model);
             }
 
-            Location location = new Location()
-            {
-                CityName = model.CityName,
-                StreetName = model.StreetName,
-                CityPicture = model.CityPicture
-            };
-
-            await _context.Locations.AddAsync(location);
-            await _context.SaveChangesAsync();
+            await _locationService.AddLocationAsync(model);
 
             return RedirectToAction(nameof(All));
         }
