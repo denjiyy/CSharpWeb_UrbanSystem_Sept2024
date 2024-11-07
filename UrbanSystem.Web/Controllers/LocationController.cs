@@ -51,9 +51,21 @@ namespace UrbanSystem.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Details(Guid id)
+        public async Task<IActionResult> Details(string? id)
         {
-            var details = await _locationService.GetLocationDetailsByIdAsync(id);
+            Guid locationGuid = Guid.Empty;
+            bool isIdValid = IsGuidIdValid(id, ref locationGuid);
+            if (!isIdValid)
+            {
+                return RedirectToAction(nameof(All));
+            }
+
+            var details = await _locationService.GetLocationDetailsByIdAsync(locationGuid);
+
+            if (details == null)
+            {
+                return RedirectToAction(nameof(All));
+            }
 
             return View(details);
         }
