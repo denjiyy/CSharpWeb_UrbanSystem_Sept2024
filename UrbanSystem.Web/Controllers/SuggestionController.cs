@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
+using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Suggestions;
 
@@ -17,35 +18,21 @@ namespace UrbanSystem.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ISuggestionService _suggestionService;
 
-        public SuggestionController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)
+        public SuggestionController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ISuggestionService suggestionService) : base(context)
         {
             _context = context;
             _userManager = userManager;
+            _suggestionService = suggestionService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> All()
         {
-            var suggestions = await _context.Suggestions
-                .Select(s => new SuggestionIndexViewModel
-                {
-                    Id = s.Id.ToString(),
-                    Title = s.Title,
-                    Category = s.Category,
-                    AttachmentUrl = s.AttachmentUrl,
-                    Description = s.Description,
-                    UploadedOn = s.UploadedOn.ToString("dd/MM/yyyy"),
-                    Status = s.Status,
-                    Upvotes = s.Upvotes,
-                    Downvotes = s.Downvotes,
-                    Priority = s.Priority,
-                    LocationNames = s.SuggestionsLocations
-                        .Select(sl => sl.Location.CityName)
-                        .ToList()
-                })
-                .ToListAsync();
+            var suggestions = await _suggestionService
+                .GetAllSuggestionsAsync();
 
             return View(suggestions);
         }

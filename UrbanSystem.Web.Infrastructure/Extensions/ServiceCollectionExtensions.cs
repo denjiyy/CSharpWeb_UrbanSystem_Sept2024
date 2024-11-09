@@ -16,9 +16,9 @@ namespace UrbanSystem.Web.Infrastructure.Extensions
         public static void RegisterRepositories(this IServiceCollection services, Assembly modelsAssembly)
         {
             List<Type> typesToExclude = new List<Type>()
-    {
-        typeof(ApplicationUser)
-    };
+            {
+                typeof(ApplicationUser)
+            };
 
             List<Type> modelTypes = modelsAssembly.GetTypes()
                 .Where(t => !t.IsAbstract && !t.IsInterface &&
@@ -51,6 +51,33 @@ namespace UrbanSystem.Web.Infrastructure.Extensions
                 repositoryInstanceType = repositoryInstanceType.MakeGenericType(constructArgs);
 
                 services.AddScoped(repositoryInterface, repositoryInstanceType);
+            }
+        }
+
+        public static void RegisterUserDefinedServices(this IServiceCollection serviceCollection, Assembly serviceAssembly)
+        {
+            if (serviceAssembly == null)
+            {
+                throw new ArgumentNullException(nameof(serviceAssembly));
+            }
+
+            var serviceTypes = serviceAssembly.GetTypes()
+                .Where(t => !t.IsInterface && !t.IsAbstract && t.Name.EndsWith("Service", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            foreach (var serviceType in serviceTypes)
+            {
+                var serviceInterface = serviceType.GetInterfaces()
+                    .FirstOrDefault(i => i.Name.Equals("I" + serviceType.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (serviceInterface != null)
+                {
+                    serviceCollection.AddScoped(serviceInterface, serviceType);
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: No matching interface found for {serviceType.Name}");
+                }
             }
         }
     }

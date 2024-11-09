@@ -42,6 +42,7 @@ namespace UrbanSystem.Web
             });
 
             builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly);
+            builder.Services.RegisterUserDefinedServices(typeof(ISuggestionService).Assembly);
             builder.Services.AddScoped<ILocationService, LocationService>();
 
             // Add services to the container.

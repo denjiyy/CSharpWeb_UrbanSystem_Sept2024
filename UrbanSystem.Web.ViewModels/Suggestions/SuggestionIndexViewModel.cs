@@ -1,9 +1,12 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
+using UrbanSystem.Data.Models;
+using UrbanSystem.Services.Mapping;
 
 namespace UrbanSystem.Web.ViewModels.Suggestions
 {
-    public class SuggestionIndexViewModel
+    public class SuggestionIndexViewModel : IMapFrom<Suggestion>, IHaveCustomMappings
     {
         public string Id { get; set; } = null!;
 
@@ -26,5 +29,14 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
         public string Priority { get; set; } = "Medium";
 
         public IEnumerable<string> LocationNames { get; set; } = new HashSet<string>();
+
+        public void CreateMappings(IProfileExpression configuration)
+        {
+            configuration.CreateMap<Suggestion, SuggestionIndexViewModel>()
+                .ForMember(d => d.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+                .ForMember(d => d.UploadedOn, opt => opt.MapFrom(src => src.UploadedOn.ToString("dd/MM/yyyy")))
+                .ForMember(d => d.LocationNames, opt => opt.MapFrom(src => src.SuggestionsLocations.Select(sl => sl.Location.CityName)))
+                .ForMember(d => d.Priority, opt => opt.MapFrom(src => src.Priority ?? "Medium"));
+        }
     }
 }

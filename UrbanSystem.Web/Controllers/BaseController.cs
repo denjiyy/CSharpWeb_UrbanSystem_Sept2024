@@ -9,9 +9,9 @@ namespace UrbanSystem.Web.Controllers
 {
 	public class BaseController : Controller
 	{
-		private readonly ApplicationDbContext _context;
+		private readonly ApplicationDbContext? _context;
 
-        public BaseController(ApplicationDbContext context)
+        public BaseController(ApplicationDbContext? context = null)
         {
             _context = context;
         }

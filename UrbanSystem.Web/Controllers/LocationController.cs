@@ -12,12 +12,10 @@ namespace UrbanSystem.Web.Controllers
     [Authorize]
     public class LocationController : BaseController
     {
-        private readonly ApplicationDbContext _context;
         private readonly ILocationService _locationService;
 
-        public LocationController(ApplicationDbContext context, ILocationService locationService) : base(context)
+        public LocationController(ILocationService locationService) : base()
         {
-            _context = context;
             _locationService = locationService;
         }
 
