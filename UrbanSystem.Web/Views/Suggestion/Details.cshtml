@@ -8,7 +8,6 @@
     <title>@Model.Title - Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Base Styling */
         body {
             background-color: #f0f2f5;
             color: #34495e;
@@ -32,7 +31,6 @@
             padding: 2.5rem 3rem;
         }
 
-        /* Typography */
         .card-title {
             font-size: 2.2rem;
             font-weight: 700;
@@ -58,7 +56,6 @@
             margin-bottom: 0.8rem;
         }
 
-        /* Image Styling */
         .attachment-image {
             max-width: 100%;
             height: auto;
@@ -67,7 +64,6 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Button Styling */
         .btn-custom {
             padding: 0.6rem 1.5rem;
             border-radius: 30px;
@@ -108,7 +104,6 @@
                 background-color: #626e74;
             }
 
-        /* Subtle Animations */
         .btn-custom:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -116,6 +111,41 @@
 
         .card-body .card-text strong {
             color: #2c3e50;
+        }
+
+        .comment-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            background-color: #fafafa;
+        }
+
+        .comment-content {
+            font-size: 1rem;
+            color: #34495e;
+        }
+
+        .comment-author {
+            font-weight: 600;
+        }
+
+        .comment-time {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-top: 1rem;
+            resize: vertical;
+        }
+
+        .comment-form button {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -143,7 +173,6 @@
                     <p class="card-text"><strong>Priority:</strong> @Model.Priority</p>
                 </div>
 
-                <!-- Voting Buttons -->
                 <div class="mt-4">
                     <button class="btn btn-success btn-custom mr-2" onclick="vote('up')">👍 Upvote</button>
                     <button class="btn btn-danger btn-custom" onclick="vote('down')">👎 Downvote</button>
@@ -152,11 +181,29 @@
                 <a href="@Url.Action("All", "Suggestion")" class="btn btn-secondary btn-custom mt-4">⬅️ Back to List</a>
             </div>
         </div>
+
+        <div class="mt-5">
+            <h4>Comments</h4>
+
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="comment-card">
+                    <p class="comment-author">@comment.Username</p>
+                    <p class="comment-time">@comment.AddedOn.ToString("g")</p>
+                    <p class="comment-content">@comment.Content</p>
+                </div>
+            }
+
+            <div class="comment-form">
+                <textarea id="commentContent" rows="4" placeholder="Add a comment..." class="form-control"></textarea>
+                <button class="btn btn-success btn-custom mt-3" onclick="submitComment()">Submit Comment</button>
+            </div>
+        </div>
     </div>
 
     <script>
         async function vote(type) {
-            const suggestionId = '@Model.Id'; // Pass the suggestion ID
+            const suggestionId = '@Model.Id';
             try {
                 const response = await fetch(`/Suggestion/Vote`, {
                     method: 'POST',
@@ -172,6 +219,35 @@
                     document.getElementById('downvoteCount').innerText = result.downvotes;
                 } else {
                     alert('Error processing vote. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Network error. Please try again.');
+            }
+        }
+
+        async function submitComment() {
+            const commentContent = document.getElementById('commentContent').value;
+            if (!commentContent) {
+                alert("Please write a comment before submitting.");
+                return;
+            }
+
+            const suggestionId = '@Model.Id';
+            try {
+                const response = await fetch(`/Comment/Add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ suggestionId: suggestionId, content: commentContent }),
+                });
+
+                if (response.ok) {
+                    const newComment = await response.json();
+                    location.reload();
+                } else {
+                    alert('Error posting comment. Please try again.');
                 }
             } catch (error) {
                 console.error('Error:', error);
