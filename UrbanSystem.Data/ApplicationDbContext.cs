@@ -27,6 +27,7 @@ namespace UrbanSystem.Data
         public virtual DbSet<SuggestionLocation> SuggestionsLocations { get; set; } = null!;
         public virtual DbSet<Location> Locations { get; set; } = null!;
         public virtual DbSet<ApplicationUserSuggestion> UsersSuggestions { get; set; } = null!;
+        public virtual DbSet<Comment> Comments { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

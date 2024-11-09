@@ -1,13 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore;
-using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
-using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
-using UrbanSystem.Web.ViewModels.Suggestions;
 
 namespace UrbanSystem.Web.Controllers
 {
@@ -27,6 +22,11 @@ namespace UrbanSystem.Web.Controllers
         public async Task<IActionResult> All()
         {
             string? userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToPage("/Identity/Account/Login");
+            }
+
             var mySuggestions = await _mySuggestionService.GetAllSuggestionsForLoggedInUser(userId);
 
             return View(mySuggestions);
