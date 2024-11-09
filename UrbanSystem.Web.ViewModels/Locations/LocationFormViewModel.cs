@@ -10,7 +10,7 @@ using static UrbanSystem.Common.EntityValidationMessages.Location;
 
 namespace UrbanSystem.Web.ViewModels.Locations
 {
-    public class LocationFormViewModel : IHaveCustomMappings<Location>
+    public class LocationFormViewModel : IMapTo<Location>
     {
         [Required(ErrorMessage = CityNameRequiredMessage)]
         [StringLength(100, ErrorMessage = CityNameMaxLengthMessage)]

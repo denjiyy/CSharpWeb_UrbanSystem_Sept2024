@@ -30,11 +30,11 @@ namespace UrbanSystem.Web
             builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options => {
                     ConfigureIdentity(options, builder);
             })
-             .AddEntityFrameworkStores<ApplicationDbContext>()
-             .AddRoles<IdentityRole<Guid>>()
-             .AddSignInManager<SignInManager<ApplicationUser>>()
-             .AddUserManager<UserManager<ApplicationUser>>()
-             .AddDefaultTokenProviders();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddRoles<IdentityRole<Guid>>()
+            .AddSignInManager<SignInManager<ApplicationUser>>()
+            .AddUserManager<UserManager<ApplicationUser>>()
+            .AddDefaultTokenProviders();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {

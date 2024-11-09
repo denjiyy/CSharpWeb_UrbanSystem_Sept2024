@@ -48,62 +48,14 @@ namespace UrbanSystem.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(SuggestionFormViewModel suggestionModel)
         {
-            string? userId = _userManager.GetUserId(User);
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
+            var userId = _userManager.GetUserId(User);
+            var isSuccessful = await _suggestionService.AddSuggestionAsync(suggestionModel, userId);
 
-            if (!Guid.TryParse(userId, out Guid parsedUserId))
+            if (!isSuccessful)
             {
-                return NotFound("User ID is not valid");
-            }
-
-            var user = await _context.Users.FindAsync(parsedUserId);
-            if (user == null)
-            {
-                return NotFound("User not found");
-            }
-
-            var location = await _context.Locations
-                .FirstOrDefaultAsync(l => l.Id == suggestionModel.CityId);
-
-            if (location == null)
-            {
-                ModelState.AddModelError("", "The specified location does not exist.");
+                await LoadLocations();
                 return View(suggestionModel);
             }
-
-            var suggestion = new Suggestion
-            {
-                Title = suggestionModel.Title,
-                Category = suggestionModel.Category,
-                AttachmentUrl = suggestionModel.AttachmentUrl,
-                Description = suggestionModel.Description,
-                Priority = suggestionModel.Priority,
-                Status = suggestionModel.Status
-            };
-
-            _context.Suggestions.Add(suggestion);
-            await _context.SaveChangesAsync();
-
-            var applicationUserSuggestion = new ApplicationUserSuggestion
-            {
-                ApplicationUserId = user.Id,
-                SuggestionId = suggestion.Id
-            };
-
-            _context.UsersSuggestions.Add(applicationUserSuggestion);
-
-            var suggestionLocation = new SuggestionLocation
-            {
-                SuggestionId = suggestion.Id,
-                LocationId = location.Id
-            };
-
-            _context.SuggestionsLocations.Add(suggestionLocation);
-
-            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(All));
         }

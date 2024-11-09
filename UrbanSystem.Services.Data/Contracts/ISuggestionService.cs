@@ -11,6 +11,8 @@ namespace UrbanSystem.Services.Data.Contracts
     {
         Task<IEnumerable<SuggestionIndexViewModel>> GetAllSuggestionsAsync();
 
+        Task<bool> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId);
+
 
     }
 }
