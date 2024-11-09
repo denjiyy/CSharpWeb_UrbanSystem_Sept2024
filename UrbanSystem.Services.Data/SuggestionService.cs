@@ -86,5 +86,20 @@ namespace UrbanSystem.Services.Data
                 .To<SuggestionIndexViewModel>()
                 .ToListAsync();
         }
+
+        public async Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id)
+        {
+            var suggestion = await _suggestionRepository
+                .GetByIdAsync(id);
+
+            SuggestionIndexViewModel model = new SuggestionIndexViewModel();
+
+            if (suggestion != null)
+            {
+                AutoMapperConfig.MapperInstance.Map(suggestion, model);
+            }
+
+            return model;
+        }
     }
 }

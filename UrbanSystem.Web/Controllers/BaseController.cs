@@ -23,12 +23,7 @@ namespace UrbanSystem.Web.Controllers
 				return false;
 			}
 
-			bool isGuidValid = Guid.TryParse(id, out locationGuid);
-			if (isGuidValid)
-			{
-				return false;
-			}
-            return true;
+			return Guid.TryParse(id.ToLower(), out locationGuid);
         }
 
 		protected async Task<SuggestionFormViewModel> LoadLocations()

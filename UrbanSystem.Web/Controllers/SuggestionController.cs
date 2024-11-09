@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
 using System.Diagnostics;
 using System.Security.Claims;
 using UrbanSystem.Data;
@@ -70,35 +71,14 @@ namespace UrbanSystem.Web.Controllers
                 return RedirectToAction(nameof(All));
             }
 
-            var suggestion = await _context.Suggestions
-                .Include(s => s.SuggestionsLocations)
-                    .ThenInclude(sl => sl.Location)
-                .FirstOrDefaultAsync(s => s.Id == suggestionId);
+            var suggestion = await _suggestionService.GetSuggestionDetailsAsync(suggestionId);
 
             if (suggestion == null)
             {
-                TempData["ErrorMessage"] = "Suggestion not found.";
                 return RedirectToAction(nameof(All));
             }
 
-            var viewModel = new SuggestionIndexViewModel
-            {
-                Id = suggestion.Id.ToString(),
-                Title = suggestion.Title,
-                Category = suggestion.Category,
-                AttachmentUrl = suggestion.AttachmentUrl,
-                Description = suggestion.Description,
-                UploadedOn = suggestion.UploadedOn.ToString("dd/MM/yyyy"),
-                Status = suggestion.Status,
-                Upvotes = suggestion.Upvotes,
-                Downvotes = suggestion.Downvotes,
-                Priority = suggestion.Priority,
-                LocationNames = suggestion.SuggestionsLocations
-                    .Select(sl => sl.Location.CityName)
-                    .ToList()
-            };
-
-            return View(viewModel);
+            return View(suggestion);
         }
     }
 }

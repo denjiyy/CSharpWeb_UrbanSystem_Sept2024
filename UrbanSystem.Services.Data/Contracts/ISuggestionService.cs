@@ -13,6 +13,6 @@ namespace UrbanSystem.Services.Data.Contracts
 
         Task<bool> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId);
 
-
+        Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id);
     }
 }

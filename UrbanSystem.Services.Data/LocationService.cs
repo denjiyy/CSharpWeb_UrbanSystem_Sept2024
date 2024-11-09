@@ -41,7 +41,7 @@ namespace UrbanSystem.Services.Data
             return locations;
         }
 
-        public async Task<LocationDetailsViewModel> GetLocationDetailsByIdAsync(Guid id)
+        public async Task<LocationDetailsViewModel?> GetLocationDetailsByIdAsync(Guid id)
         {
             var location = await _locationRepository
                 .GetAllAttached()
@@ -49,13 +49,13 @@ namespace UrbanSystem.Services.Data
                 .ThenInclude(sl => sl.Suggestion)
                 .FirstOrDefaultAsync(l => l.Id == id);
 
-            LocationDetailsViewModel? viewModel = null;
-            if (location != null)
+            if (location == null)
             {
-                viewModel = new LocationDetailsViewModel();
-                AutoMapperConfig.MapperInstance.Map(location, viewModel);
+                return null;
             }
 
+            var viewModel = new LocationDetailsViewModel();
+            AutoMapperConfig.MapperInstance.Map(location, viewModel);
             return viewModel;
         }
     }

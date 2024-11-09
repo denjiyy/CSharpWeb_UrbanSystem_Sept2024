@@ -52,7 +52,7 @@ namespace UrbanSystem.Web.Controllers
         public async Task<IActionResult> Details(string? id)
         {
             Guid locationGuid = Guid.Empty;
-            bool isIdValid = IsGuidIdValid(id, ref locationGuid);
+            bool isIdValid = IsGuidIdValid(id.ToLower(), ref locationGuid);
             if (!isIdValid)
             {
                 return RedirectToAction(nameof(All));
