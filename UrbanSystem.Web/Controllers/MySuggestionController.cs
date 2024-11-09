@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
+using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Suggestions;
 
 namespace UrbanSystem.Web.Controllers
@@ -13,49 +14,20 @@ namespace UrbanSystem.Web.Controllers
     [Authorize]
     public class MySuggestionController : BaseController
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IRepository<Suggestion, Guid> _repository;
+        private readonly IMySuggestionService _mySuggestionService;
 
-        public MySuggestionController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IRepository<Suggestion, Guid> repository) : base(context)
+        public MySuggestionController(UserManager<ApplicationUser> userManager, IMySuggestionService mySuggestionService) : base()
         {
             _userManager = userManager;
-            _context = context;
-            _repository = repository;
+            _mySuggestionService = mySuggestionService;
         }
 
         [HttpGet]
         public async Task<IActionResult> All()
         {
             string? userId = _userManager.GetUserId(User);
-
-            var suggestions = await _context
-                .UsersSuggestions
-                .Include(us => us.Suggestion)
-                .Where(us => us.ApplicationUserId.ToString().ToLower() == userId!.ToLower())
-                .Select(us => new
-                {
-                    us.SuggestionId,
-                    us.Suggestion.Title,
-                    us.Suggestion.Category,
-                    us.Suggestion.UploadedOn,
-                    us.Suggestion.AttachmentUrl,
-                    us.Suggestion.Upvotes,
-                    us.Suggestion.Downvotes
-                })
-                .OrderBy(us => us.UploadedOn)
-                .ToListAsync();
-
-            var mySuggestions = suggestions.Select(us => new MySuggestionsViewModel()
-            {
-                Id = us.SuggestionId.ToString(),
-                Title = us.Title,
-                Category = us.Category,
-                UploadedOn = us.UploadedOn.ToString("dd/MM/yyyy"),
-                AttachmentUrl = us.AttachmentUrl,
-                Upvotes = us.Upvotes.ToString(),
-                Downvotes = us.Downvotes.ToString()
-            });
+            var mySuggestions = await _mySuggestionService.GetAllSuggestionsForLoggedInUser(userId);
 
             return View(mySuggestions);
         }
