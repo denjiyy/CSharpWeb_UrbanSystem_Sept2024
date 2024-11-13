@@ -1,10 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 
 namespace UrbanSystem.Data.Configuration
@@ -25,10 +20,10 @@ namespace UrbanSystem.Data.Configuration
             builder.HasOne(c => c.User)
                 .WithMany()
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(c => c.Suggestion)
-                .WithMany()
+                .WithMany(s => s.Comments)
                 .HasForeignKey(c => c.SuggestionId)
                 .OnDelete(DeleteBehavior.Cascade);
 

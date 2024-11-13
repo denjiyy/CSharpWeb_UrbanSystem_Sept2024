@@ -1,259 +1,101 @@
 ﻿@model UrbanSystem.Web.ViewModels.Suggestions.SuggestionIndexViewModel
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@Model.Title - Details</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f0f2f5;
-            color: #34495e;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+@{
+    ViewData["Title"] = $"{Model.Title} - Details";
+}
 
-        .container {
-            max-width: 750px;
-            margin-top: 50px;
-        }
+<div class="container">
+    <!-- Suggestion Details -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">@Model.Title</h2>
+            <h5 class="card-subtitle mb-2 text-muted">Category: @Model.Category</h5>
+            <p class="card-text">@Model.Description</p>
 
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
-            overflow: hidden;
-        }
-
-        .card-body {
-            padding: 2.5rem 3rem;
-        }
-
-        .card-title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-        }
-
-        .card-subtitle {
-            font-size: 1.2rem;
-            color: #7f8c8d;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-label {
-            font-weight: 600;
-            color: #596275;
-        }
-
-        .card-text {
-            font-size: 1rem;
-            color: #636e72;
-            line-height: 1.5;
-            margin-bottom: 0.8rem;
-        }
-
-        .attachment-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-top: 1rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-custom {
-            padding: 0.6rem 1.5rem;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-success {
-            background-color: #1abc9c;
-            border: none;
-            color: #fff;
-        }
-
-            .btn-success:hover {
-                background-color: #16a085;
-            }
-
-        .btn-danger {
-            background-color: #e74c3c;
-            border: none;
-            color: #fff;
-        }
-
-            .btn-danger:hover {
-                background-color: #c0392b;
-            }
-
-        .btn-secondary {
-            background-color: #7f8c8d;
-            border: none;
-            color: #fff;
-            font-size: 0.95rem;
-            transition: background-color 0.2s ease;
-        }
-
-            .btn-secondary:hover {
-                background-color: #626e74;
-            }
-
-        .btn-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-body .card-text strong {
-            color: #2c3e50;
-        }
-
-        .comment-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-            background-color: #fafafa;
-        }
-
-        .comment-content {
-            font-size: 1rem;
-            color: #34495e;
-        }
-
-        .comment-author {
-            font-weight: 600;
-        }
-
-        .comment-time {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-
-        .comment-form textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            margin-top: 1rem;
-            resize: vertical;
-        }
-
-        .comment-form button {
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title">@Model.Title</h2>
-                <h5 class="card-subtitle">Category: @Model.Category</h5>
-                <p class="card-text">@Model.Description</p>
-
-                @if (!string.IsNullOrEmpty(Model.AttachmentUrl))
-                {
-                    <div class="mb-4">
-                        <p class="section-label">Attachment:</p>
-                        <img src="@Model.AttachmentUrl" alt="Attachment Image" class="attachment-image" />
-                    </div>
-                }
-
-                <div class="mb-4">
-                    <p class="card-text"><strong>Uploaded On:</strong> @Model.UploadedOn</p>
-                    <p class="card-text"><strong>Status:</strong> @Model.Status</p>
-                    <p class="card-text"><strong>Upvotes:</strong> <span id="upvoteCount">@Model.Upvotes</span></p>
-                    <p class="card-text"><strong>Downvotes:</strong> <span id="downvoteCount">@Model.Downvotes</span></p>
-                    <p class="card-text"><strong>Priority:</strong> @Model.Priority</p>
-                </div>
-
-                <div class="mt-4">
-                    <button class="btn btn-success btn-custom mr-2" onclick="vote('up')">👍 Upvote</button>
-                    <button class="btn btn-danger btn-custom" onclick="vote('down')">👎 Downvote</button>
-                </div>
-
-                <a href="@Url.Action("All", "Suggestion")" class="btn btn-secondary btn-custom mt-4">⬅️ Back to List</a>
-            </div>
-        </div>
-
-        <div class="mt-5">
-            <h4>Comments</h4>
-
-            @foreach (var comment in Model.Comments)
+            @if (!string.IsNullOrEmpty(Model.AttachmentUrl))
             {
-                <div class="comment-card">
-                    <p class="comment-author">@comment.Username</p>
-                    <p class="comment-time">@comment.AddedOn.ToString("g")</p>
-                    <p class="comment-content">@comment.Content</p>
+                <div class="mb-4">
+                    <p class="font-weight-bold">Attachment:</p>
+                    <img src="@Model.AttachmentUrl" alt="Attachment Image" class="img-fluid rounded" />
                 </div>
             }
 
-            <div class="comment-form">
-                <textarea id="commentContent" rows="4" placeholder="Add a comment..." class="form-control"></textarea>
-                <button class="btn btn-success btn-custom mt-3" onclick="submitComment()">Submit Comment</button>
+            <div class="mb-4">
+                <p><strong>Uploaded On:</strong> @Model.UploadedOn</p>
+                <p><strong>Status:</strong> @Model.Status</p>
+                <p><strong>Upvotes:</strong> <span id="upvoteCount">@Model.Upvotes</span></p>
+                <p><strong>Downvotes:</strong> <span id="downvoteCount">@Model.Downvotes</span></p>
+                <p><strong>Priority:</strong> @Model.Priority</p>
             </div>
+
+            <div class="mt-4">
+                <button class="btn btn-success mr-2" onclick="voteSuggestion('up')">👍 Upvote</button>
+                <button class="btn btn-danger" onclick="voteSuggestion('down')">👎 Downvote</button>
+            </div>
+
+            <a asp-action="All" asp-controller="Suggestion" class="btn btn-secondary mt-4">⬅️ Back to List</a>
         </div>
     </div>
 
-    <script>
-        async function vote(type) {
-            const suggestionId = '@Model.Id';
-            try {
-                const response = await fetch(`/Suggestion/Vote`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id: suggestionId, type: type }),
-                });
+    <!-- Comments Section -->
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Comments</h3>
 
-                if (response.ok) {
-                    const result = await response.json();
-                    document.getElementById('upvoteCount').innerText = result.upvotes;
-                    document.getElementById('downvoteCount').innerText = result.downvotes;
-                } else {
-                    alert('Error processing vote. Please try again.');
+            <!-- Add Comment Form -->
+            <form asp-action="AddComment" asp-controller="Suggestion" method="post" class="mb-4">
+                <input type="hidden" name="suggestionId" value="@Model.Id" />
+                <div class="form-group">
+                    <textarea name="content" class="form-control" rows="3" placeholder="Add a comment..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+
+            <!-- Comments List -->
+            <div id="commentsList">
+                @foreach (var comment in Model.Comments)
+                {
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">@comment.UserName</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@comment.AddedOn.ToString("g")</h6>
+                            <p class="card-text">@comment.Content</p>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary mr-2" onclick="voteComment('@comment.Id', true)">
+                                    👍 <span id="upvotes-@comment.Id">@comment.Upvotes</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="voteComment('@comment.Id', false)">
+                                    👎 <span id="downvotes-@comment.Id">@comment.Downvotes</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Network error. Please try again.');
-            }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function voteSuggestion(type) {
+            // Implement suggestion voting logic here
+            console.log(`Voted ${type} for suggestion`);
         }
 
-        async function submitComment() {
-            const commentContent = document.getElementById('commentContent').value;
-            if (!commentContent) {
-                alert("Please write a comment before submitting.");
-                return;
-            }
-
-            const suggestionId = '@Model.Id';
-            try {
-                const response = await fetch(`/Comment/Add`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ suggestionId: suggestionId, content: commentContent }),
-                });
-
-                if (response.ok) {
-                    const newComment = await response.json();
-                    location.reload();
-                } else {
-                    alert('Error posting comment. Please try again.');
+        function voteComment(commentId, isUpvote) {
+            $.ajax({
+                url: '@Url.Action("VoteComment", "Suggestion")',
+                type: 'POST',
+                data: { commentId: commentId, isUpvote: isUpvote },
+                success: function (result) {
+                    $(`#upvotes-${commentId}`).text(result.upvotes);
+                    $(`#downvotes-${commentId}`).text(result.downvotes);
+                },
+                error: function (error) {
+                    console.error('Error:', error);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Network error. Please try again.');
-            }
+            });
         }
     </script>
-</body>
-</html>
+}

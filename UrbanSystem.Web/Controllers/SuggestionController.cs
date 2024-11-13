@@ -80,5 +80,52 @@ namespace UrbanSystem.Web.Controllers
 
             return View(suggestion);
         }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddComment(string suggestionId, string content)
+        {
+            if (!Guid.TryParse(suggestionId, out Guid parsedSuggestionId))
+            {
+                return BadRequest("Invalid suggestion ID.");
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            var result = await _suggestionService.AddCommentAsync(parsedSuggestionId, content, userId);
+
+            if (!result)
+            {
+                return BadRequest("Failed to add comment.");
+            }
+
+            return RedirectToAction(nameof(Details), new { id = suggestionId });
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> VoteComment(string commentId, bool isUpvote)
+        {
+            if (!Guid.TryParse(commentId, out Guid parsedCommentId))
+            {
+                return BadRequest("Invalid comment ID.");
+            }
+
+            var result = await _suggestionService.VoteCommentAsync(parsedCommentId, isUpvote);
+
+            if (!result)
+            {
+                return NotFound();
+            }
+
+            var updatedComment = await _suggestionService.GetCommentAsync(parsedCommentId);
+
+            if (updatedComment == null)
+            {
+                return NotFound();
+            }
+
+            return Json(new { upvotes = updatedComment.Upvotes, downvotes = updatedComment.Downvotes });
+        }
     }
 }

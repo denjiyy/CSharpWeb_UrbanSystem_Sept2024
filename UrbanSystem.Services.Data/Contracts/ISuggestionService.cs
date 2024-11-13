@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UrbanSystem.Data.Models;
+using UrbanSystem.Web.ViewModels;
 using UrbanSystem.Web.ViewModels.Suggestions;
 
 namespace UrbanSystem.Services.Data.Contracts
@@ -14,5 +16,8 @@ namespace UrbanSystem.Services.Data.Contracts
         Task<bool> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId);
 
         Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id);
+        Task<bool> AddCommentAsync(Guid suggestionId, string content, string userId);
+        Task<bool> VoteCommentAsync(Guid commentId, bool isUpvote);
+        Task<CommentViewModel?> GetCommentAsync(Guid commentId);
     }
 }
