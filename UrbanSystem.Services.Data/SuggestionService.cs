@@ -21,15 +21,19 @@ namespace UrbanSystem.Services.Data
         private readonly IRepository<ApplicationUserSuggestion, object> _userSuggestionRepository;
         private readonly IRepository<SuggestionLocation, object> _suggestionLocationRepository;
         private readonly IRepository<Comment, Guid> _commentRepository;
+        private readonly IRepository<CommentVote, object> _commentVoteRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public SuggestionService(IRepository<Suggestion, Guid> suggestionRepository, IRepository<Location, Guid> locationRepository, IRepository<ApplicationUserSuggestion, object> userSuggestionRepository, IRepository<SuggestionLocation, object> suggestionLocationRepository, IRepository<Comment, Guid> commentRepository, UserManager<ApplicationUser> userManager)
+        public SuggestionService(IRepository<Suggestion, Guid> suggestionRepository, IRepository<Location, Guid> locationRepository, IRepository<ApplicationUserSuggestion, object> userSuggestionRepository,
+            IRepository<SuggestionLocation, object> suggestionLocationRepository, IRepository<Comment, Guid> commentRepository,
+            IRepository<CommentVote, object> commentVoteRepository, UserManager<ApplicationUser> userManager)
         {
             _suggestionRepository = suggestionRepository;
             _locationRepository = locationRepository;
             _userSuggestionRepository = userSuggestionRepository;
             _suggestionLocationRepository = suggestionLocationRepository;
             _commentRepository = commentRepository;
+            _commentVoteRepository = commentVoteRepository;
             _userManager = userManager;
         }
 
@@ -132,30 +136,95 @@ namespace UrbanSystem.Services.Data
             return true;
         }
 
-        public async Task<bool> VoteCommentAsync(Guid commentId, bool isUpvote)
+        public async Task<bool> VoteCommentAsync(Guid commentId, string userId, bool isUpvote)
         {
-            var comment = await _commentRepository.GetByIdAsync(commentId);
+            // Validate userId
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
+            {
+                return false;
+            }
 
+            // Check if the comment exists
+            var comment = await _commentRepository.GetByIdAsync(commentId);
             if (comment == null)
             {
                 return false;
             }
 
-            if (isUpvote)
+            // Fetch the existing vote if any
+            var existingVote = await _commentVoteRepository
+                .GetAllAttached()
+                .FirstOrDefaultAsync(cv => cv.CommentId == commentId && cv.UserId == parsedUserId);
+
+            if (existingVote != null)
             {
-                comment.Upvotes++;
+                // Handle existing vote
+                if (existingVote.IsUpvote == isUpvote)
+                {
+                    // Same vote type: remove vote
+                    await _commentVoteRepository.DeleteAsync(existingVote.Id);
+                    if (isUpvote)
+                    {
+                        comment.Upvotes = Math.Max(comment.Upvotes - 1, 0);  // Ensure no negative votes
+                    }
+                    else
+                    {
+                        comment.Downvotes = Math.Max(comment.Downvotes - 1, 0);  // Ensure no negative votes
+                    }
+                }
+                else
+                {
+                    // Different vote type: switch vote
+                    await _commentVoteRepository.DeleteAsync(existingVote.Id);
+                    if (existingVote.IsUpvote)
+                    {
+                        comment.Upvotes = Math.Max(comment.Upvotes - 1, 0);
+                        comment.Downvotes++;
+                    }
+                    else
+                    {
+                        comment.Downvotes = Math.Max(comment.Downvotes - 1, 0);
+                        comment.Upvotes++;
+                    }
+                }
             }
             else
             {
-                comment.Downvotes++;
+                // New vote
+                if (isUpvote)
+                {
+                    comment.Upvotes++;
+                }
+                else
+                {
+                    comment.Downvotes++;
+                }
             }
 
-            return await _commentRepository.UpdateAsync(comment);
+            // Add the new vote
+            var newVote = new CommentVote
+            {
+                CommentId = commentId,
+                UserId = parsedUserId,
+                IsUpvote = isUpvote
+            };
+
+            await _commentVoteRepository.AddAsync(newVote);
+            await _commentRepository.UpdateAsync(comment);
+
+            return true;
         }
 
         public async Task<CommentViewModel?> GetCommentAsync(Guid commentId)
         {
-            var comment = await _commentRepository.GetByIdAsync(commentId);
+            if (commentId == Guid.Empty)
+            {
+                return null;
+            }
+
+            var comment = await _commentRepository.GetAllAttached()
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.Id == commentId);
 
             if (comment == null)
             {
@@ -165,9 +234,9 @@ namespace UrbanSystem.Services.Data
             return new CommentViewModel
             {
                 Id = comment.Id,
-                Content = comment.Content,
+                Content = comment.Content ?? string.Empty,
                 AddedOn = comment.AddedOn,
-                UserName = comment.User.UserName,
+                UserName = comment.User?.UserName ?? "Unknown User",
                 Upvotes = comment.Upvotes,
                 Downvotes = comment.Downvotes
             };

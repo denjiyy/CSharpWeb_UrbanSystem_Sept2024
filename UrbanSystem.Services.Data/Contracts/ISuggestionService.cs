@@ -12,12 +12,10 @@ namespace UrbanSystem.Services.Data.Contracts
     public interface ISuggestionService
     {
         Task<IEnumerable<SuggestionIndexViewModel>> GetAllSuggestionsAsync();
-
         Task<bool> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId);
-
         Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id);
         Task<bool> AddCommentAsync(Guid suggestionId, string content, string userId);
-        Task<bool> VoteCommentAsync(Guid commentId, bool isUpvote);
+        Task<bool> VoteCommentAsync(Guid commentId, string userId, bool isUpvote);
         Task<CommentViewModel?> GetCommentAsync(Guid commentId);
     }
 }

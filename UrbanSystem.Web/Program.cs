@@ -44,6 +44,7 @@ namespace UrbanSystem.Web
             builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly);
             builder.Services.RegisterUserDefinedServices(typeof(ISuggestionService).Assembly);
             builder.Services.AddScoped<ILocationService, LocationService>();
+            builder.Services.AddScoped<IRepository<CommentVote, object>, BaseRepository<CommentVote, object>>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();

@@ -111,7 +111,9 @@ namespace UrbanSystem.Web.Controllers
                 return BadRequest("Invalid comment ID.");
             }
 
-            var result = await _suggestionService.VoteCommentAsync(parsedCommentId, isUpvote);
+            var userId = _userManager.GetUserId(User);
+
+            var result = await _suggestionService.VoteCommentAsync(parsedCommentId, userId, isUpvote);
 
             if (!result)
             {
