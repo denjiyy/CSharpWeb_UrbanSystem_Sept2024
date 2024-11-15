@@ -1,0 +1,11 @@
+﻿@model UrbanSystem.Web.ViewModels.Meetings.MeetingIndexViewModel
+
+<h1>Meeting Details</h1>
+<div>
+    <strong>Title:</strong> @Model.Title <br />
+    <strong>Description:</strong> @Model.Description <br />
+    <strong>Date:</strong> @Model.ScheduledDate.ToString("g") <br />
+    <strong>Duration:</strong> @Model.Duration <br />
+    <strong>Location:</strong> @Model.Location <br />
+</div>
+<a href="@Url.Action("All", "Meeting")" class="btn btn-secondary">Back to List</a>
