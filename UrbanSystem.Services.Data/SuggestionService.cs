@@ -138,38 +138,33 @@ namespace UrbanSystem.Services.Data
 
         public async Task<bool> VoteCommentAsync(Guid commentId, string userId, bool isUpvote)
         {
-            // Validate userId
             if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
             {
                 return false;
             }
 
-            // Check if the comment exists
             var comment = await _commentRepository.GetByIdAsync(commentId);
             if (comment == null)
             {
                 return false;
             }
 
-            // Fetch the existing vote if any
             var existingVote = await _commentVoteRepository
                 .GetAllAttached()
                 .FirstOrDefaultAsync(cv => cv.CommentId == commentId && cv.UserId == parsedUserId);
 
             if (existingVote != null)
             {
-                // Handle existing vote
                 if (existingVote.IsUpvote == isUpvote)
                 {
-                    // Same vote type: remove vote
                     await _commentVoteRepository.DeleteAsync(existingVote.Id);
                     if (isUpvote)
                     {
-                        comment.Upvotes = Math.Max(comment.Upvotes - 1, 0);  // Ensure no negative votes
+                        comment.Upvotes = Math.Max(comment.Upvotes - 1, 0);
                     }
                     else
                     {
-                        comment.Downvotes = Math.Max(comment.Downvotes - 1, 0);  // Ensure no negative votes
+                        comment.Downvotes = Math.Max(comment.Downvotes - 1, 0);
                     }
                 }
                 else
@@ -190,7 +185,6 @@ namespace UrbanSystem.Services.Data
             }
             else
             {
-                // New vote
                 if (isUpvote)
                 {
                     comment.Upvotes++;
@@ -201,7 +195,6 @@ namespace UrbanSystem.Services.Data
                 }
             }
 
-            // Add the new vote
             var newVote = new CommentVote
             {
                 CommentId = commentId,
