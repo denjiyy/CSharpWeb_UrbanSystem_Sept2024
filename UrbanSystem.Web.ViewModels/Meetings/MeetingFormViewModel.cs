@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using UrbanSystem.Data.Models;
+using UrbanSystem.Services.Mapping;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {
-    public class MeetingFormViewModel
+    public class MeetingFormViewModel : IMapTo<Meeting>
     {
         [Required(ErrorMessage = "Title is required")]
         [StringLength(200, ErrorMessage = "Title cannot be longer than 200 characters")]

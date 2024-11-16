@@ -126,6 +126,11 @@ namespace UrbanSystem.Web.Controllers
         {
             try
             {
+                if (User.Identity?.Name == null)
+                {
+                    return Unauthorized();
+                }
+
                 await _meetingService.AttendMeetingAsync(User.Identity.Name, id);
                 TempData["SuccessMessage"] = "You have successfully registered for the meeting!";
             }
@@ -143,6 +148,11 @@ namespace UrbanSystem.Web.Controllers
         {
             try
             {
+                if (User.Identity?.Name == null)
+                {
+                    return Unauthorized();
+                }
+
                 await _meetingService.CancelAttendanceAsync(User.Identity.Name, id);
                 TempData["SuccessMessage"] = "You have successfully canceled your attendance!";
             }
@@ -157,6 +167,11 @@ namespace UrbanSystem.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> MyMeetings()
         {
+            if (User.Identity?.Name == null)
+            {
+                return Unauthorized();
+            }
+
             var attendedMeetings = await _meetingService.GetUserAttendedMeetingsAsync(User.Identity.Name);
             var viewModel = new UserAttendedMeetingsViewModel
             {

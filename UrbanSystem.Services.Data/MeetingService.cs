@@ -31,7 +31,6 @@ namespace UrbanSystem.Services.Data
                 Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
                 Duration = m.Duration,
-                Location = m.Location
             });
         }
 
@@ -49,8 +48,7 @@ namespace UrbanSystem.Services.Data
                 Title = meeting.Title,
                 Description = meeting.Description,
                 ScheduledDate = meeting.ScheduledDate,
-                Duration = meeting.Duration,
-                Location = meeting.Location
+                Duration = meeting.Duration
             };
         }
 
@@ -61,8 +59,7 @@ namespace UrbanSystem.Services.Data
                 Title = meetingForm.Title,
                 Description = meetingForm.Description,
                 ScheduledDate = meetingForm.ScheduledDate,
-                Duration = TimeSpan.FromHours(meetingForm.Duration),
-                Location = meetingForm.Location
+                Duration = TimeSpan.FromHours(meetingForm.Duration)
             };
 
             await _meetingRepository.AddAsync(meeting);
@@ -81,7 +78,6 @@ namespace UrbanSystem.Services.Data
             meeting.Description = meetingForm.Description;
             meeting.ScheduledDate = meetingForm.ScheduledDate;
             meeting.Duration = TimeSpan.FromHours(meetingForm.Duration);
-            meeting.Location = meetingForm.Location;
 
             await _meetingRepository.UpdateAsync(meeting);
         }
@@ -160,8 +156,7 @@ namespace UrbanSystem.Services.Data
                 Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
                 Duration = m.Duration,
-                Location = m.Location,
-                CanCancelAttendance = m.ScheduledDate > DateTime.Now.AddHours(24) // Example business rule
+                CanCancelAttendance = m.ScheduledDate > DateTime.Now.AddHours(24)
             });
         }
     }

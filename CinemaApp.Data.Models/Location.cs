@@ -22,5 +22,6 @@ namespace UrbanSystem.Data.Models
         public string CityPicture { get; set; } = null!;
 
         public virtual ICollection<SuggestionLocation> SuggestionsLocations { get; set; } = new HashSet<SuggestionLocation>();
+        public virtual ICollection<Project> Projects { get; set; } = new HashSet<Project>();
     }
 }

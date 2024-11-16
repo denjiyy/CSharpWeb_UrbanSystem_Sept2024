@@ -169,7 +169,6 @@ namespace UrbanSystem.Services.Data
                 }
                 else
                 {
-                    // Different vote type: switch vote
                     await _commentVoteRepository.DeleteAsync(existingVote.Id);
                     if (existingVote.IsUpvote)
                     {

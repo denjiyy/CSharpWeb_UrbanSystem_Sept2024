@@ -15,7 +15,8 @@ namespace UrbanSystem.Data.Models
         public string Description { get; set; } = null!;
         public DateTime ScheduledDate { get; set; }
         public TimeSpan Duration { get; set; }
-        public string Location { get; set; } = null!;
+        public Guid LocationId { get; set; }
+        public Location Location { get; set; } = null!;
 
         public virtual ICollection<ApplicationUser> Attendees { get; set; } = new HashSet<ApplicationUser>();
     }

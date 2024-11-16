@@ -25,7 +25,6 @@ namespace UrbanSystem.Data.Models
         public int Upvotes { get; set; } = 0;
         public int Downvotes { get; set; } = 0;
 
-        // Navigation property for CommentVotes
         public ICollection<CommentVote> CommentVotes { get; set; }
     }
 }

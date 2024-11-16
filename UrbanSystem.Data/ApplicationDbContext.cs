@@ -30,6 +30,9 @@ namespace UrbanSystem.Data
         public virtual DbSet<Comment> Comments { get; set; } = null!;
         public virtual DbSet<CommentVote> CommentsVotes { get; set; } = null!;
         public virtual DbSet<Meeting> Meetings { get; set; } = null!;
+        public virtual DbSet<Project> Projects { get; set; } = null!;
+        public virtual DbSet<ProjectFunding> ProjectsFundings { get; set; } = null!;
+        public virtual DbSet<Funding> Fundings { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

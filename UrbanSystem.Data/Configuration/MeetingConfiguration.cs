@@ -24,14 +24,14 @@ namespace UrbanSystem.Data.Configuration
             builder.Property(m => m.Duration)
                 .IsRequired();
 
-            builder.Property(m => m.Location)
+            builder.HasOne(m => m.Location)
+                .WithMany()
+                .HasForeignKey(m => m.LocationId)
                 .IsRequired()
-                .HasMaxLength(200);
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure the many-to-many relationship with ApplicationUser
             builder.HasMany(m => m.Attendees)
-                .WithMany(u => u.Meetings)
-                .UsingEntity(j => j.ToTable("MeetingAttendees"));
+                .WithMany(u => u.Meetings);
         }
     }
 }

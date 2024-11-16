@@ -11,6 +11,7 @@ using UrbanSystem.Data.Repository;
 using UrbanSystem.Web.Infrastructure.Extensions;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Services.Data;
+using UrbanSystem.Web.ViewModels.Meetings;
 
 namespace UrbanSystem.Web
 {
@@ -55,11 +56,14 @@ namespace UrbanSystem.Web
             // Add MVC services
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+            builder.Services.AddAutoMapper(typeof(Program));
 
             var app = builder.Build();
 
             // Configure AutoMapper
-            AutoMapperConfig.RegisterMappings(typeof(ErrorViewModel).GetTypeInfo().Assembly);
+            AutoMapperConfig.RegisterMappings(
+                    typeof(ErrorViewModel).GetTypeInfo().Assembly,
+                    typeof(MeetingIndexViewModel).GetTypeInfo().Assembly);
 
             // Configure the HTTP request pipeline
             if (!app.Environment.IsDevelopment())
