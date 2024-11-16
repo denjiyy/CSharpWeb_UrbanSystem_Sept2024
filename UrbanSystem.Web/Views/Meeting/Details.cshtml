@@ -8,4 +8,40 @@
     <strong>Duration:</strong> @Model.Duration <br />
     <strong>Location:</strong> @Model.Location <br />
 </div>
-<a href="@Url.Action("All", "Meeting")" class="btn btn-secondary">Back to List</a>
+
+<div class="mt-3">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <form asp-action="Attend" asp-route-id="@Model.Id" method="post" style="display: inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-primary">Attend Meeting</button>
+        </form>
+
+        <form asp-action="CancelAttendance" asp-route-id="@Model.Id" method="post" style="display: inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger">Cancel Attendance</button>
+        </form>
+    }
+    else
+    {
+        <p>Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to attend or cancel attendance.</p>
+    }
+</div>
+
+<div class="mt-3">
+    <a href="@Url.Action("All", "Meeting")" class="btn btn-secondary">Back to List</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">
+        @TempData["ErrorMessage"]
+    </div>
+}

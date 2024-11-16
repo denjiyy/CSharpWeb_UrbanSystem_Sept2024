@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
+using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Meetings;
 
@@ -12,31 +12,32 @@ namespace UrbanSystem.Services.Data
 {
     public class MeetingService : IMeetingService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IRepository<Meeting, Guid> _meetingRepository;
+        private readonly IRepository<ApplicationUser, Guid> _userRepository;
 
-        public MeetingService(ApplicationDbContext context)
+        public MeetingService(IRepository<Meeting, Guid> meetingRepository, IRepository<ApplicationUser, Guid> userRepository)
         {
-            _context = context;
+            _meetingRepository = meetingRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<IEnumerable<MeetingIndexViewModel>> GetAllMeetingsAsync()
         {
-            return await _context.Meetings
-                .Select(m => new MeetingIndexViewModel
-                {
-                    Id = m.Id,
-                    Title = m.Title,
-                    Description = m.Description,
-                    ScheduledDate = m.ScheduledDate,
-                    Duration = m.Duration,
-                    Location = m.Location
-                })
-                .ToListAsync();
+            var meetings = await _meetingRepository.GetAllAsync();
+            return meetings.Select(m => new MeetingIndexViewModel
+            {
+                Id = m.Id,
+                Title = m.Title,
+                Description = m.Description,
+                ScheduledDate = m.ScheduledDate,
+                Duration = m.Duration,
+                Location = m.Location
+            });
         }
 
         public async Task<MeetingIndexViewModel> GetMeetingByIdAsync(Guid id)
         {
-            var meeting = await _context.Meetings.FindAsync(id);
+            var meeting = await _meetingRepository.GetByIdAsync(id);
             if (meeting == null)
             {
                 return null!;
@@ -64,15 +65,13 @@ namespace UrbanSystem.Services.Data
                 Location = meetingForm.Location
             };
 
-            _context.Meetings.Add(meeting);
-            await _context.SaveChangesAsync();
-
+            await _meetingRepository.AddAsync(meeting);
             return meeting.Id;
         }
 
         public async Task UpdateMeetingAsync(Guid id, MeetingFormViewModel meetingForm)
         {
-            var meeting = await _context.Meetings.FindAsync(id);
+            var meeting = await _meetingRepository.GetByIdAsync(id);
             if (meeting == null)
             {
                 throw new ArgumentException("Meeting not found", nameof(id));
@@ -84,19 +83,86 @@ namespace UrbanSystem.Services.Data
             meeting.Duration = TimeSpan.FromHours(meetingForm.Duration);
             meeting.Location = meetingForm.Location;
 
-            await _context.SaveChangesAsync();
+            await _meetingRepository.UpdateAsync(meeting);
         }
 
         public async Task DeleteMeetingAsync(Guid id)
         {
-            var meeting = await _context.Meetings.FindAsync(id);
-            if (meeting == null)
+            var success = await _meetingRepository.DeleteAsync(id);
+            if (!success)
             {
                 throw new ArgumentException("Meeting not found", nameof(id));
             }
+        }
 
-            _context.Meetings.Remove(meeting);
-            await _context.SaveChangesAsync();
+        public async Task AttendMeetingAsync(string username, Guid meetingId)
+        {
+            var meeting = await _meetingRepository.GetByIdAsync(meetingId);
+            if (meeting == null)
+            {
+                throw new ArgumentException("Meeting not found.");
+            }
+
+            var user = _userRepository.GetAllAttached().FirstOrDefault(u => u.UserName == username);
+            if (user == null)
+            {
+                throw new ArgumentException("User not found.");
+            }
+
+            if (meeting.Attendees.Any(a => a.Id == user.Id))
+            {
+                throw new ArgumentException("User already attending.");
+            }
+
+            meeting.Attendees.Add(user);
+            await _meetingRepository.UpdateAsync(meeting);
+        }
+
+        public async Task CancelAttendanceAsync(string username, Guid meetingId)
+        {
+            var meeting = await _meetingRepository.GetByIdAsync(meetingId);
+            if (meeting == null)
+            {
+                throw new ArgumentException("Meeting not found.");
+            }
+
+            var user = _userRepository.GetAllAttached().FirstOrDefault(u => u.UserName == username);
+            if (user == null)
+            {
+                throw new ArgumentException("User not found.");
+            }
+
+            var attendee = meeting.Attendees.FirstOrDefault(a => a.Id == user.Id);
+            if (attendee == null)
+            {
+                throw new ArgumentException("Attendance record not found.");
+            }
+
+            meeting.Attendees.Remove(attendee);
+            await _meetingRepository.UpdateAsync(meeting);
+        }
+
+        public async Task<IEnumerable<AttendedMeetingViewModel>> GetUserAttendedMeetingsAsync(string username)
+        {
+            var user = await _userRepository.GetAllAttached()
+                .Include(u => u.Meetings)
+                .FirstOrDefaultAsync(u => u.UserName == username);
+
+            if (user == null)
+            {
+                return Enumerable.Empty<AttendedMeetingViewModel>();
+            }
+
+            return user.Meetings.Select(m => new AttendedMeetingViewModel
+            {
+                Id = m.Id,
+                Title = m.Title,
+                Description = m.Description,
+                ScheduledDate = m.ScheduledDate,
+                Duration = m.Duration,
+                Location = m.Location,
+                CanCancelAttendance = m.ScheduledDate > DateTime.Now.AddHours(24) // Example business rule
+            });
         }
     }
 }

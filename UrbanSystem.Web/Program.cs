@@ -20,15 +20,13 @@ namespace UrbanSystem.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? null!;
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                options.UseSqlServer(connectionString);
-            });
+                options.UseSqlServer(connectionString));
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options => {
-                    ConfigureIdentity(options, builder);
+                ConfigureIdentity(options, builder);
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddRoles<IdentityRole<Guid>>()
@@ -43,22 +41,30 @@ namespace UrbanSystem.Web
 
             builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly);
             builder.Services.RegisterUserDefinedServices(typeof(ISuggestionService).Assembly);
-            builder.Services.AddScoped<ILocationService, LocationService>();
-            builder.Services.AddScoped<IRepository<CommentVote, object>, BaseRepository<CommentVote, object>>();
 
-            // Add services to the container.
+            // Register services
+            builder.Services.AddScoped<ILocationService, LocationService>();
+            builder.Services.AddScoped<IMeetingService, MeetingService>();
+
+            // Register repositories
+            builder.Services.AddScoped(typeof(IRepository<,>), typeof(BaseRepository<,>));
+            builder.Services.AddScoped<IRepository<CommentVote, object>, BaseRepository<CommentVote, object>>();
+            builder.Services.AddScoped<IRepository<Meeting, Guid>, BaseRepository<Meeting, Guid>>();
+            builder.Services.AddScoped<IRepository<ApplicationUser, Guid>, BaseRepository<ApplicationUser, Guid>>();
+
+            // Add MVC services
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
 
+            // Configure AutoMapper
             AutoMapperConfig.RegisterMappings(typeof(ErrorViewModel).GetTypeInfo().Assembly);
 
-            // Configure the HTTP request pipeline.
+            // Configure the HTTP request pipeline
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

@@ -119,5 +119,50 @@ namespace UrbanSystem.Web.Controllers
             }
             return View(meeting);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Attend(Guid id)
+        {
+            try
+            {
+                await _meetingService.AttendMeetingAsync(User.Identity.Name, id);
+                TempData["SuccessMessage"] = "You have successfully registered for the meeting!";
+            }
+            catch (ArgumentException)
+            {
+                TempData["ErrorMessage"] = "Unable to attend the meeting. Please try again.";
+            }
+
+            return RedirectToAction(nameof(All));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelAttendance(Guid id)
+        {
+            try
+            {
+                await _meetingService.CancelAttendanceAsync(User.Identity.Name, id);
+                TempData["SuccessMessage"] = "You have successfully canceled your attendance!";
+            }
+            catch (ArgumentException)
+            {
+                TempData["ErrorMessage"] = "Unable to cancel attendance. Please try again.";
+            }
+
+            return RedirectToAction(nameof(All));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyMeetings()
+        {
+            var attendedMeetings = await _meetingService.GetUserAttendedMeetingsAsync(User.Identity.Name);
+            var viewModel = new UserAttendedMeetingsViewModel
+            {
+                AttendedMeetings = attendedMeetings
+            };
+            return View(viewModel);
+        }
     }
 }
