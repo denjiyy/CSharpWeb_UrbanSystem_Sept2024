@@ -1,31 +1,41 @@
 ﻿@model UrbanSystem.Web.ViewModels.Meetings.MeetingFormViewModel
 
-<h1>Add New Meeting</h1>
 <form asp-action="Add" method="post">
     <div class="form-group">
         <label asp-for="Title"></label>
         <input asp-for="Title" class="form-control" />
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="Description"></label>
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="ScheduledDate"></label>
         <input asp-for="ScheduledDate" type="datetime-local" class="form-control" />
         <span asp-validation-for="ScheduledDate" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="Duration"></label>
-        <input asp-for="Duration" type="number" class="form-control" />
+        <input asp-for="Duration" class="form-control" />
         <span asp-validation-for="Duration" class="text-danger"></span>
     </div>
+
     <div class="form-group">
-        <label asp-for="Location"></label>
-        <input asp-for="Location" class="form-control" />
-        <span asp-validation-for="Location" class="text-danger"></span>
+        <label asp-for="LocationId">Location</label>
+        <select asp-for="LocationId" class="form-control">
+            <option value="">Select a location</option>
+            @foreach (var city in Model.Cities)
+            {
+                <option value="@city.Value">@city.Text</option>
+            }
+        </select>
+        <span asp-validation-for="LocationId" class="text-danger"></span>
     </div>
+
     <button type="submit" class="btn btn-primary">Save</button>
 </form>

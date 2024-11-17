@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UrbanSystem.Services.Data.Contracts;
+using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Meetings;
 
 namespace UrbanSystem.Web.Controllers
@@ -26,9 +27,14 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Add()
+        public async Task<IActionResult> Add()
         {
-            return View();
+            var locations = await CityList();
+            var viewModel = new MeetingFormViewModel
+            {
+                Cities = locations
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -40,6 +46,8 @@ namespace UrbanSystem.Web.Controllers
                 await _meetingService.CreateMeetingAsync(meetingForm);
                 return RedirectToAction(nameof(All));
             }
+
+            meetingForm.Cities = await CityList();
             return View(meetingForm);
         }
 
@@ -52,13 +60,15 @@ namespace UrbanSystem.Web.Controllers
                 return NotFound();
             }
 
+            var locations = await CityList();
             var meetingForm = new MeetingFormViewModel
             {
                 Title = meeting.Title,
                 Description = meeting.Description,
                 ScheduledDate = meeting.ScheduledDate,
                 Duration = meeting.Duration.TotalHours,
-                Location = meeting.Location
+                LocationId = meeting.LocationId,
+                Cities = locations
             };
 
             return View(meetingForm);
@@ -73,13 +83,15 @@ namespace UrbanSystem.Web.Controllers
                 try
                 {
                     await _meetingService.UpdateMeetingAsync(id, meetingForm);
+                    return RedirectToAction(nameof(All));
                 }
                 catch (ArgumentException)
                 {
                     return NotFound();
                 }
-                return RedirectToAction(nameof(All));
             }
+
+            meetingForm.Cities = await CityList();
             return View(meetingForm);
         }
 
@@ -101,15 +113,16 @@ namespace UrbanSystem.Web.Controllers
             try
             {
                 await _meetingService.DeleteMeetingAsync(id);
+                return RedirectToAction(nameof(All));
             }
             catch (ArgumentException)
             {
                 return NotFound();
             }
-            return RedirectToAction(nameof(All));
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(Guid id)
         {
             var meeting = await _meetingService.GetMeetingByIdAsync(id);

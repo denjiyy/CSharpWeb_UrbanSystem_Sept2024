@@ -18,7 +18,7 @@
                 <td>@meeting.Title</td>
                 <td>@meeting.ScheduledDate.ToString("g")</td>
                 <td>@meeting.Duration</td>
-                <td>@meeting.Location</td>
+                <td>@meeting.CityName</td>
                 <td>
                     <a href="@Url.Action("Details", "Meeting", new { id = meeting.Id })" class="btn btn-info">Details</a>
                     <a href="@Url.Action("Edit", "Meeting", new { id = meeting.Id })" class="btn btn-warning">Edit</a>

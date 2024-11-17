@@ -3,17 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using SQLitePCL;
 using UrbanSystem.Data;
 using UrbanSystem.Web.ViewModels.Locations;
-using UrbanSystem.Web.ViewModels.Suggestions;
+using UrbanSystem.Services.Data.Contracts;
 
 namespace UrbanSystem.Web.Controllers
 {
 	public class BaseController : Controller
 	{
-		private readonly ApplicationDbContext? _context;
+        public IBaseService _baseService { get; set; }
 
-        public BaseController(ApplicationDbContext? context = null)
+        public BaseController(IBaseService? baseService = null)
         {
-            _context = context;
+            _baseService = baseService!;
         }
 
         protected bool IsGuidIdValid(string? id, ref Guid locationGuid)
@@ -26,22 +26,10 @@ namespace UrbanSystem.Web.Controllers
 			return Guid.TryParse(id.ToLower(), out locationGuid);
         }
 
-		protected async Task<SuggestionFormViewModel> LoadLocations()
-		{
-            var cities = await _context.Locations
-                .Select(l => new CityOption
-                {
-                    Value = l.Id.ToString(),
-                    Text = l.CityName
-                })
-                .ToListAsync();
-
-            var viewModel = new SuggestionFormViewModel
-            {
-                Cities = cities
-            };
-
-            return viewModel;
+        protected async Task<IEnumerable<CityOption>> CityList()
+        {
+            var cities = await _baseService.GetCitiesAsync();
+            return cities;
         }
-	}
+    }
 }

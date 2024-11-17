@@ -6,7 +6,7 @@ using UrbanSystem.Services.Mapping;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {
-    public class MeetingIndexViewModel : IMapFrom<Meeting>, IHaveCustomMappings
+    public class MeetingIndexViewModel
     {
         public Guid Id { get; set; }
 
@@ -25,16 +25,12 @@ namespace UrbanSystem.Web.ViewModels.Meetings
         public TimeSpan Duration { get; set; }
 
         [Display(Name = "Location")]
-        public string Location { get; set; } = null!;
+        public Guid LocationId { get; set; }
+
+        [Display(Name = "City Name")]
+        public string? CityName { get; set; }
 
         [Display(Name = "Attendees Count")]
         public int AttendeesCount { get; set; }
-
-        public void CreateMappings(IProfileExpression configuration) 
-        { 
-            configuration.CreateMap<Meeting, MeetingIndexViewModel>()
-                .ForMember(dest => dest.AttendeesCount, opt => opt
-                .MapFrom(src => src.Attendees.Count)); 
-        }
     }
 }

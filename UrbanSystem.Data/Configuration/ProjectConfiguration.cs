@@ -16,9 +16,26 @@ namespace UrbanSystem.Data.Configuration
                 .HasForeignKey(p => p.LocationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
-            builder.Property(p => p.Description).IsRequired().HasMaxLength(500);
-            builder.Property(p => p.CreatedOn).IsRequired();
+            builder.Property(p => p.Name)
+                   .IsRequired()
+                   .HasMaxLength(100);
+
+            builder.Property(p => p.Description)
+                   .IsRequired()
+                   .HasMaxLength(500);
+
+            builder.Property(p => p.ImageUrl)
+                   .HasMaxLength(2048);
+
+            builder.Property(p => p.CreatedOn)
+                   .IsRequired()
+                   .HasDefaultValueSql("GETUTCDATE()");
+
+            builder.Property(p => p.IsCompleted)
+                   .IsRequired()
+                   .HasDefaultValue(false);
+
+            builder.ToTable("Projects");
         }
     }
 }

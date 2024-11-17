@@ -13,11 +13,16 @@ namespace UrbanSystem.Services.Data
     public class MeetingService : IMeetingService
     {
         private readonly IRepository<Meeting, Guid> _meetingRepository;
+        private readonly IRepository<Location, Guid> _locationRepository; // Added location repository
         private readonly IRepository<ApplicationUser, Guid> _userRepository;
 
-        public MeetingService(IRepository<Meeting, Guid> meetingRepository, IRepository<ApplicationUser, Guid> userRepository)
+        public MeetingService(
+            IRepository<Meeting, Guid> meetingRepository,
+            IRepository<Location, Guid> locationRepository,
+            IRepository<ApplicationUser, Guid> userRepository)
         {
             _meetingRepository = meetingRepository;
+            _locationRepository = locationRepository;
             _userRepository = userRepository;
         }
 
@@ -31,6 +36,7 @@ namespace UrbanSystem.Services.Data
                 Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
                 Duration = m.Duration,
+                CityName = m.Location?.CityName ?? "Unknown" // Include location name
             });
         }
 
@@ -48,18 +54,26 @@ namespace UrbanSystem.Services.Data
                 Title = meeting.Title,
                 Description = meeting.Description,
                 ScheduledDate = meeting.ScheduledDate,
-                Duration = meeting.Duration
+                Duration = meeting.Duration,
+                CityName = meeting.Location?.CityName ?? "Unknown" // Include location name
             };
         }
 
         public async Task<Guid> CreateMeetingAsync(MeetingFormViewModel meetingForm)
         {
+            var location = await _locationRepository.GetByIdAsync(meetingForm.LocationId ?? Guid.Empty);
+            if (location == null)
+            {
+                throw new ArgumentException("Invalid location ID.");
+            }
+
             var meeting = new Meeting
             {
                 Title = meetingForm.Title,
                 Description = meetingForm.Description,
                 ScheduledDate = meetingForm.ScheduledDate,
-                Duration = TimeSpan.FromHours(meetingForm.Duration)
+                Duration = TimeSpan.FromHours(meetingForm.Duration),
+                LocationId = location.Id // Set location
             };
 
             await _meetingRepository.AddAsync(meeting);
@@ -74,10 +88,17 @@ namespace UrbanSystem.Services.Data
                 throw new ArgumentException("Meeting not found", nameof(id));
             }
 
+            var location = await _locationRepository.GetByIdAsync(meetingForm.LocationId ?? Guid.Empty);
+            if (location == null)
+            {
+                throw new ArgumentException("Invalid location ID.");
+            }
+
             meeting.Title = meetingForm.Title;
             meeting.Description = meetingForm.Description;
             meeting.ScheduledDate = meetingForm.ScheduledDate;
             meeting.Duration = TimeSpan.FromHours(meetingForm.Duration);
+            meeting.LocationId = location.Id; // Update location
 
             await _meetingRepository.UpdateAsync(meeting);
         }
@@ -156,6 +177,7 @@ namespace UrbanSystem.Services.Data
                 Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
                 Duration = m.Duration,
+                Location = m.Location?.CityName ?? "Unknown", // Include location name
                 CanCancelAttendance = m.ScheduledDate > DateTime.Now.AddHours(24)
             });
         }

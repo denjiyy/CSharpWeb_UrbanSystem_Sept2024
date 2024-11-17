@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Mapping;
+using UrbanSystem.Web.ViewModels.Locations;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {
@@ -25,10 +27,8 @@ namespace UrbanSystem.Web.ViewModels.Meetings
         public double Duration { get; set; }
 
         [Required(ErrorMessage = "Location is required")]
-        [StringLength(200, ErrorMessage = "Location cannot be longer than 200 characters")]
-        public string Location { get; set; } = null!;
+        public Guid? LocationId { get; set; }  // LocationId as a foreign key
 
-        [Required(ErrorMessage = "Status is required")]
-        public string Status { get; set; } = "Scheduled";
+        public IEnumerable<CityOption> Cities { get; set; } = new List<CityOption>();
     }
 }

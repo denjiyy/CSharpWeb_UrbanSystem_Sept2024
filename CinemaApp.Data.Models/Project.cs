@@ -13,7 +13,8 @@ namespace UrbanSystem.Data.Models
             Id = Guid.NewGuid(); 
         }
         public Guid Id { get; set; }
-        public string Name { get; set; } = null!; 
+        public string Name { get; set; } = null!;
+        public string? ImageUrl { get; set; }
         public string Description { get; set; } = null!; 
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public bool IsCompleted { get; set; } = false;

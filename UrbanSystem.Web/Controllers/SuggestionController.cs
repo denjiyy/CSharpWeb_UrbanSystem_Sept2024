@@ -17,15 +17,15 @@ namespace UrbanSystem.Web.Controllers
     [Authorize]
     public class SuggestionController : BaseController
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISuggestionService _suggestionService;
+        private new readonly IBaseService _baseService;
 
-        public SuggestionController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ISuggestionService suggestionService) : base(context)
+        public SuggestionController(IBaseService baseService, UserManager<ApplicationUser> userManager, ISuggestionService suggestionService) : base(baseService)
         {
-            _context = context;
             _userManager = userManager;
             _suggestionService = suggestionService;
+            _baseService = baseService;
         }
 
         [HttpGet]
@@ -41,7 +41,12 @@ namespace UrbanSystem.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var viewModel = await LoadLocations();
+            var cities = await CityList();
+
+            var viewModel = new SuggestionFormViewModel
+            {
+                Cities = cities
+            };
 
             return View(viewModel);
         }
@@ -54,7 +59,7 @@ namespace UrbanSystem.Web.Controllers
 
             if (!isSuccessful)
             {
-                await LoadLocations();
+                suggestionModel.Cities = await CityList();
                 return View(suggestionModel);
             }
 
