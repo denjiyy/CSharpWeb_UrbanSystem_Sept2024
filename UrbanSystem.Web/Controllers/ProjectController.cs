@@ -41,11 +41,16 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Add()
+        public async Task<IActionResult> Add()
         {
-            var model = new ProjectFormViewModel();
-            //ViewBag.Locations
-            return View(model);
+            var cities = await CityList();
+
+            var viewModel = new ProjectFormViewModel
+            {
+                Cities = cities
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -54,7 +59,8 @@ namespace UrbanSystem.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model); // Return the form with validation errors displayed
+                model.Cities = await CityList();
+                return View(model);
             }
 
             await _projectService.AddProjectAsync(model);

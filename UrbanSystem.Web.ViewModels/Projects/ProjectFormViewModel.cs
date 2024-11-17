@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using UrbanSystem.Web.ViewModels.Locations;
 
 namespace UrbanSystem.Web.ViewModels.Projects
 {
@@ -20,5 +21,8 @@ namespace UrbanSystem.Web.ViewModels.Projects
 
         [Required]
         public Guid LocationId { get; set; }
+
+        [Required]
+        public IEnumerable<CityOption> Cities { get; set; } = new HashSet<CityOption>();
     }
 }
