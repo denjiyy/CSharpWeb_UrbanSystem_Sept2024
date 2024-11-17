@@ -1,0 +1,31 @@
+﻿@model UrbanSystem.Web.ViewModels.Projects.ProjectIndexViewModel
+
+@{
+    ViewData["Title"] = $"{Model.Name} - Details";
+}
+
+<div class="container">
+    <!-- Project Details -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">@Model.Name</h2>
+            <h5 class="card-subtitle mb-2 text-muted">Location: @Model.LocationName</h5>
+            <p class="card-text">@Model.Description</p>
+
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="mb-4">
+                    <p class="font-weight-bold">Image:</p>
+                    <img src="@Model.ImageUrl" alt="Project Image" class="img-fluid rounded" />
+                </div>
+            }
+
+            <div class="mb-4">
+                <p><strong>Created On:</strong> @Model.CreatedOn.ToString("g")</p>
+                <p><strong>Status:</strong> @(Model.IsCompleted ? "Completed" : "In Progress")</p>
+            </div>
+
+            <a asp-action="All" asp-controller="Project" class="btn btn-secondary mt-4">⬅️ Back to List</a>
+        </div>
+    </div>
+</div>
