@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
-using UrbanSystem.Services.Mapping;
 using UrbanSystem.Web.ViewModels;
 using UrbanSystem.Web.ViewModels.Suggestions;
 
@@ -24,9 +22,14 @@ namespace UrbanSystem.Services.Data
         private readonly IRepository<CommentVote, object> _commentVoteRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public SuggestionService(IRepository<Suggestion, Guid> suggestionRepository, IRepository<Location, Guid> locationRepository, IRepository<ApplicationUserSuggestion, object> userSuggestionRepository,
-            IRepository<SuggestionLocation, object> suggestionLocationRepository, IRepository<Comment, Guid> commentRepository,
-            IRepository<CommentVote, object> commentVoteRepository, UserManager<ApplicationUser> userManager)
+        public SuggestionService(
+            IRepository<Suggestion, Guid> suggestionRepository,
+            IRepository<Location, Guid> locationRepository,
+            IRepository<ApplicationUserSuggestion, object> userSuggestionRepository,
+            IRepository<SuggestionLocation, object> suggestionLocationRepository,
+            IRepository<Comment, Guid> commentRepository,
+            IRepository<CommentVote, object> commentVoteRepository,
+            UserManager<ApplicationUser> userManager)
         {
             _suggestionRepository = suggestionRepository;
             _locationRepository = locationRepository;
@@ -39,12 +42,7 @@ namespace UrbanSystem.Services.Data
 
         public async Task<bool> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                return false;
-            }
-
-            if (!Guid.TryParse(userId, out Guid parsedUserId))
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
             {
                 return false;
             }
@@ -56,14 +54,21 @@ namespace UrbanSystem.Services.Data
             }
 
             var location = await _locationRepository.GetByIdAsync(suggestionModel.CityId);
-
             if (location == null)
             {
                 return false;
             }
 
-            Suggestion suggestion = new Suggestion();
-            AutoMapperConfig.MapperInstance.Map(suggestionModel, suggestion);
+            var suggestion = new Suggestion
+            {
+                Title = suggestionModel.Title,
+                Category = suggestionModel.Category,
+                Description = suggestionModel.Description,
+                AttachmentUrl = suggestionModel.AttachmentUrl,
+                Status = suggestionModel.Status,
+                Priority = suggestionModel.Priority,
+                UploadedOn = DateTime.UtcNow
+            };
 
             await _suggestionRepository.AddAsync(suggestion);
 
@@ -88,10 +93,23 @@ namespace UrbanSystem.Services.Data
 
         public async Task<IEnumerable<SuggestionIndexViewModel>> GetAllSuggestionsAsync()
         {
-            return await _suggestionRepository
-                .GetAllAttached()
-                .To<SuggestionIndexViewModel>()
-                .ToListAsync();
+            // Fetch all suggestions from the database
+            var suggestions = await _suggestionRepository.GetAllAsync();
+
+            // Manually map each Suggestion to a SuggestionIndexViewModel
+            return suggestions.Select(suggestion => new SuggestionIndexViewModel
+            {
+                Id = suggestion.Id.ToString(),
+                Title = suggestion.Title,
+                Category = suggestion.Category,
+                Description = suggestion.Description,
+                AttachmentUrl = suggestion.AttachmentUrl,
+                UploadedOn = suggestion.UploadedOn.ToString("yyyy-MM-dd HH:mm:ss"),
+                Status = suggestion.Status,
+                Priority = suggestion.Priority,
+                Upvotes = suggestion.Upvotes,
+                Downvotes = suggestion.Downvotes
+            });
         }
 
         public async Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id)
@@ -107,9 +125,30 @@ namespace UrbanSystem.Services.Data
                 return null;
             }
 
-            var model = AutoMapperConfig.MapperInstance.Map<SuggestionIndexViewModel>(suggestion);
-
-            return model;
+            // Manually map the Suggestion to a SuggestionIndexViewModel
+            return new SuggestionIndexViewModel
+            {
+                Id = suggestion.Id.ToString(),
+                Title = suggestion.Title,
+                Category = suggestion.Category,
+                Description = suggestion.Description,
+                AttachmentUrl = suggestion.AttachmentUrl,
+                UploadedOn = suggestion.UploadedOn.ToString("yyyy-MM-dd HH:mm:ss"),
+                Status = suggestion.Status,
+                Priority = suggestion.Priority,
+                Upvotes = suggestion.Upvotes,
+                Downvotes = suggestion.Downvotes,
+                LocationNames = suggestion.SuggestionsLocations.Select(sl => sl.Location.CityName).ToList(),
+                Comments = suggestion.Comments.Select(c => new CommentViewModel
+                {
+                    Id = c.Id,
+                    Content = c.Content ?? string.Empty,
+                    AddedOn = c.AddedOn,
+                    UserName = c.User?.UserName ?? "Unknown User",
+                    Upvotes = c.Upvotes,
+                    Downvotes = c.Downvotes
+                }).ToList()
+            };
         }
 
         public async Task<bool> AddCommentAsync(Guid suggestionId, string content, string userId)

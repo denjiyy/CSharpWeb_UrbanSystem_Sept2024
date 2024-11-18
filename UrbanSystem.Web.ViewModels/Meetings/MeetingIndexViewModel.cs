@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using AutoMapper;
 using UrbanSystem.Data.Models;
-using UrbanSystem.Services.Mapping;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {

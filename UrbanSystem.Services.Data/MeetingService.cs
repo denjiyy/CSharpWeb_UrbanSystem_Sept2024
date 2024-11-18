@@ -36,7 +36,7 @@ namespace UrbanSystem.Services.Data
                 Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
                 Duration = m.Duration,
-                CityName = m.Location?.CityName ?? "Unknown" // Include location name
+                CityName = m.Location?.CityName ?? "Unknown"
             });
         }
 
@@ -55,7 +55,7 @@ namespace UrbanSystem.Services.Data
                 Description = meeting.Description,
                 ScheduledDate = meeting.ScheduledDate,
                 Duration = meeting.Duration,
-                CityName = meeting.Location?.CityName ?? "Unknown" // Include location name
+                CityName = meeting.Location?.CityName ?? "Unknown"
             };
         }
 
@@ -73,7 +73,7 @@ namespace UrbanSystem.Services.Data
                 Description = meetingForm.Description,
                 ScheduledDate = meetingForm.ScheduledDate,
                 Duration = TimeSpan.FromHours(meetingForm.Duration),
-                LocationId = location.Id // Set location
+                LocationId = location.Id
             };
 
             await _meetingRepository.AddAsync(meeting);
@@ -98,7 +98,7 @@ namespace UrbanSystem.Services.Data
             meeting.Description = meetingForm.Description;
             meeting.ScheduledDate = meetingForm.ScheduledDate;
             meeting.Duration = TimeSpan.FromHours(meetingForm.Duration);
-            meeting.LocationId = location.Id; // Update location
+            meeting.LocationId = location.Id;
 
             await _meetingRepository.UpdateAsync(meeting);
         }
@@ -177,7 +177,7 @@ namespace UrbanSystem.Services.Data
                 Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
                 Duration = m.Duration,
-                Location = m.Location?.CityName ?? "Unknown", // Include location name
+                Location = m.Location?.CityName ?? "Unknown",
                 CanCancelAttendance = m.ScheduledDate > DateTime.Now.AddHours(24)
             });
         }

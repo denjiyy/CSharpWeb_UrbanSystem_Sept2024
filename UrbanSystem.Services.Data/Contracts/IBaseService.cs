@@ -6,6 +6,6 @@ namespace UrbanSystem.Services.Data.Contracts
 {
     public interface IBaseService
     {
-        Task<IEnumerable<CityOption>> GetCitiesAsync(); // New method declaration
+        Task<IEnumerable<CityOption>> GetCitiesAsync();
     }
 }

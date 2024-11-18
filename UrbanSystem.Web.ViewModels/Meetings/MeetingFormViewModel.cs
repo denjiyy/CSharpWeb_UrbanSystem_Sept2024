@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using UrbanSystem.Data.Models;
-using UrbanSystem.Services.Mapping;
 using UrbanSystem.Web.ViewModels.Locations;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {
-    public class MeetingFormViewModel : IMapTo<Meeting>
+    public class MeetingFormViewModel
     {
         [Required(ErrorMessage = "Title is required")]
         [StringLength(200, ErrorMessage = "Title cannot be longer than 200 characters")]
@@ -27,7 +26,7 @@ namespace UrbanSystem.Web.ViewModels.Meetings
         public double Duration { get; set; }
 
         [Required(ErrorMessage = "Location is required")]
-        public Guid? LocationId { get; set; }  // LocationId as a foreign key
+        public Guid? LocationId { get; set; }
 
         public IEnumerable<CityOption> Cities { get; set; } = new List<CityOption>();
     }

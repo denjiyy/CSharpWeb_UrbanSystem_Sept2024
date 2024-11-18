@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
-using UrbanSystem.Services.Mapping;
 using static UrbanSystem.Common.EntityValidationMessages.Location;
 
 namespace UrbanSystem.Web.ViewModels.Locations
 {
-    public class LocationFormViewModel : IMapTo<Location>
+    public class LocationFormViewModel
     {
         [Required(ErrorMessage = CityNameRequiredMessage)]
         [StringLength(100, ErrorMessage = CityNameMaxLengthMessage)]

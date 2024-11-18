@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
-using UrbanSystem.Services.Mapping;
 using UrbanSystem.Web.ViewModels.Locations;
+using UrbanSystem.Web.ViewModels.SuggestionsLocations;
 
 namespace UrbanSystem.Services.Data
 {
@@ -20,47 +20,65 @@ namespace UrbanSystem.Services.Data
             _locationRepository = locationRepository;
         }
 
-        // Add a new location to the database
         public async Task AddLocationAsync(LocationFormViewModel model)
         {
-            // Map the form view model to the Location entity
-            Location location = new Location();
-            AutoMapperConfig.MapperInstance.Map(model, location);
+            var location = new Location
+            {
+                CityName = model.CityName,
+                StreetName = model.StreetName,
+                CityPicture = model.CityPicture
+            };
 
-            // Add the location to the repository
             await _locationRepository.AddAsync(location);
         }
 
-        // Get all locations ordered by city name
         public async Task<IEnumerable<LocationDetailsViewModel>> GetAllOrderedByNameAsync()
         {
             var locations = await _locationRepository
                 .GetAllAttached()
-                .OrderBy(l => l.CityName) // Sorting locations by city name
-                .To<LocationDetailsViewModel>() // Convert locations to view model
-                .ToListAsync(); // Execute the query
+                .OrderBy(l => l.CityName)
+                .ToListAsync();
 
-            return locations;
+            // Manual mapping
+            var viewModel = locations.Select(l => new LocationDetailsViewModel
+            {
+                Id = l.Id.ToString(),
+                CityName = l.CityName,
+                StreetName = l.StreetName,
+                CityPicture = l.CityPicture,
+                Suggestions = new List<SuggestionLocationViewModel>() // Suggestions not included in this query
+            });
+
+            return viewModel;
         }
 
-        // Get details of a location by its ID
         public async Task<LocationDetailsViewModel?> GetLocationDetailsByIdAsync(Guid id)
         {
             var location = await _locationRepository
-                .GetAllAttached() // Ensure we're tracking the location
-                .Include(l => l.SuggestionsLocations) // Include suggestions related to the location
-                .ThenInclude(sl => sl.Suggestion) // Include suggestions details
-                .FirstOrDefaultAsync(l => l.Id == id); // Find location by ID
+                .GetAllAttached()
+                .Include(l => l.SuggestionsLocations)
+                .ThenInclude(sl => sl.Suggestion)
+                .FirstOrDefaultAsync(l => l.Id == id);
 
-            // Return null if location not found
             if (location == null)
             {
                 return null;
             }
 
-            // Map the location to the view model
-            var viewModel = new LocationDetailsViewModel();
-            AutoMapperConfig.MapperInstance.Map(location, viewModel);
+            // Manual mapping
+            var viewModel = new LocationDetailsViewModel
+            {
+                Id = location.Id.ToString(),
+                CityName = location.CityName,
+                StreetName = location.StreetName,
+                CityPicture = location.CityPicture,
+                Suggestions = location.SuggestionsLocations.Select(sl => new SuggestionLocationViewModel
+                {
+                    Id = sl.Suggestion.Id.ToString(),
+                    Title = sl.Suggestion.Title
+                }).ToList()
+            };
+
             return viewModel;
         }
     }

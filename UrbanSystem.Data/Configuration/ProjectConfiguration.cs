@@ -24,6 +24,10 @@ namespace UrbanSystem.Data.Configuration
                    .IsRequired()
                    .HasMaxLength(500);
 
+            builder.Property(f => f.DesiredSum)
+                   .IsRequired()
+                   .HasColumnType("decimal(18,2)");
+
             builder.Property(p => p.ImageUrl)
                    .HasMaxLength(2048);
 

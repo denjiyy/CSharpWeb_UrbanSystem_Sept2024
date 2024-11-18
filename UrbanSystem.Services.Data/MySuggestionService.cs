@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
-using UrbanSystem.Services.Mapping;
+using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Suggestions;
 
 namespace UrbanSystem.Services.Data
@@ -23,14 +22,32 @@ namespace UrbanSystem.Services.Data
 
         public async Task<IEnumerable<MySuggestionsViewModel>> GetAllSuggestionsForLoggedInUser(string userId)
         {
+            // Fetch suggestions for the given user
             var suggestions = await _userSuggestionRepository
                 .GetAllAttached()
                 .Include(us => us.Suggestion)
+                .ThenInclude(s => s.SuggestionsLocations) // Include related locations
+                    .ThenInclude(sl => sl.Location) // Include location details
                 .Where(us => us.ApplicationUserId.ToString().ToLower() == userId.ToLower())
                 .OrderBy(us => us.Suggestion.UploadedOn)
                 .ToListAsync();
 
-            var viewModel = AutoMapperConfig.MapperInstance.Map<IEnumerable<MySuggestionsViewModel>>(suggestions);
+            // Manual mapping to MySuggestionsViewModel
+            var viewModel = suggestions.Select(us => new MySuggestionsViewModel
+            {
+                Id = us.Suggestion.Id.ToString(),
+                Title = us.Suggestion.Title,
+                Category = us.Suggestion.Category,
+                UploadedOn = us.Suggestion.UploadedOn.ToString("yyyy-MM-dd HH:mm:ss"),
+                AttachmentUrl = us.Suggestion.AttachmentUrl,
+                Upvotes = us.Suggestion.Upvotes.ToString(),
+                Downvotes = us.Suggestion.Downvotes.ToString(),
+                LocationNames = us.Suggestion.SuggestionsLocations.Select(sl => new CityOption
+                {
+                    Value = sl.Location.Id.ToString(),
+                    Text = sl.Location.CityName
+                }).ToList()
+            });
 
             return viewModel;
         }

@@ -21,9 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrbanSystem.Web.Infrastruct
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{4AC1CEC6-ED3C-4417-BA67-0E850F09DF3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanSystem.Services.Data", "UrbanSystem.Services.Data\UrbanSystem.Services.Data.csproj", "{82E6B757-AFDA-4260-A910-5785AB472A6B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanSystem.Services.Mapping", "UrbanSystem.Services.Mapping\UrbanSystem.Services.Mapping.csproj", "{A202DD6B-F299-4544-B8F5-2256FC1E935C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrbanSystem.Services.Data", "UrbanSystem.Services.Data\UrbanSystem.Services.Data.csproj", "{82E6B757-AFDA-4260-A910-5785AB472A6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,10 +57,6 @@ Global
 		{82E6B757-AFDA-4260-A910-5785AB472A6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82E6B757-AFDA-4260-A910-5785AB472A6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82E6B757-AFDA-4260-A910-5785AB472A6B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A202DD6B-F299-4544-B8F5-2256FC1E935C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A202DD6B-F299-4544-B8F5-2256FC1E935C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A202DD6B-F299-4544-B8F5-2256FC1E935C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A202DD6B-F299-4544-B8F5-2256FC1E935C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,7 +68,6 @@ Global
 		{F8B8F922-9118-44BD-9DC6-F214872487AC} = {96CDF6A5-3687-4ECE-908F-355E07859913}
 		{5437558F-8108-428B-8DEF-172D874424D6} = {7F449A0E-5C85-41B5-9196-344B76754285}
 		{82E6B757-AFDA-4260-A910-5785AB472A6B} = {4AC1CEC6-ED3C-4417-BA67-0E850F09DF3A}
-		{A202DD6B-F299-4544-B8F5-2256FC1E935C} = {4AC1CEC6-ED3C-4417-BA67-0E850F09DF3A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0E9D966-C72C-41F7-B6F5-AD06DCE77B65}

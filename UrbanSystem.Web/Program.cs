@@ -1,4 +1,3 @@
-using UrbanSystem.Services.Mapping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
@@ -12,6 +11,10 @@ using UrbanSystem.Web.Infrastructure.Extensions;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Services.Data;
 using UrbanSystem.Web.ViewModels.Meetings;
+using Microsoft.Build.Evaluation;
+using Microsoft.DotNet.Scaffolding.Shared.ProjectModel;
+using UrbanSystem.Services.Interfaces;
+using UrbanSystem.Services;
 
 namespace UrbanSystem.Web
 {
@@ -40,30 +43,29 @@ namespace UrbanSystem.Web
                 options.LoginPath = "/Identity/Account/Login";
             });
 
-            builder.Services.RegisterRepositories(typeof(ApplicationUser).Assembly);
-            builder.Services.RegisterUserDefinedServices(typeof(ISuggestionService).Assembly);
-
-            // Register services
-            builder.Services.AddScoped<ILocationService, LocationService>();
-            builder.Services.AddScoped<IMeetingService, MeetingService>();
-
             // Register repositories
             builder.Services.AddScoped(typeof(IRepository<,>), typeof(BaseRepository<,>));
             builder.Services.AddScoped<IRepository<CommentVote, object>, BaseRepository<CommentVote, object>>();
             builder.Services.AddScoped<IRepository<Meeting, Guid>, BaseRepository<Meeting, Guid>>();
             builder.Services.AddScoped<IRepository<ApplicationUser, Guid>, BaseRepository<ApplicationUser, Guid>>();
+            builder.Services.AddScoped<IRepository<ApplicationUserSuggestion, object>, BaseRepository<ApplicationUserSuggestion, object>>();
+            builder.Services.AddScoped<IRepository<Data.Models.Project, Guid>, BaseRepository<Data.Models.Project, Guid>>();
+            builder.Services.AddScoped<IRepository<Meeting, Guid>, BaseRepository<Meeting, Guid>>();
+
+            // Register user-defined services
+            builder.Services.AddScoped<IBaseService, BaseService>();
+            builder.Services.AddScoped<ILocationService, LocationService>();
+            builder.Services.AddScoped<IMeetingService, MeetingService>();
+            builder.Services.AddScoped<ISuggestionService, SuggestionService>();
+            builder.Services.AddScoped<IMySuggestionService, MySuggestionService>();
+            builder.Services.AddScoped<IProjectService, ProjectService>();
+            builder.Services.AddScoped<IMeetingService, MeetingService>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
-            builder.Services.AddAutoMapper(typeof(Program));
 
             var app = builder.Build();
-
-            // Configure AutoMapper
-            AutoMapperConfig.RegisterMappings(
-                    typeof(ErrorViewModel).GetTypeInfo().Assembly,
-                    typeof(MeetingIndexViewModel).GetTypeInfo().Assembly);
 
             // Configure the HTTP request pipeline
             if (!app.Environment.IsDevelopment())

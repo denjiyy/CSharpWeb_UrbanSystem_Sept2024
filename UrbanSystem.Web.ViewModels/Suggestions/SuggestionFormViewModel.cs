@@ -6,12 +6,10 @@ using UrbanSystem.Web.ViewModels.Locations;
 using static UrbanSystem.Common.EntityValidationConstants.Suggestion;
 using static UrbanSystem.Common.EntityValidationMessages.Suggestion;
 using static UrbanSystem.Common.EntityValidationConstants.Location;
-using UrbanSystem.Services.Mapping;
-using AutoMapper;
 
 namespace UrbanSystem.Web.ViewModels.Suggestions
 {
-    public class SuggestionFormViewModel : IMapTo<Suggestion>, IHaveCustomMappings
+    public class SuggestionFormViewModel
     {
         [Required(ErrorMessage = TitleRequiredMessage)]
         [MinLength(TitleMinLength)]
@@ -47,14 +45,5 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
         public Guid CityId { get; set; }
 
         public IEnumerable<CityOption> Cities { get; set; } = new HashSet<CityOption>();
-
-        public void CreateMappings(IProfileExpression configuration)
-        {
-            configuration.CreateMap<SuggestionFormViewModel, Suggestion>()
-                .ForMember(d => d.Id, opt => opt.Ignore())
-                .ForMember(d => d.UploadedOn, opt => opt.MapFrom(_ => DateTime.UtcNow))
-                .ForMember(d => d.Upvotes, opt => opt.MapFrom(_ => 0))
-                .ForMember(d => d.Downvotes, opt => opt.MapFrom(_ => 0));
-        }
     }
 }

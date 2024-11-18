@@ -12,10 +12,12 @@ namespace UrbanSystem.Web.Controllers
     public class MeetingController : BaseController
     {
         private readonly IMeetingService _meetingService;
+        private readonly IBaseService _baseService;
 
-        public MeetingController(IMeetingService meetingService)
+        public MeetingController(IBaseService baseService, IMeetingService meetingService) : base(baseService)
         {
             _meetingService = meetingService;
+            _baseService = baseService;
         }
 
         [HttpGet]

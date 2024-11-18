@@ -1,10 +1,8 @@
-﻿using AutoMapper;
-using UrbanSystem.Data.Models;
-using UrbanSystem.Services.Mapping;
+﻿using UrbanSystem.Data.Models;
 
 namespace UrbanSystem.Web.ViewModels
 {
-    public class CommentViewModel : IMapFrom<Comment>, IHaveCustomMappings
+    public class CommentViewModel
     {
         public Guid Id { get; set; }
         public string Content { get; set; } = null!;
@@ -13,10 +11,5 @@ namespace UrbanSystem.Web.ViewModels
         public int Upvotes { get; set; }
         public int Downvotes { get; set; }
 
-        public void CreateMappings(IProfileExpression configuration)
-        {
-            configuration.CreateMap<Comment, CommentViewModel>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName));
-        }
     }
 }

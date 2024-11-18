@@ -42,7 +42,7 @@
                                 @if (suggestion.LocationNames.Any())
                                 {
                                     <p class="card-text">
-                                        <strong>Locations:</strong> @string.Join(", ", suggestion.LocationNames)
+                                        <strong>Location:</strong> @suggestion.LocationNames.FirstOrDefault()?.Text
                                     </p>
                                 }
                             </div>

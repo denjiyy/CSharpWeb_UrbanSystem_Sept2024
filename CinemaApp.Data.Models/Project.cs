@@ -12,10 +12,12 @@ namespace UrbanSystem.Data.Models
         {
             Id = Guid.NewGuid(); 
         }
+
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public string? ImageUrl { get; set; }
-        public string Description { get; set; } = null!; 
+        public string Description { get; set; } = null!;
+        public decimal DesiredSum { get; set; } = 0m;
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public bool IsCompleted { get; set; } = false;
         public Guid LocationId { get; set; }

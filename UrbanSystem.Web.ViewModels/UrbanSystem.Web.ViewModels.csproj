@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\CinemaApp.Common\UrbanSystem.Common.csproj" />
     <ProjectReference Include="..\CinemaApp.Data.Models\UrbanSystem.Data.Models.csproj" />
-    <ProjectReference Include="..\UrbanSystem.Services.Mapping\UrbanSystem.Services.Mapping.csproj" />
   </ItemGroup>
 
 </Project>
