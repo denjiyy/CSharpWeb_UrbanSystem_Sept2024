@@ -8,6 +8,7 @@ namespace UrbanSystem.Services.Data.Contracts
 {
     public interface IFundingService
     {
-        Task<bool> AddFundingToProjectAsync(Guid projectId, decimal fundingAmount);
+        Task<bool> AddFundingAsync(Guid projectId, decimal amount);
+        Task<decimal> GetTotalFundingAsync(Guid projectId);
     }
 }

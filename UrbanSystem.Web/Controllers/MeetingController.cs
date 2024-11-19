@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
-using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Meetings;
 
 namespace UrbanSystem.Web.Controllers
@@ -13,11 +14,13 @@ namespace UrbanSystem.Web.Controllers
     {
         private readonly IMeetingService _meetingService;
         private readonly IBaseService _baseService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public MeetingController(IBaseService baseService, IMeetingService meetingService) : base(baseService)
+        public MeetingController(IBaseService baseService, IMeetingService meetingService, UserManager<ApplicationUser> userManager) : base(baseService)
         {
             _meetingService = meetingService;
             _baseService = baseService;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -31,11 +34,7 @@ namespace UrbanSystem.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var locations = await CityList();
-            var viewModel = new MeetingFormViewModel
-            {
-                Cities = locations
-            };
+            var viewModel = await _meetingService.GetMeetingFormViewModelAsync();
             return View(viewModel);
         }
 
@@ -43,35 +42,24 @@ namespace UrbanSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(MeetingFormViewModel meetingForm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                await _meetingService.CreateMeetingAsync(meetingForm);
-                return RedirectToAction(nameof(All));
+                meetingForm = await _meetingService.GetMeetingFormViewModelAsync(meetingForm);
+                return View(meetingForm);
             }
 
-            meetingForm.Cities = await CityList();
-            return View(meetingForm);
+            await _meetingService.CreateMeetingAsync(meetingForm);
+            return RedirectToAction(nameof(All));
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var meeting = await _meetingService.GetMeetingByIdAsync(id);
-            if (meeting == null)
+            var meetingForm = await _meetingService.GetMeetingForEditAsync(id);
+            if (meetingForm == null)
             {
                 return NotFound();
             }
-
-            var locations = await CityList();
-            var meetingForm = new MeetingFormViewModel
-            {
-                Title = meeting.Title,
-                Description = meeting.Description,
-                ScheduledDate = meeting.ScheduledDate,
-                Duration = meeting.Duration.TotalHours,
-                LocationId = meeting.LocationId,
-                Cities = locations
-            };
 
             return View(meetingForm);
         }
@@ -80,21 +68,21 @@ namespace UrbanSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, MeetingFormViewModel meetingForm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    await _meetingService.UpdateMeetingAsync(id, meetingForm);
-                    return RedirectToAction(nameof(All));
-                }
-                catch (ArgumentException)
-                {
-                    return NotFound();
-                }
+                meetingForm = await _meetingService.GetMeetingFormViewModelAsync(meetingForm);
+                return View(meetingForm);
             }
 
-            meetingForm.Cities = await CityList();
-            return View(meetingForm);
+            try
+            {
+                await _meetingService.UpdateMeetingAsync(id, meetingForm);
+                return RedirectToAction(nameof(All));
+            }
+            catch (ArgumentException)
+            {
+                return NotFound();
+            }
         }
 
         [HttpGet]
@@ -139,19 +127,19 @@ namespace UrbanSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Attend(Guid id)
         {
+            if (User.Identity?.Name == null)
+            {
+                return Unauthorized();
+            }
+
             try
             {
-                if (User.Identity?.Name == null)
-                {
-                    return Unauthorized();
-                }
-
                 await _meetingService.AttendMeetingAsync(User.Identity.Name, id);
                 TempData["SuccessMessage"] = "You have successfully registered for the meeting!";
             }
-            catch (ArgumentException)
+            catch (InvalidOperationException ex)
             {
-                TempData["ErrorMessage"] = "Unable to attend the meeting. Please try again.";
+                TempData["ErrorMessage"] = ex.Message;
             }
 
             return RedirectToAction(nameof(All));
@@ -161,19 +149,18 @@ namespace UrbanSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelAttendance(Guid id)
         {
+            if (User.Identity?.Name == null)
+            {
+                return Unauthorized();
+            }
+
             try
             {
-                if (User.Identity?.Name == null)
-                {
-                    return Unauthorized();
-                }
-
                 await _meetingService.CancelAttendanceAsync(User.Identity.Name, id);
-                TempData["SuccessMessage"] = "You have successfully canceled your attendance!";
             }
-            catch (ArgumentException)
+            catch (InvalidOperationException ex)
             {
-                TempData["ErrorMessage"] = "Unable to cancel attendance. Please try again.";
+                return View(ex.Message);
             }
 
             return RedirectToAction(nameof(All));
@@ -187,11 +174,7 @@ namespace UrbanSystem.Web.Controllers
                 return Unauthorized();
             }
 
-            var attendedMeetings = await _meetingService.GetUserAttendedMeetingsAsync(User.Identity.Name);
-            var viewModel = new UserAttendedMeetingsViewModel
-            {
-                AttendedMeetings = attendedMeetings
-            };
+            var viewModel = await _meetingService.GetUserAttendedMeetingsAsync(User.Identity.Name);
             return View(viewModel);
         }
     }

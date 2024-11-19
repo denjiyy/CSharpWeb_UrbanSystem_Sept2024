@@ -51,6 +51,7 @@ namespace UrbanSystem.Web
             builder.Services.AddScoped<IRepository<ApplicationUserSuggestion, object>, BaseRepository<ApplicationUserSuggestion, object>>();
             builder.Services.AddScoped<IRepository<Data.Models.Project, Guid>, BaseRepository<Data.Models.Project, Guid>>();
             builder.Services.AddScoped<IRepository<Meeting, Guid>, BaseRepository<Meeting, Guid>>();
+            builder.Services.AddScoped<IRepository<Funding, Guid>, BaseRepository<Funding, Guid>>();
 
             // Register user-defined services
             builder.Services.AddScoped<IBaseService, BaseService>();
@@ -60,6 +61,7 @@ namespace UrbanSystem.Web
             builder.Services.AddScoped<IMySuggestionService, MySuggestionService>();
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IMeetingService, MeetingService>();
+            builder.Services.AddScoped<IFundingService, FundingService>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();

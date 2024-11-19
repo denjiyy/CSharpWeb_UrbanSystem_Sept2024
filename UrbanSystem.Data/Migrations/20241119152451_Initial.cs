@@ -53,19 +53,6 @@ namespace UrbanSystem.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Fundings",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Fundings", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
@@ -233,10 +220,12 @@ namespace UrbanSystem.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FundsRaised = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    FundsNeeded = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    DesiredSum = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    FundingDeadline = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsCompleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     LocationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -248,7 +237,7 @@ namespace UrbanSystem.Data.Migrations
                         column: x => x.LocationId,
                         principalTable: "Locations",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -359,31 +348,27 @@ namespace UrbanSystem.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProjectsFundings",
+                name: "Fundings",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FundingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    FundedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectsFundings", x => new { x.ProjectId, x.FundingId });
+                    table.PrimaryKey("PK_Fundings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProjectsFundings_Fundings_FundingId",
-                        column: x => x.FundingId,
-                        principalTable: "Fundings",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProjectsFundings_Projects_ProjectId",
+                        name: "FK_Fundings_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "CommentVotes",
+                name: "CommentsVotes",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -394,20 +379,20 @@ namespace UrbanSystem.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommentVotes", x => x.Id);
+                    table.PrimaryKey("PK_CommentsVotes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CommentVotes_AspNetUsers_ApplicationUserId",
+                        name: "FK_CommentsVotes_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_CommentVotes_AspNetUsers_UserId",
+                        name: "FK_CommentsVotes_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CommentVotes_Comments_CommentId",
+                        name: "FK_CommentsVotes_Comments_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comments",
                         principalColumn: "Id",
@@ -419,33 +404,33 @@ namespace UrbanSystem.Data.Migrations
                 columns: new[] { "Id", "CityName", "CityPicture", "StreetName" },
                 values: new object[,]
                 {
-                    { new Guid("08713594-a4fe-4180-ad52-f73ee70451a0"), "Pernik", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Pernik-culture-palace-left.jpg/1920px-Pernik-culture-palace-left.jpg", "Main Street" },
-                    { new Guid("0a694de7-fa86-408d-883e-3353cae889c2"), "Kyustendil", "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Kyustendil_25.jpg/1024px-Kyustendil_25.jpg", "Main Street" },
-                    { new Guid("0f57a04b-04e0-49cc-aa2d-12b666d76215"), "Vidin", "https://upload.wikimedia.org/wikipedia/commons/7/70/Theater_House_in_Vidin_%2827460729905%29.jpg", "Main Street" },
-                    { new Guid("0fef8463-af0a-47c1-b6b5-a26658b853c3"), "Sliven", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Municipality_of_Sliven_Photo.jpg/1280px-Municipality_of_Sliven_Photo.jpg", "Main Street" },
-                    { new Guid("1a3a8565-1dcc-4b8e-9e92-0958773f4f2a"), "Stara Zagora", "https://upload.wikimedia.org/wikipedia/commons/3/33/Samarsko_Zname_Panorama.jpg", "Main Street" },
-                    { new Guid("21531f5c-70a0-41f2-9db6-ba177484fa01"), "Lovech", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bulgaria-Lovech-03.jpg/1024px-Bulgaria-Lovech-03.jpg", "Main Street" },
-                    { new Guid("2612ac21-3d22-4638-9363-bbab52f540c6"), "Pazardzhik", "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Pazardzhik_City_Centre.jpg/1024px-Pazardzhik_City_Centre.jpg", "Main Street" },
-                    { new Guid("30bc8b7a-d2aa-4b18-bb06-20e77421a463"), "Razgrad", "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/%D0%95%D1%82%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%81%D0%BA%D0%B8_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%B3%D1%80%D0%B0%D0%B4_%D0%A0%D0%B0%D0%B7%D0%B3%D1%80%D0%B0%D0%B4.jpg/1280px-%D0%95%D1%82%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%81%D0%BA%D0%B8_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%B3%D1%80%D0%B0%D0%B4_%D0%A0%D0%B0%D0%B7%D0%B3%D1%80%D0%B0%D0%B4.jpg", "Main Street" },
-                    { new Guid("31cf5d84-56fd-4949-a863-b9121beecfc9"), "Targovishte", "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Targovishte-MainSquare.jpg/1280px-Targovishte-MainSquare.jpg", "Main Street" },
-                    { new Guid("32e32b3c-f953-44ce-be03-6c22ac1d9918"), "Shumen", "https://upload.wikimedia.org/wikipedia/commons/5/51/Shumen_chitalishte_Dobri_Voynikov.jpg", "Main Street" },
-                    { new Guid("43a8fb15-924b-49e4-9a1f-f313a8eb37de"), "Blagoevgrad", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4_-_panoramio_%2826%29.jpg/1024px-%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4_-_panoramio_%2826%29.jpg", "Main Street" },
-                    { new Guid("4aca59bf-b705-41e7-9aba-946fb476bbe8"), "Kardzhali", "https://upload.wikimedia.org/wikipedia/commons/5/5d/%D0%98%D1%81%D1%82%D0%BE%D1%80%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D1%8F%D1%82_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%9A%D1%8A%D1%80%D0%B4%D0%B6%D0%B0%D0%BB%D0%B8.JPG", "Main Street" },
-                    { new Guid("4e56686a-5711-40cc-9764-e817d5920cd3"), "Smolyan", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/%D0%A1%D0%BC%D0%BE%D0%BB%D1%8F%D0%BD_2691396959_f63b323fab_o.jpg/1024px-%D0%A1%D0%BC%D0%BE%D0%BB%D1%8F%D0%BD_2691396959_f63b323fab_o.jpg", "Main Street" },
-                    { new Guid("6237ef8b-be8e-4ccc-8ee2-7d839c63286a"), "Yambol", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/YAMBOL_new_center.jpg/1920px-YAMBOL_new_center.jpg", "Main Street" },
-                    { new Guid("8b93df5c-73f1-4231-a457-7aaccdf3b14f"), "Dobrich", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dobrich_Sunrise%2C_Winter_2014.JPG/1280px-Dobrich_Sunrise%2C_Winter_2014.JPG", "Main Street" },
-                    { new Guid("8e370d62-960c-4ba9-a501-8893416f2c2c"), "Sofia", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Catedral_de_Alejandro_Nevski_--_2019_--_Sof%C3%ADa%2C_Bulgaria.jpg/1280px-Catedral_de_Alejandro_Nevski_--_2019_--_Sof%C3%ADa%2C_Bulgaria.jpg", "Main Street" },
-                    { new Guid("8ffaccf5-c445-43fd-9189-0b0bfa5ca839"), "Ruse", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B0_%D0%B2_%D0%A0%D1%83%D1%81%D0%B5.jpg/1280px-%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B0_%D0%B2_%D0%A0%D1%83%D1%81%D0%B5.jpg", "Main Street" },
-                    { new Guid("98618a37-fa0f-4e88-813a-949a597228b3"), "Pleven", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/%D0%9F%D0%BB%D0%B5%D0%B2%D0%B5%D0%BD_%D0%BC%D0%B0%D1%80%D1%82_2014_-_panoramio_%281%29.jpg/1280px-%D0%9F%D0%BB%D0%B5%D0%B2%D0%B5%D0%BD_%D0%BC%D0%B0%D1%80%D1%82_2014_-_panoramio_%281%29.jpg", "Main Street" },
-                    { new Guid("a602867f-9295-45e8-b293-4ca3e4a48537"), "Plovdiv", "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Bulgaria_Bulgaria-0785_-_Roman_Theatre_of_Philippopolis_%287432772486%29.jpg/1280px-Bulgaria_Bulgaria-0785_-_Roman_Theatre_of_Philippopolis_%287432772486%29.jpg", "Main Street" },
-                    { new Guid("a91c6dec-015c-4a7c-aa95-f87ff0ac5ad9"), "Silistra", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Silistra-art-gallery-Minkov.jpg/1024px-Silistra-art-gallery-Minkov.jpg", "Main Street" },
-                    { new Guid("aa9d7d6b-cac7-46d6-814b-e0fd57c5f858"), "Veliko Tarnovo", "https://traventuria.com/wp-content/uploads/2016/10/veliko-tarnovo-1.jpg", "Main Street" },
-                    { new Guid("b80c637f-1ced-45aa-ba91-0bf474cb4f72"), "Vratsa", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Vratsa_12.jpg/1024px-Vratsa_12.jpg", "Main Street" },
-                    { new Guid("c911bca7-bcf0-494b-88f6-a77bda09169a"), "Haskovo", "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Haskovo2.jpg/1024px-Haskovo2.jpg", "Main Street" },
-                    { new Guid("cc7fd340-74c0-4027-8ac2-fca9acf5ac3b"), "Montana", "https://upload.wikimedia.org/wikipedia/commons/4/47/Montana-downtown.jpg", "Main Street" },
-                    { new Guid("db707e72-0d54-41c9-9fda-9ac855e49207"), "Gabrovo", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/TownHall_Gabrovo.jpg/1280px-TownHall_Gabrovo.jpg", "Main Street" },
-                    { new Guid("e10d5a69-915f-4a89-8f7d-3f53cdda715e"), "Burgas", "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/08/19/fe/30/getlstd-property-photo.jpg?w=1200&h=-1&s=1", "Main Street" },
-                    { new Guid("fa40dc0f-87f0-43b6-afc8-fd5ec9e83235"), "Varna", "https://upload.wikimedia.org/wikipedia/en/thumb/7/79/Dramatheatrevarna.jpg/1280px-Dramatheatrevarna.jpg", "Main Street" }
+                    { new Guid("151edbd5-eab6-46d5-853f-7b6a8d393cf3"), "Silistra", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Silistra-art-gallery-Minkov.jpg/1024px-Silistra-art-gallery-Minkov.jpg", "Main Street" },
+                    { new Guid("15ad42d1-255e-4954-9335-218b400d30b1"), "Montana", "https://upload.wikimedia.org/wikipedia/commons/4/47/Montana-downtown.jpg", "Main Street" },
+                    { new Guid("19f6f8e8-8668-4600-b039-64439581cfbb"), "Gabrovo", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/TownHall_Gabrovo.jpg/1280px-TownHall_Gabrovo.jpg", "Main Street" },
+                    { new Guid("2b2e0040-2648-4770-8bd3-3971f2185833"), "Pernik", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Pernik-culture-palace-left.jpg/1920px-Pernik-culture-palace-left.jpg", "Main Street" },
+                    { new Guid("34ae9700-6b85-4781-bd49-fbd4a5f77ada"), "Haskovo", "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Haskovo2.jpg/1024px-Haskovo2.jpg", "Main Street" },
+                    { new Guid("3726a0de-8f9b-4f2a-84da-f2277484af99"), "Ruse", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B0_%D0%B2_%D0%A0%D1%83%D1%81%D0%B5.jpg/1280px-%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B0_%D0%B2_%D0%A0%D1%83%D1%81%D0%B5.jpg", "Main Street" },
+                    { new Guid("546b28f9-0989-4358-aeb7-dc5358f2bc5e"), "Stara Zagora", "https://upload.wikimedia.org/wikipedia/commons/3/33/Samarsko_Zname_Panorama.jpg", "Main Street" },
+                    { new Guid("5e6c9757-125c-4f9b-9b5f-1f059bd281a3"), "Lovech", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bulgaria-Lovech-03.jpg/1024px-Bulgaria-Lovech-03.jpg", "Main Street" },
+                    { new Guid("670eb25d-2c38-4c4d-b6ff-679e1657f054"), "Veliko Tarnovo", "https://traventuria.com/wp-content/uploads/2016/10/veliko-tarnovo-1.jpg", "Main Street" },
+                    { new Guid("7baf8165-b4b4-470f-9d61-b726d1dd000e"), "Pazardzhik", "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Pazardzhik_City_Centre.jpg/1024px-Pazardzhik_City_Centre.jpg", "Main Street" },
+                    { new Guid("823caa4b-81e5-4cc3-ac75-eb07746fa069"), "Pleven", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/%D0%9F%D0%BB%D0%B5%D0%B2%D0%B5%D0%BD_%D0%BC%D0%B0%D1%80%D1%82_2014_-_panoramio_%281%29.jpg/1280px-%D0%9F%D0%BB%D0%B5%D0%B2%D0%B5%D0%BD_%D0%BC%D0%B0%D1%80%D1%82_2014_-_panoramio_%281%29.jpg", "Main Street" },
+                    { new Guid("83cdd361-04c3-4ed2-97a9-24ad8ba9e393"), "Vidin", "https://upload.wikimedia.org/wikipedia/commons/7/70/Theater_House_in_Vidin_%2827460729905%29.jpg", "Main Street" },
+                    { new Guid("87ef77ad-703b-443b-889a-920e8f95c6fd"), "Razgrad", "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/%D0%95%D1%82%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%81%D0%BA%D0%B8_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%B3%D1%80%D0%B0%D0%B4_%D0%A0%D0%B0%D0%B7%D0%B3%D1%80%D0%B0%D0%B4.jpg/1280px-%D0%95%D1%82%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%81%D0%BA%D0%B8_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%B3%D1%80%D0%B0%D0%B4_%D0%A0%D0%B0%D0%B7%D0%B3%D1%80%D0%B0%D0%B4.jpg", "Main Street" },
+                    { new Guid("954ef7f4-899c-4a8d-a274-29fdd29f499b"), "Blagoevgrad", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4_-_panoramio_%2826%29.jpg/1024px-%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4_-_panoramio_%2826%29.jpg", "Main Street" },
+                    { new Guid("9b50befd-caac-43ad-a28a-2ef805ceb983"), "Shumen", "https://upload.wikimedia.org/wikipedia/commons/5/51/Shumen_chitalishte_Dobri_Voynikov.jpg", "Main Street" },
+                    { new Guid("9f6ce056-632c-4705-b849-e8e4e11c0fa3"), "Yambol", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/YAMBOL_new_center.jpg/1920px-YAMBOL_new_center.jpg", "Main Street" },
+                    { new Guid("a7c6e270-88ae-45e7-8607-d7544a9b3610"), "Plovdiv", "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Bulgaria_Bulgaria-0785_-_Roman_Theatre_of_Philippopolis_%287432772486%29.jpg/1280px-Bulgaria_Bulgaria-0785_-_Roman_Theatre_of_Philippopolis_%287432772486%29.jpg", "Main Street" },
+                    { new Guid("b175028e-0bb1-40cf-a0e0-1863e1be05ef"), "Dobrich", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dobrich_Sunrise%2C_Winter_2014.JPG/1280px-Dobrich_Sunrise%2C_Winter_2014.JPG", "Main Street" },
+                    { new Guid("c218867e-72be-4b8b-a7c6-e3e38834abf7"), "Smolyan", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/%D0%A1%D0%BC%D0%BE%D0%BB%D1%8F%D0%BD_2691396959_f63b323fab_o.jpg/1024px-%D0%A1%D0%BC%D0%BE%D0%BB%D1%8F%D0%BD_2691396959_f63b323fab_o.jpg", "Main Street" },
+                    { new Guid("c24553d5-fd62-4624-8f43-f6ab9631842a"), "Vratsa", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Vratsa_12.jpg/1024px-Vratsa_12.jpg", "Main Street" },
+                    { new Guid("cfe1110a-5b26-4283-932d-90d564ff63b0"), "Kyustendil", "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Kyustendil_25.jpg/1024px-Kyustendil_25.jpg", "Main Street" },
+                    { new Guid("d6108ef4-cec8-4b9b-859e-92a85145a7ae"), "Sliven", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Municipality_of_Sliven_Photo.jpg/1280px-Municipality_of_Sliven_Photo.jpg", "Main Street" },
+                    { new Guid("da9cf6af-5e5a-4172-a956-67e8c4abfa7d"), "Targovishte", "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Targovishte-MainSquare.jpg/1280px-Targovishte-MainSquare.jpg", "Main Street" },
+                    { new Guid("dd3e463d-05bf-463a-befc-3e086576a457"), "Burgas", "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/08/19/fe/30/getlstd-property-photo.jpg?w=1200&h=-1&s=1", "Main Street" },
+                    { new Guid("de6eae9e-3ef4-4a53-a51f-2f95dfa18793"), "Sofia", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Catedral_de_Alejandro_Nevski_--_2019_--_Sof%C3%ADa%2C_Bulgaria.jpg/1280px-Catedral_de_Alejandro_Nevski_--_2019_--_Sof%C3%ADa%2C_Bulgaria.jpg", "Main Street" },
+                    { new Guid("e114f37d-90b8-4ea4-b748-d392e3db51dc"), "Kardzhali", "https://upload.wikimedia.org/wikipedia/commons/5/5d/%D0%98%D1%81%D1%82%D0%BE%D1%80%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D1%8F%D1%82_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%9A%D1%8A%D1%80%D0%B4%D0%B6%D0%B0%D0%BB%D0%B8.JPG", "Main Street" },
+                    { new Guid("f804a002-db01-44aa-9f65-ec85c33d0d75"), "Varna", "https://upload.wikimedia.org/wikipedia/en/thumb/7/79/Dramatheatrevarna.jpg/1280px-Dramatheatrevarna.jpg", "Main Street" }
                 });
 
             migrationBuilder.InsertData(
@@ -453,9 +438,9 @@ namespace UrbanSystem.Data.Migrations
                 columns: new[] { "Id", "AttachmentUrl", "Category", "Description", "Downvotes", "Priority", "Status", "Title", "UploadedOn", "Upvotes" },
                 values: new object[,]
                 {
-                    { new Guid("2971bab4-f0fc-4f88-b07d-2fc2f5cc4ce0"), null, "Transport", "Implement more frequent bus routes during peak hours to reduce congestion.", 2, "High", "Pending", "Improve Public Transport", new DateTime(2024, 11, 18, 16, 32, 39, 247, DateTimeKind.Utc).AddTicks(250), 10 },
-                    { new Guid("c4894895-2613-468f-979a-528d2f93d33e"), null, "Waste Management", "Introduce a recycling program and increase the frequency of waste collection.", 0, "High", "In Review", "Waste Management System", new DateTime(2024, 11, 18, 16, 32, 39, 247, DateTimeKind.Utc).AddTicks(260), 15 },
-                    { new Guid("e662ea95-e70c-4ab5-b154-79b2278efccb"), null, "Environment", "Renovate the central park by adding new benches, lighting, and a playground area.", 1, "Medium", "Approved", "Park Renovation", new DateTime(2024, 11, 18, 16, 32, 39, 247, DateTimeKind.Utc).AddTicks(256), 25 }
+                    { new Guid("627a0e8f-dda7-4669-8f54-abbb9795ed1b"), null, "Environment", "Renovate the central park by adding new benches, lighting, and a playground area.", 1, "Medium", "Approved", "Park Renovation", new DateTime(2024, 11, 19, 15, 24, 51, 30, DateTimeKind.Utc).AddTicks(7279), 25 },
+                    { new Guid("a7fd6f70-de75-4ee8-9a4d-72c4d263cc58"), null, "Transport", "Implement more frequent bus routes during peak hours to reduce congestion.", 2, "High", "Pending", "Improve Public Transport", new DateTime(2024, 11, 19, 15, 24, 51, 30, DateTimeKind.Utc).AddTicks(7274), 10 },
+                    { new Guid("af7c47b7-0e94-463e-9582-9a1474fc26b7"), null, "Waste Management", "Introduce a recycling program and increase the frequency of waste collection.", 0, "High", "In Review", "Waste Management System", new DateTime(2024, 11, 19, 15, 24, 51, 30, DateTimeKind.Utc).AddTicks(7282), 15 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -518,20 +503,25 @@ namespace UrbanSystem.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommentVotes_ApplicationUserId",
-                table: "CommentVotes",
+                name: "IX_CommentsVotes_ApplicationUserId",
+                table: "CommentsVotes",
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommentVotes_CommentId_UserId",
-                table: "CommentVotes",
+                name: "IX_CommentsVotes_CommentId_UserId",
+                table: "CommentsVotes",
                 columns: new[] { "CommentId", "UserId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommentVotes_UserId",
-                table: "CommentVotes",
+                name: "IX_CommentsVotes_UserId",
+                table: "CommentsVotes",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Fundings_ProjectId",
+                table: "Fundings",
+                column: "ProjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Meetings_LocationId",
@@ -542,11 +532,6 @@ namespace UrbanSystem.Data.Migrations
                 name: "IX_Projects_LocationId",
                 table: "Projects",
                 column: "LocationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProjectsFundings_FundingId",
-                table: "ProjectsFundings",
-                column: "FundingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SuggestionsLocations_LocationId",
@@ -581,10 +566,10 @@ namespace UrbanSystem.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CommentVotes");
+                name: "CommentsVotes");
 
             migrationBuilder.DropTable(
-                name: "ProjectsFundings");
+                name: "Fundings");
 
             migrationBuilder.DropTable(
                 name: "SuggestionsLocations");
@@ -600,9 +585,6 @@ namespace UrbanSystem.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Comments");
-
-            migrationBuilder.DropTable(
-                name: "Fundings");
 
             migrationBuilder.DropTable(
                 name: "Projects");

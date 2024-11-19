@@ -13,27 +13,20 @@ namespace UrbanSystem.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<CommentVote> builder)
         {
-            // Set primary key
             builder.HasKey(cv => cv.Id);
 
-            // Explicitly configure foreign key to Comment
             builder.HasOne(cv => cv.Comment)
-                   .WithMany(c => c.CommentVotes)  // Ensure Comment has a collection for CommentVotes
+                   .WithMany(c => c.CommentVotes)
                    .HasForeignKey(cv => cv.CommentId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            // Explicitly configure foreign key to ApplicationUser
             builder.HasOne(cv => cv.User)
-                   .WithMany()  // No navigation property needed on ApplicationUser
+                   .WithMany()
                    .HasForeignKey(cv => cv.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            // Ensure each user can vote only once per comment
             builder.HasIndex(cv => new { cv.CommentId, cv.UserId })
                    .IsUnique();
-
-            // Optional: Define table name
-            builder.ToTable("CommentVotes");
         }
     }
 }

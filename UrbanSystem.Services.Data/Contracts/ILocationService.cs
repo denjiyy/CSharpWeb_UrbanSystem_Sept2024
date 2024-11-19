@@ -13,6 +13,6 @@ namespace UrbanSystem.Services.Data.Contracts
 
         Task AddLocationAsync(LocationFormViewModel model);
 
-        Task<LocationDetailsViewModel> GetLocationDetailsByIdAsync(Guid id);
+        Task<LocationDetailsViewModel> GetLocationDetailsByIdAsync(string? id);
     }
 }

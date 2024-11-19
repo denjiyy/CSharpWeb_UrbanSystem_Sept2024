@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using UrbanSystem.Data;
-using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Locations;
-using UrbanSystem.Web.ViewModels.SuggestionsLocations;
 
 namespace UrbanSystem.Web.Controllers
 {
@@ -24,7 +20,6 @@ namespace UrbanSystem.Web.Controllers
         public async Task<IActionResult> All()
         {
             var locations = await _locationService.GetAllOrderedByNameAsync();
-
             return View(locations);
         }
 
@@ -43,7 +38,6 @@ namespace UrbanSystem.Web.Controllers
             }
 
             await _locationService.AddLocationAsync(model);
-
             return RedirectToAction(nameof(All));
         }
 
@@ -51,15 +45,7 @@ namespace UrbanSystem.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Details(string? id)
         {
-            Guid locationGuid = Guid.Empty;
-            // temporary patch
-            bool isIdValid = IsGuidIdValid(id?.ToLower(), ref locationGuid);
-            if (!isIdValid)
-            {
-                return RedirectToAction(nameof(All));
-            }
-
-            var details = await _locationService.GetLocationDetailsByIdAsync(locationGuid);
+            var details = await _locationService.GetLocationDetailsByIdAsync(id);
 
             if (details == null)
             {

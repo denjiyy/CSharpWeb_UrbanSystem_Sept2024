@@ -14,7 +14,7 @@ namespace UrbanSystem.Data.Configuration
                 .HasOne(p => p.Location)
                 .WithMany(l => l.Projects)
                 .HasForeignKey(p => p.LocationId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict); // Avoid cascading deletes
 
             builder.Property(p => p.Name)
                    .IsRequired()
@@ -24,9 +24,15 @@ namespace UrbanSystem.Data.Configuration
                    .IsRequired()
                    .HasMaxLength(500);
 
-            builder.Property(f => f.DesiredSum)
-                   .IsRequired()
-                   .HasColumnType("decimal(18,2)");
+            builder.Property(p => p.FundingDeadline)
+                .IsRequired();
+
+            builder.Property(p => p.FundsRaised)
+                .HasPrecision(18, 2);
+
+            builder.Property(p => p.FundsNeeded)
+                .IsRequired()
+                .HasPrecision(18, 2);
 
             builder.Property(p => p.ImageUrl)
                    .HasMaxLength(2048);
@@ -38,8 +44,6 @@ namespace UrbanSystem.Data.Configuration
             builder.Property(p => p.IsCompleted)
                    .IsRequired()
                    .HasDefaultValue(false);
-
-            builder.ToTable("Projects");
         }
     }
 }

@@ -11,6 +11,6 @@ namespace UrbanSystem.Services.Interfaces
         Task<IEnumerable<ProjectIndexViewModel>> GetAllProjectsAsync();
         Task<ProjectIndexViewModel?> GetProjectByIdAsync(Guid id);
         Task AddProjectAsync(ProjectFormViewModel project);
-        Task DeleteProjectAsync(Guid id);
+        Task<bool> DeleteProjectAsync(Guid id);
     }
 }

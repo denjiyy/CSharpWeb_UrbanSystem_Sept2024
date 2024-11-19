@@ -10,12 +10,12 @@ namespace UrbanSystem.Data.Models
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public Guid CommentId { get; set; }  // Foreign key
-        public Comment Comment { get; set; } = null!;  // Navigation property
+        public Guid CommentId { get; set; }
+        public Comment Comment { get; set; } = null!;
 
-        public Guid UserId { get; set; }  // Foreign key
-        public ApplicationUser User { get; set; } = null!;  // Navigation property
+        public Guid UserId { get; set; }
+        public ApplicationUser User { get; set; } = null!;
 
-        public bool IsUpvote { get; set; }  // Indicates an upvote or downvote
+        public bool IsUpvote { get; set; }
     }
 }

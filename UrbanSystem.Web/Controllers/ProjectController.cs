@@ -59,6 +59,8 @@ namespace UrbanSystem.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+
                 model.Cities = await CityList();
                 return View(model);
             }
@@ -71,15 +73,22 @@ namespace UrbanSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var project = await _projectService.GetProjectByIdAsync(id);
-
-            if (project == null)
+            try
             {
-                return NotFound();
-            }
+                var isDeleted = await _projectService.DeleteProjectAsync(id);
 
-            await _projectService.DeleteProjectAsync(id);
-            return RedirectToAction(nameof(All));
+                if (!isDeleted)
+                {
+                    return NotFound();
+                }
+
+                return RedirectToAction(nameof(All));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
     }
 }

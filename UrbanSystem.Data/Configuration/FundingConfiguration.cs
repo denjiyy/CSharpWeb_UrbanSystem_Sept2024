@@ -10,19 +10,19 @@ namespace UrbanSystem.Data.Configuration
         {
             builder.HasKey(f => f.Id);
 
+            builder
+                .HasOne(f => f.Project)
+                .WithMany(p => p.Fundings)
+                .HasForeignKey(f => f.ProjectId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(f => f.Amount)
                    .IsRequired()
-                   .HasColumnType("decimal(18,2)");
+                   .HasPrecision(18, 2);
 
-            builder.Property(f => f.CreatedOn)
-                   .IsRequired();
-
-            builder
-                .HasMany(f => f.ProjectFundings)
-                .WithOne(pf => pf.Funding)
-                .HasForeignKey(pf => pf.FundingId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(f => f.FundedOn)
+                   .IsRequired()
+                   .HasDefaultValueSql("GETUTCDATE()");
         }
     }
 }

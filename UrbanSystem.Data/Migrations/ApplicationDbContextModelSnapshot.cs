@@ -320,7 +320,7 @@ namespace UrbanSystem.Data.Migrations
                     b.HasIndex("CommentId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("CommentVotes", (string)null);
+                    b.ToTable("CommentsVotes");
                 });
 
             modelBuilder.Entity("UrbanSystem.Data.Models.Funding", b =>
@@ -330,12 +330,20 @@ namespace UrbanSystem.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("FundedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("Fundings");
                 });
@@ -367,189 +375,189 @@ namespace UrbanSystem.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("43a8fb15-924b-49e4-9a1f-f313a8eb37de"),
+                            Id = new Guid("954ef7f4-899c-4a8d-a274-29fdd29f499b"),
                             CityName = "Blagoevgrad",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4_-_panoramio_%2826%29.jpg/1024px-%D0%91%D0%BB%D0%B0%D0%B3%D0%BE%D0%B5%D0%B2%D0%B3%D1%80%D0%B0%D0%B4_-_panoramio_%2826%29.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("e10d5a69-915f-4a89-8f7d-3f53cdda715e"),
+                            Id = new Guid("dd3e463d-05bf-463a-befc-3e086576a457"),
                             CityName = "Burgas",
                             CityPicture = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/08/19/fe/30/getlstd-property-photo.jpg?w=1200&h=-1&s=1",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("8b93df5c-73f1-4231-a457-7aaccdf3b14f"),
+                            Id = new Guid("b175028e-0bb1-40cf-a0e0-1863e1be05ef"),
                             CityName = "Dobrich",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dobrich_Sunrise%2C_Winter_2014.JPG/1280px-Dobrich_Sunrise%2C_Winter_2014.JPG",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("db707e72-0d54-41c9-9fda-9ac855e49207"),
+                            Id = new Guid("19f6f8e8-8668-4600-b039-64439581cfbb"),
                             CityName = "Gabrovo",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/TownHall_Gabrovo.jpg/1280px-TownHall_Gabrovo.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("c911bca7-bcf0-494b-88f6-a77bda09169a"),
+                            Id = new Guid("34ae9700-6b85-4781-bd49-fbd4a5f77ada"),
                             CityName = "Haskovo",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Haskovo2.jpg/1024px-Haskovo2.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("4aca59bf-b705-41e7-9aba-946fb476bbe8"),
+                            Id = new Guid("e114f37d-90b8-4ea4-b748-d392e3db51dc"),
                             CityName = "Kardzhali",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/5/5d/%D0%98%D1%81%D1%82%D0%BE%D1%80%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D1%8F%D1%82_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%9A%D1%8A%D1%80%D0%B4%D0%B6%D0%B0%D0%BB%D0%B8.JPG",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("0a694de7-fa86-408d-883e-3353cae889c2"),
+                            Id = new Guid("cfe1110a-5b26-4283-932d-90d564ff63b0"),
                             CityName = "Kyustendil",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Kyustendil_25.jpg/1024px-Kyustendil_25.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("21531f5c-70a0-41f2-9db6-ba177484fa01"),
+                            Id = new Guid("5e6c9757-125c-4f9b-9b5f-1f059bd281a3"),
                             CityName = "Lovech",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bulgaria-Lovech-03.jpg/1024px-Bulgaria-Lovech-03.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("cc7fd340-74c0-4027-8ac2-fca9acf5ac3b"),
+                            Id = new Guid("15ad42d1-255e-4954-9335-218b400d30b1"),
                             CityName = "Montana",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/4/47/Montana-downtown.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("2612ac21-3d22-4638-9363-bbab52f540c6"),
+                            Id = new Guid("7baf8165-b4b4-470f-9d61-b726d1dd000e"),
                             CityName = "Pazardzhik",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Pazardzhik_City_Centre.jpg/1024px-Pazardzhik_City_Centre.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("08713594-a4fe-4180-ad52-f73ee70451a0"),
+                            Id = new Guid("2b2e0040-2648-4770-8bd3-3971f2185833"),
                             CityName = "Pernik",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Pernik-culture-palace-left.jpg/1920px-Pernik-culture-palace-left.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("98618a37-fa0f-4e88-813a-949a597228b3"),
+                            Id = new Guid("823caa4b-81e5-4cc3-ac75-eb07746fa069"),
                             CityName = "Pleven",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/%D0%9F%D0%BB%D0%B5%D0%B2%D0%B5%D0%BD_%D0%BC%D0%B0%D1%80%D1%82_2014_-_panoramio_%281%29.jpg/1280px-%D0%9F%D0%BB%D0%B5%D0%B2%D0%B5%D0%BD_%D0%BC%D0%B0%D1%80%D1%82_2014_-_panoramio_%281%29.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("a602867f-9295-45e8-b293-4ca3e4a48537"),
+                            Id = new Guid("a7c6e270-88ae-45e7-8607-d7544a9b3610"),
                             CityName = "Plovdiv",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Bulgaria_Bulgaria-0785_-_Roman_Theatre_of_Philippopolis_%287432772486%29.jpg/1280px-Bulgaria_Bulgaria-0785_-_Roman_Theatre_of_Philippopolis_%287432772486%29.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("30bc8b7a-d2aa-4b18-bb06-20e77421a463"),
+                            Id = new Guid("87ef77ad-703b-443b-889a-920e8f95c6fd"),
                             CityName = "Razgrad",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/%D0%95%D1%82%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%81%D0%BA%D0%B8_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%B3%D1%80%D0%B0%D0%B4_%D0%A0%D0%B0%D0%B7%D0%B3%D1%80%D0%B0%D0%B4.jpg/1280px-%D0%95%D1%82%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%81%D0%BA%D0%B8_%D0%BC%D1%83%D0%B7%D0%B5%D0%B9_%D0%B2_%D0%B3%D1%80%D0%B0%D0%B4_%D0%A0%D0%B0%D0%B7%D0%B3%D1%80%D0%B0%D0%B4.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("8ffaccf5-c445-43fd-9189-0b0bfa5ca839"),
+                            Id = new Guid("3726a0de-8f9b-4f2a-84da-f2277484af99"),
                             CityName = "Ruse",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B0_%D0%B2_%D0%A0%D1%83%D1%81%D0%B5.jpg/1280px-%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B0_%D0%B2_%D0%A0%D1%83%D1%81%D0%B5.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("32e32b3c-f953-44ce-be03-6c22ac1d9918"),
+                            Id = new Guid("9b50befd-caac-43ad-a28a-2ef805ceb983"),
                             CityName = "Shumen",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/5/51/Shumen_chitalishte_Dobri_Voynikov.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("a91c6dec-015c-4a7c-aa95-f87ff0ac5ad9"),
+                            Id = new Guid("151edbd5-eab6-46d5-853f-7b6a8d393cf3"),
                             CityName = "Silistra",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Silistra-art-gallery-Minkov.jpg/1024px-Silistra-art-gallery-Minkov.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("0fef8463-af0a-47c1-b6b5-a26658b853c3"),
+                            Id = new Guid("d6108ef4-cec8-4b9b-859e-92a85145a7ae"),
                             CityName = "Sliven",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Municipality_of_Sliven_Photo.jpg/1280px-Municipality_of_Sliven_Photo.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("4e56686a-5711-40cc-9764-e817d5920cd3"),
+                            Id = new Guid("c218867e-72be-4b8b-a7c6-e3e38834abf7"),
                             CityName = "Smolyan",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/%D0%A1%D0%BC%D0%BE%D0%BB%D1%8F%D0%BD_2691396959_f63b323fab_o.jpg/1024px-%D0%A1%D0%BC%D0%BE%D0%BB%D1%8F%D0%BD_2691396959_f63b323fab_o.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("8e370d62-960c-4ba9-a501-8893416f2c2c"),
+                            Id = new Guid("de6eae9e-3ef4-4a53-a51f-2f95dfa18793"),
                             CityName = "Sofia",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Catedral_de_Alejandro_Nevski_--_2019_--_Sof%C3%ADa%2C_Bulgaria.jpg/1280px-Catedral_de_Alejandro_Nevski_--_2019_--_Sof%C3%ADa%2C_Bulgaria.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("1a3a8565-1dcc-4b8e-9e92-0958773f4f2a"),
+                            Id = new Guid("546b28f9-0989-4358-aeb7-dc5358f2bc5e"),
                             CityName = "Stara Zagora",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/3/33/Samarsko_Zname_Panorama.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("31cf5d84-56fd-4949-a863-b9121beecfc9"),
+                            Id = new Guid("da9cf6af-5e5a-4172-a956-67e8c4abfa7d"),
                             CityName = "Targovishte",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Targovishte-MainSquare.jpg/1280px-Targovishte-MainSquare.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("fa40dc0f-87f0-43b6-afc8-fd5ec9e83235"),
+                            Id = new Guid("f804a002-db01-44aa-9f65-ec85c33d0d75"),
                             CityName = "Varna",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/en/thumb/7/79/Dramatheatrevarna.jpg/1280px-Dramatheatrevarna.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("aa9d7d6b-cac7-46d6-814b-e0fd57c5f858"),
+                            Id = new Guid("670eb25d-2c38-4c4d-b6ff-679e1657f054"),
                             CityName = "Veliko Tarnovo",
                             CityPicture = "https://traventuria.com/wp-content/uploads/2016/10/veliko-tarnovo-1.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("0f57a04b-04e0-49cc-aa2d-12b666d76215"),
+                            Id = new Guid("83cdd361-04c3-4ed2-97a9-24ad8ba9e393"),
                             CityName = "Vidin",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/7/70/Theater_House_in_Vidin_%2827460729905%29.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("b80c637f-1ced-45aa-ba91-0bf474cb4f72"),
+                            Id = new Guid("c24553d5-fd62-4624-8f43-f6ab9631842a"),
                             CityName = "Vratsa",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Vratsa_12.jpg/1024px-Vratsa_12.jpg",
                             StreetName = "Main Street"
                         },
                         new
                         {
-                            Id = new Guid("6237ef8b-be8e-4ccc-8ee2-7d839c63286a"),
+                            Id = new Guid("9f6ce056-632c-4705-b849-e8e4e11c0fa3"),
                             CityName = "Yambol",
                             CityPicture = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/YAMBOL_new_center.jpg/1920px-YAMBOL_new_center.jpg",
                             StreetName = "Main Street"
@@ -604,7 +612,15 @@ namespace UrbanSystem.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<decimal>("DesiredSum")
+                    b.Property<DateTime>("FundingDeadline")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("FundsNeeded")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("FundsRaised")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ImageUrl")
@@ -628,22 +644,7 @@ namespace UrbanSystem.Data.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("Projects", (string)null);
-                });
-
-            modelBuilder.Entity("UrbanSystem.Data.Models.ProjectFunding", b =>
-                {
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FundingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ProjectId", "FundingId");
-
-                    b.HasIndex("FundingId");
-
-                    b.ToTable("ProjectsFundings");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("UrbanSystem.Data.Models.Suggestion", b =>
@@ -694,38 +695,38 @@ namespace UrbanSystem.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("2971bab4-f0fc-4f88-b07d-2fc2f5cc4ce0"),
+                            Id = new Guid("a7fd6f70-de75-4ee8-9a4d-72c4d263cc58"),
                             Category = "Transport",
                             Description = "Implement more frequent bus routes during peak hours to reduce congestion.",
                             Downvotes = 2,
                             Priority = "High",
                             Status = "Pending",
                             Title = "Improve Public Transport",
-                            UploadedOn = new DateTime(2024, 11, 18, 16, 32, 39, 247, DateTimeKind.Utc).AddTicks(250),
+                            UploadedOn = new DateTime(2024, 11, 19, 15, 24, 51, 30, DateTimeKind.Utc).AddTicks(7274),
                             Upvotes = 10
                         },
                         new
                         {
-                            Id = new Guid("e662ea95-e70c-4ab5-b154-79b2278efccb"),
+                            Id = new Guid("627a0e8f-dda7-4669-8f54-abbb9795ed1b"),
                             Category = "Environment",
                             Description = "Renovate the central park by adding new benches, lighting, and a playground area.",
                             Downvotes = 1,
                             Priority = "Medium",
                             Status = "Approved",
                             Title = "Park Renovation",
-                            UploadedOn = new DateTime(2024, 11, 18, 16, 32, 39, 247, DateTimeKind.Utc).AddTicks(256),
+                            UploadedOn = new DateTime(2024, 11, 19, 15, 24, 51, 30, DateTimeKind.Utc).AddTicks(7279),
                             Upvotes = 25
                         },
                         new
                         {
-                            Id = new Guid("c4894895-2613-468f-979a-528d2f93d33e"),
+                            Id = new Guid("af7c47b7-0e94-463e-9582-9a1474fc26b7"),
                             Category = "Waste Management",
                             Description = "Introduce a recycling program and increase the frequency of waste collection.",
                             Downvotes = 0,
                             Priority = "High",
                             Status = "In Review",
                             Title = "Waste Management System",
-                            UploadedOn = new DateTime(2024, 11, 18, 16, 32, 39, 247, DateTimeKind.Utc).AddTicks(260),
+                            UploadedOn = new DateTime(2024, 11, 19, 15, 24, 51, 30, DateTimeKind.Utc).AddTicks(7282),
                             Upvotes = 15
                         });
                 });
@@ -876,6 +877,17 @@ namespace UrbanSystem.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("UrbanSystem.Data.Models.Funding", b =>
+                {
+                    b.HasOne("UrbanSystem.Data.Models.Project", "Project")
+                        .WithMany("Fundings")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("UrbanSystem.Data.Models.Meeting", b =>
                 {
                     b.HasOne("UrbanSystem.Data.Models.Location", "Location")
@@ -892,29 +904,10 @@ namespace UrbanSystem.Data.Migrations
                     b.HasOne("UrbanSystem.Data.Models.Location", "Location")
                         .WithMany("Projects")
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Location");
-                });
-
-            modelBuilder.Entity("UrbanSystem.Data.Models.ProjectFunding", b =>
-                {
-                    b.HasOne("UrbanSystem.Data.Models.Funding", "Funding")
-                        .WithMany("ProjectFundings")
-                        .HasForeignKey("FundingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UrbanSystem.Data.Models.Project", "Project")
-                        .WithMany("ProjectFundings")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Funding");
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("UrbanSystem.Data.Models.SuggestionLocation", b =>
@@ -950,11 +943,6 @@ namespace UrbanSystem.Data.Migrations
                     b.Navigation("CommentVotes");
                 });
 
-            modelBuilder.Entity("UrbanSystem.Data.Models.Funding", b =>
-                {
-                    b.Navigation("ProjectFundings");
-                });
-
             modelBuilder.Entity("UrbanSystem.Data.Models.Location", b =>
                 {
                     b.Navigation("Projects");
@@ -964,7 +952,7 @@ namespace UrbanSystem.Data.Migrations
 
             modelBuilder.Entity("UrbanSystem.Data.Models.Project", b =>
                 {
-                    b.Navigation("ProjectFundings");
+                    b.Navigation("Fundings");
                 });
 
             modelBuilder.Entity("UrbanSystem.Data.Models.Suggestion", b =>

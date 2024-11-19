@@ -1,0 +1,31 @@
+﻿@model UrbanSystem.Web.ViewModels.Funding.FundingFormViewModel
+
+@{
+    ViewData["Title"] = "Add Funding";
+}
+
+<h1>Add Funding</h1>
+
+<form asp-action="Add" method="post">
+    <div class="form-group">
+        <label asp-for="Amount" class="control-label"></label>
+        <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0" placeholder="Enter amount" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsConfirmed" class="control-label"></label>
+        <input asp-for="IsConfirmed" type="checkbox" />
+        <label for="IsConfirmed">I am sure I want to transfer this amount</label>
+        <span asp-validation-for="IsConfirmed" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <a asp-action="Index" class="btn btn-secondary">Back to Projects</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

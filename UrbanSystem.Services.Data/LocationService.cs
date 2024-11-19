@@ -39,33 +39,36 @@ namespace UrbanSystem.Services.Data
                 .OrderBy(l => l.CityName)
                 .ToListAsync();
 
-            // Manual mapping
             var viewModel = locations.Select(l => new LocationDetailsViewModel
             {
                 Id = l.Id.ToString(),
                 CityName = l.CityName,
                 StreetName = l.StreetName,
                 CityPicture = l.CityPicture,
-                Suggestions = new List<SuggestionLocationViewModel>() // Suggestions not included in this query
+                Suggestions = new List<SuggestionLocationViewModel>()
             });
 
             return viewModel;
         }
 
-        public async Task<LocationDetailsViewModel?> GetLocationDetailsByIdAsync(Guid id)
+        public async Task<LocationDetailsViewModel> GetLocationDetailsByIdAsync(string? id)
         {
-            var location = await _locationRepository
-                .GetAllAttached()
-                .Include(l => l.SuggestionsLocations)
-                .ThenInclude(sl => sl.Suggestion)
-                .FirstOrDefaultAsync(l => l.Id == id);
-
-            if (location == null)
+            if (!IsGuidIdValid(id?.ToLower(), out Guid locationGuid))
             {
                 return null;
             }
 
-            // Manual mapping
+            var location = await _locationRepository
+                .GetAllAttached()
+                .Include(l => l.SuggestionsLocations)
+                .ThenInclude(sl => sl.Suggestion)
+                .FirstOrDefaultAsync(l => l.Id == locationGuid);
+
+            if (location == null)
+            {
+                return null!;
+            }
+
             var viewModel = new LocationDetailsViewModel
             {
                 Id = location.Id.ToString(),
@@ -80,6 +83,11 @@ namespace UrbanSystem.Services.Data
             };
 
             return viewModel;
+        }
+
+        private bool IsGuidIdValid(string? id, out Guid guid)
+        {
+            return Guid.TryParse(id, out guid);
         }
     }
 }
