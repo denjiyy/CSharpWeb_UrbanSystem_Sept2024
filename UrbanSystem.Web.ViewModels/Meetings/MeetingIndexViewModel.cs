@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using UrbanSystem.Data.Models;
+using System.Collections.Generic;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {
@@ -30,5 +30,15 @@ namespace UrbanSystem.Web.ViewModels.Meetings
 
         [Display(Name = "Attendees Count")]
         public int AttendeesCount { get; set; }
+
+        [Display(Name = "Attendees")]
+        public IEnumerable<string> Attendees { get; set; } = new HashSet<string>();
+
+        [Display(Name = "Organizer")]
+        public string OrganizerName { get; set; } = null!;
+
+        public Guid OrganizerId { get; set; }
+
+        public bool IsCurrentUserOrganizer { get; set; }
     }
 }

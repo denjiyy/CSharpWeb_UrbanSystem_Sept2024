@@ -38,6 +38,7 @@ namespace UrbanSystem.Services.Data
 
             await _fundingRepository.AddAsync(funding);
 
+            project.FundsRaised += amount;
             project.FundsNeeded -= amount;
 
             await _projectRepository.UpdateAsync(project);

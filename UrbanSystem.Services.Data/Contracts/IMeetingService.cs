@@ -11,7 +11,7 @@ namespace UrbanSystem.Services.Data.Contracts
         Task<MeetingIndexViewModel> GetMeetingByIdAsync(Guid id);
         Task<MeetingFormViewModel> GetMeetingFormViewModelAsync(MeetingFormViewModel existingModel = null);
         Task<MeetingFormViewModel> GetMeetingForEditAsync(Guid id);
-        Task<Guid> CreateMeetingAsync(MeetingFormViewModel meetingForm);
+        Task<Guid> CreateMeetingAsync(MeetingFormViewModel meetingForm, string organizerName);
         Task UpdateMeetingAsync(Guid id, MeetingFormViewModel meetingForm);
         Task DeleteMeetingAsync(Guid id);
         Task AttendMeetingAsync(string username, Guid meetingId);

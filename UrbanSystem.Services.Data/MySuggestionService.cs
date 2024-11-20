@@ -22,17 +22,15 @@ namespace UrbanSystem.Services.Data
 
         public async Task<IEnumerable<MySuggestionsViewModel>> GetAllSuggestionsForLoggedInUser(string userId)
         {
-            // Fetch suggestions for the given user
             var suggestions = await _userSuggestionRepository
                 .GetAllAttached()
                 .Include(us => us.Suggestion)
-                .ThenInclude(s => s.SuggestionsLocations) // Include related locations
-                    .ThenInclude(sl => sl.Location) // Include location details
+                .ThenInclude(s => s.SuggestionsLocations)
+                    .ThenInclude(sl => sl.Location)
                 .Where(us => us.ApplicationUserId.ToString().ToLower() == userId.ToLower())
                 .OrderBy(us => us.Suggestion.UploadedOn)
                 .ToListAsync();
 
-            // Manual mapping to MySuggestionsViewModel
             var viewModel = suggestions.Select(us => new MySuggestionsViewModel
             {
                 Id = us.Suggestion.Id.ToString(),

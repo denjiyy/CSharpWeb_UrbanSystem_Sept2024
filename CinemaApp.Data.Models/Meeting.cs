@@ -17,6 +17,8 @@ namespace UrbanSystem.Data.Models
         public TimeSpan Duration { get; set; }
         public Guid LocationId { get; set; }
         public Location Location { get; set; } = null!;
+        public Guid OrganizerId { get; set; }
+        public ApplicationUser Organizer { get; set; } = null!;
 
         public virtual ICollection<ApplicationUser> Attendees { get; set; } = new HashSet<ApplicationUser>();
     }

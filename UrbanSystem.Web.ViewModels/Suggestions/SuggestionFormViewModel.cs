@@ -21,6 +21,8 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
         [MaxLength(CategoryMaxLength)]
         public string Category { get; set; } = null!;
 
+        public string OrganizerName { get; set; } = null!;
+
         public string? AttachmentUrl { get; set; }
 
         [Required(ErrorMessage = DescriptionRequiredMessage)]
@@ -43,6 +45,8 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
         public string StreetName { get; set; } = null!;
 
         public Guid CityId { get; set; }
+
+        public Guid UserId { get; set; }
 
         public IEnumerable<CityOption> Cities { get; set; } = new HashSet<CityOption>();
     }

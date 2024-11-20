@@ -13,6 +13,8 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
 
         public string Category { get; set; } = null!;
 
+        public string OrganizerName { get; set; } = null!;
+
         public string? AttachmentUrl { get; set; }
 
         public string Description { get; set; } = null!;

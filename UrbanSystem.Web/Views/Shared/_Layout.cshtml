@@ -28,7 +28,6 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <!-- Dropdown menu -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-dark" href="#" id="mainDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Options
@@ -50,6 +49,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="MySuggestion" asp-action="All">My Suggestions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Meeting" asp-action="MyMeetings">My Meetings</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
@@ -81,6 +83,12 @@
             @RenderBody()
         </main>
     </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; @footerNote - UrbanWebSystem
+        </div>
+    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

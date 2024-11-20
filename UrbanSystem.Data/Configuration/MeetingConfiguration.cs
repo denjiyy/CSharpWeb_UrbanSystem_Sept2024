@@ -32,6 +32,12 @@ namespace UrbanSystem.Data.Configuration
 
             builder.HasMany(m => m.Attendees)
                 .WithMany(u => u.Meetings);
+
+            builder.HasOne(m => m.Organizer)
+                .WithMany(u => u.OrganizedMeetings)
+                .HasForeignKey(m => m.OrganizerId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

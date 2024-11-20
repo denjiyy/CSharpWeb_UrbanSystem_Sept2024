@@ -51,6 +51,7 @@ namespace UrbanSystem.Services.Data
             var meeting = await _meetingRepository.GetAllAttached()
                 .Include(m => m.Location)
                 .Include(m => m.Attendees)
+                .Include(m => m.Organizer)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (meeting == null)
@@ -66,7 +67,9 @@ namespace UrbanSystem.Services.Data
                 ScheduledDate = meeting.ScheduledDate,
                 Duration = meeting.Duration,
                 CityName = meeting.Location?.CityName ?? "Unknown",
-                AttendeesCount = meeting.Attendees.Count
+                Attendees = meeting.Attendees.Select(a => a.UserName).ToList(),
+                OrganizerName = meeting.Organizer.UserName,
+                OrganizerId = meeting.OrganizerId
             };
         }
 
@@ -108,12 +111,18 @@ namespace UrbanSystem.Services.Data
             return viewModel;
         }
 
-        public async Task<Guid> CreateMeetingAsync(MeetingFormViewModel meetingForm)
+        public async Task<Guid> CreateMeetingAsync(MeetingFormViewModel meetingForm, string organizerUsername)
         {
             var location = await _locationRepository.GetByIdAsync(meetingForm.LocationId ?? Guid.Empty);
             if (location == null)
             {
                 throw new ArgumentException("Invalid location ID.");
+            }
+
+            var organizer = await _userRepository.GetAllAttached().FirstOrDefaultAsync(u => u.UserName == organizerUsername);
+            if (organizer == null)
+            {
+                throw new ArgumentException("Organizer not found.");
             }
 
             var meeting = new Meeting
@@ -123,7 +132,9 @@ namespace UrbanSystem.Services.Data
                 ScheduledDate = meetingForm.ScheduledDate,
                 Duration = TimeSpan.FromHours(meetingForm.Duration),
                 LocationId = location.Id,
-                Location = location
+                Location = location,
+                OrganizerId = organizer.Id,
+                Organizer = organizer
             };
 
             await _meetingRepository.AddAsync(meeting);

@@ -8,6 +8,7 @@ using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels;
+using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Suggestions;
 
 namespace UrbanSystem.Services.Data
@@ -112,20 +113,31 @@ namespace UrbanSystem.Services.Data
             });
         }
 
-        public async Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id)
+        public async Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id, string? userId = null)
         {
             var suggestion = await _suggestionRepository
-                .GetAllAttached()
-                .Include(s => s.Comments)
-                    .ThenInclude(c => c.User)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                 .GetAllAttached()
+                 .Include(s => s.Comments)
+                 .ThenInclude(c => c.User)
+                 .Include(s => s.UsersSuggestions)
+                 .ThenInclude(us => us.User)
+                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (suggestion == null)
             {
                 return null;
             }
 
-            // Manually map the Suggestion to a SuggestionIndexViewModel
+            bool isOwner = false;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                if (Guid.TryParse(userId, out var parsedUserId))
+                {
+                    isOwner = suggestion.UsersSuggestions.Any(us => us.ApplicationUserId == parsedUserId);
+                }
+            }
+
             return new SuggestionIndexViewModel
             {
                 Id = suggestion.Id.ToString(),
@@ -147,7 +159,8 @@ namespace UrbanSystem.Services.Data
                     UserName = c.User?.UserName ?? "Unknown User",
                     Upvotes = c.Upvotes,
                     Downvotes = c.Downvotes
-                }).ToList()
+                }).ToList(),
+                OrganizerName = string.Join(", ", suggestion.UsersSuggestions.Select(x => x.User.UserName))
             };
         }
 
@@ -271,6 +284,78 @@ namespace UrbanSystem.Services.Data
                 Upvotes = comment.Upvotes,
                 Downvotes = comment.Downvotes
             };
+        }
+
+        public async Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id)
+        {
+            var suggestion = await _suggestionRepository
+                .GetAllAttached()
+                .Include(s => s.SuggestionsLocations)
+                .ThenInclude(sl => sl.Location)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (suggestion == null)
+            {
+                return null;
+            }
+
+            var cities = await _locationRepository.GetAllAsync();
+
+            return new SuggestionFormViewModel
+            {
+                Title = suggestion.Title,
+                Category = suggestion.Category,
+                Description = suggestion.Description,
+                AttachmentUrl = suggestion.AttachmentUrl,
+                Status = suggestion.Status,
+                Priority = suggestion.Priority,
+                CityId = suggestion.SuggestionsLocations.FirstOrDefault()?.LocationId ?? Guid.Empty,
+                Cities = cities.Select(c => new CityOption { Value = c.Id.ToString(), Text = c.CityName }).ToList(),
+                UserId = suggestion.UsersSuggestions.FirstOrDefault().ApplicationUserId
+            };
+        }
+
+        public async Task<bool> UpdateSuggestionAsync(Guid id, SuggestionFormViewModel model, string userId)
+        {
+            var suggestion = await _suggestionRepository
+                .GetAllAttached()
+                .Include(s => s.SuggestionsLocations)
+                .Include(s => s.UsersSuggestions)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (suggestion == null)
+            {
+                return false;
+            }
+
+            var userSuggestion = suggestion.UsersSuggestions.FirstOrDefault();
+            if (userSuggestion == null || userSuggestion.ApplicationUserId.ToString() != userId)
+            {
+                return false;
+            }
+
+            suggestion.Title = model.Title;
+            suggestion.Category = model.Category;
+            suggestion.Description = model.Description;
+            suggestion.AttachmentUrl = model.AttachmentUrl;
+            suggestion.Status = model.Status;
+            suggestion.Priority = model.Priority;
+
+            var existingLocation = suggestion.SuggestionsLocations.FirstOrDefault();
+            if (existingLocation != null && existingLocation.LocationId != model.CityId)
+            {
+                await _suggestionLocationRepository.DeleteAsync(new { SuggestionId = suggestion.Id, LocationId = existingLocation.LocationId });
+                var newLocation = new SuggestionLocation
+                {
+                    SuggestionId = suggestion.Id,
+                    LocationId = model.CityId
+                };
+                await _suggestionLocationRepository.AddAsync(newLocation);
+            }
+
+            await _suggestionRepository.UpdateAsync(suggestion);
+
+            return true;
         }
     }
 }

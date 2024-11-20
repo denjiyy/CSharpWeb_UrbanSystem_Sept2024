@@ -28,6 +28,11 @@ namespace UrbanSystem.Web.Controllers
         public async Task<IActionResult> All()
         {
             var meetings = await _meetingService.GetAllMeetingsAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
+            foreach (var meeting in meetings)
+            {
+                meeting.IsCurrentUserOrganizer = currentUser != null && meeting.OrganizerId == currentUser.Id;
+            }
             return View(meetings);
         }
 
@@ -48,19 +53,32 @@ namespace UrbanSystem.Web.Controllers
                 return View(meetingForm);
             }
 
-            await _meetingService.CreateMeetingAsync(meetingForm);
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+
+            await _meetingService.CreateMeetingAsync(meetingForm, currentUser.UserName);
             return RedirectToAction(nameof(All));
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var meetingForm = await _meetingService.GetMeetingForEditAsync(id);
-            if (meetingForm == null)
+            var meeting = await _meetingService.GetMeetingByIdAsync(id);
+            if (meeting == null)
             {
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || meeting.OrganizerId != currentUser.Id)
+            {
+                return Forbid();
+            }
+
+            var meetingForm = await _meetingService.GetMeetingForEditAsync(id);
             return View(meetingForm);
         }
 
@@ -72,6 +90,18 @@ namespace UrbanSystem.Web.Controllers
             {
                 meetingForm = await _meetingService.GetMeetingFormViewModelAsync(meetingForm);
                 return View(meetingForm);
+            }
+
+            var meeting = await _meetingService.GetMeetingByIdAsync(id);
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || meeting.OrganizerId != currentUser.Id)
+            {
+                return Forbid();
             }
 
             try
@@ -93,13 +123,33 @@ namespace UrbanSystem.Web.Controllers
             {
                 return NotFound();
             }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || meeting.OrganizerId != currentUser.Id)
+            {
+                return Forbid();
+            }
+
             return View(meeting);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
+            var meeting = await _meetingService.GetMeetingByIdAsync(id);
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || meeting.OrganizerId != currentUser.Id)
+            {
+                return Forbid();
+            }
+
             try
             {
                 await _meetingService.DeleteMeetingAsync(id);
@@ -120,6 +170,10 @@ namespace UrbanSystem.Web.Controllers
             {
                 return NotFound();
             }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            meeting.IsCurrentUserOrganizer = currentUser != null && meeting.OrganizerId == currentUser.Id;
+
             return View(meeting);
         }
 

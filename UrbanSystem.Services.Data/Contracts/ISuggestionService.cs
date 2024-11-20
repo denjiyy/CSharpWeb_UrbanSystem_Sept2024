@@ -13,9 +13,11 @@ namespace UrbanSystem.Services.Data.Contracts
     {
         Task<IEnumerable<SuggestionIndexViewModel>> GetAllSuggestionsAsync();
         Task<bool> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId);
-        Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id);
+        Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id, string userId);
         Task<bool> AddCommentAsync(Guid suggestionId, string content, string userId);
         Task<bool> VoteCommentAsync(Guid commentId, string userId, bool isUpvote);
         Task<CommentViewModel?> GetCommentAsync(Guid commentId);
+        Task<bool> UpdateSuggestionAsync(Guid id, SuggestionFormViewModel model, string userId);
+        Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id);
     }
 }

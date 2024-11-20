@@ -19,5 +19,7 @@ namespace UrbanSystem.Data.Models
         public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
         public virtual ICollection<CommentVote> CommentsVotes { get; set; } = new HashSet<CommentVote>();
         public virtual ICollection<Meeting> Meetings { get; set; } = new HashSet<Meeting>();
+        public virtual ICollection<Meeting> OrganizedMeetings { get; set; } = new HashSet<Meeting>();
+        public virtual ICollection<Suggestion> Suggestions { get; set; } = new HashSet<Suggestion>();
     }
 }

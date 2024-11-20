@@ -76,7 +76,9 @@ namespace UrbanSystem.Web.Controllers
                 return RedirectToAction(nameof(All));
             }
 
-            var suggestion = await _suggestionService.GetSuggestionDetailsAsync(suggestionId);
+            var userId = _userManager.GetUserId(User);
+
+            var suggestion = await _suggestionService.GetSuggestionDetailsAsync(suggestionId, userId);
 
             if (suggestion == null)
             {
@@ -133,6 +135,64 @@ namespace UrbanSystem.Web.Controllers
             }
 
             return Json(new { upvotes = updatedComment.Upvotes, downvotes = updatedComment.Downvotes });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (!Guid.TryParse(id, out Guid suggestionId))
+            {
+                TempData["ErrorMessage"] = "Invalid suggestion ID.";
+                return RedirectToAction(nameof(All));
+            }
+
+            var suggestion = await _suggestionService.GetSuggestionForEditAsync(suggestionId);
+
+            if (suggestion == null)
+            {
+                return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || suggestion.UserId != currentUser.Id)
+            {
+                return Forbid();
+            }
+
+            return View(suggestion);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, SuggestionFormViewModel model)
+        {
+            if (!Guid.TryParse(id, out Guid suggestionId))
+            {
+                TempData["ErrorMessage"] = "Invalid suggestion ID.";
+                return RedirectToAction(nameof(All));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _suggestionService.UpdateSuggestionAsync(suggestionId, model, currentUser.Id.ToString());
+
+            if (!result)
+            {
+                TempData["ErrorMessage"] = "You are not authorized to edit this suggestion or the suggestion was not found.";
+                return RedirectToAction(nameof(All));
+            }
+
+            TempData["SuccessMessage"] = "Suggestion updated successfully.";
+            return RedirectToAction(nameof(Details), new { id = suggestionId });
         }
     }
 }

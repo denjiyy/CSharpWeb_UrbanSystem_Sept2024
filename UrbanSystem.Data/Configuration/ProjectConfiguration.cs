@@ -14,7 +14,7 @@ namespace UrbanSystem.Data.Configuration
                 .HasOne(p => p.Location)
                 .WithMany(l => l.Projects)
                 .HasForeignKey(p => p.LocationId)
-                .OnDelete(DeleteBehavior.Restrict); // Avoid cascading deletes
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(p => p.Name)
                    .IsRequired()

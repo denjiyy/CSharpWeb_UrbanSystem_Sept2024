@@ -1,38 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Services.Interfaces;
 using UrbanSystem.Web.ViewModels.Funding;
-using System;
-using System.Threading.Tasks;
-using UrbanSystem.Services.Data.Contracts;
 
 namespace UrbanSystem.Web.Controllers
 {
     public class FundingController : Controller
     {
         private readonly IFundingService _fundingService;
+        private readonly IProjectService _projectService;
 
-        public FundingController(IFundingService fundingService)
+        public FundingController(IFundingService fundingService, IProjectService projectService)
         {
             _fundingService = fundingService;
+            _projectService = projectService;
         }
 
         [HttpGet]
-        public IActionResult Add(Guid projectId)
+        public async Task<IActionResult> Add(Guid projectId)
         {
-            var viewModel = new FundingFormViewModel
+            var project = await _projectService.GetProjectByIdAsync(projectId);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var model = new FundingFormViewModel
             {
                 ProjectId = projectId
             };
 
-            return View(viewModel);
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(FundingFormViewModel model, Guid projectId)
+        public async Task<IActionResult> Add(FundingFormViewModel model)
         {
-            model.ProjectId = projectId;
-
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -40,20 +44,21 @@ namespace UrbanSystem.Web.Controllers
 
             if (!model.IsConfirmed)
             {
-                ModelState.AddModelError(string.Empty, "You must confirm the transaction to proceed.");
+                ModelState.AddModelError("IsConfirmed", "You must confirm the funding amount.");
                 return View(model);
             }
-            
-            var isSuccessful = await _fundingService.AddFundingAsync(model.ProjectId, model.Amount);
 
-            if (isSuccessful)
+            var success = await _fundingService.AddFundingAsync(model.ProjectId, model.Amount);
+            if (success)
             {
-                TempData["SuccessMessage"] = "Funding has been successfully added!";
+                TempData["SuccessMessage"] = "Funding added successfully!";
                 return RedirectToAction("Details", "Project", new { id = model.ProjectId });
             }
-
-            ModelState.AddModelError(string.Empty, "There was an issue processing your funding.");
-            return View(model);
+            else
+            {
+                ModelState.AddModelError("", "Failed to add funding. Please try again.");
+                return View(model);
+            }
         }
     }
 }
