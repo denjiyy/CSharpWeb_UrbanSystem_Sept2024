@@ -10,7 +10,7 @@ namespace UrbanSystem.Data.Models
     {
         public Location()
         {
-            Id = Guid.NewGuid();    
+            Id = Guid.NewGuid();
         }
 
         public Guid Id { get; set; }

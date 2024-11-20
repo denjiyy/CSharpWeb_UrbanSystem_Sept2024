@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\UrbamSystem.Data.Models\UrbanSystem.Data.Models.csproj" />
     <ProjectReference Include="..\UrbanSystem.Data\UrbanSystem.Data.csproj" />
     <ProjectReference Include="..\UrbanSystem.Web.ViewModels\UrbanSystem.Web.ViewModels.csproj" />
   </ItemGroup>
