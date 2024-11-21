@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
@@ -286,13 +287,13 @@ namespace UrbanSystem.Services.Data
             };
         }
 
-        public async Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id)
+        public async Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id, ApplicationUser user)
         {
             var suggestion = await _suggestionRepository
-                .GetAllAttached()
-                .Include(s => s.SuggestionsLocations)
-                .ThenInclude(sl => sl.Location)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                   .GetAllAttached()
+                   .Include(s => s.SuggestionsLocations)
+                   .ThenInclude(sl => sl.Location)
+                   .FirstOrDefaultAsync(s => s.Id == id);
 
             if (suggestion == null)
             {
@@ -300,9 +301,11 @@ namespace UrbanSystem.Services.Data
             }
 
             var cities = await _locationRepository.GetAllAsync();
+            var userId = await _userManager.GetUserIdAsync(user);
 
             return new SuggestionFormViewModel
             {
+                Id = suggestion.Id,
                 Title = suggestion.Title,
                 Category = suggestion.Category,
                 Description = suggestion.Description,
@@ -311,7 +314,7 @@ namespace UrbanSystem.Services.Data
                 Priority = suggestion.Priority,
                 CityId = suggestion.SuggestionsLocations.FirstOrDefault()?.LocationId ?? Guid.Empty,
                 Cities = cities.Select(c => new CityOption { Value = c.Id.ToString(), Text = c.CityName }).ToList(),
-                UserId = suggestion.UsersSuggestions.FirstOrDefault().ApplicationUserId
+                UserId = userId
             };
         }
 
@@ -344,7 +347,8 @@ namespace UrbanSystem.Services.Data
             var existingLocation = suggestion.SuggestionsLocations.FirstOrDefault();
             if (existingLocation != null && existingLocation.LocationId != model.CityId)
             {
-                await _suggestionLocationRepository.DeleteAsync(new { SuggestionId = suggestion.Id, LocationId = existingLocation.LocationId });
+                await _suggestionLocationRepository.DeleteAsync(sl => sl.SuggestionId == suggestion.Id && sl.LocationId == existingLocation.LocationId);
+
                 var newLocation = new SuggestionLocation
                 {
                     SuggestionId = suggestion.Id,
@@ -354,6 +358,69 @@ namespace UrbanSystem.Services.Data
             }
 
             await _suggestionRepository.UpdateAsync(suggestion);
+
+            return true;
+        }
+
+        public async Task<ConfirmDeleteViewModel?> GetSuggestionForDeleteConfirmationAsync(Guid id, string userId)
+        {
+            var suggestion = await _suggestionRepository
+                .GetAllAttached()
+                .Include(s => s.UsersSuggestions)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (suggestion == null)
+            {
+                return null;
+            }
+
+            var userSuggestion = suggestion.UsersSuggestions.FirstOrDefault();
+            if (userSuggestion == null || userSuggestion.ApplicationUserId.ToString() != userId)
+            {
+                return null;
+            }
+
+            return new ConfirmDeleteViewModel
+            {
+                Id = suggestion.Id,
+                Title = suggestion.Title,
+                Category = suggestion.Category,
+                Description = suggestion.Description
+            };
+        }
+
+        public async Task<bool> DeleteSuggestionAsync(Guid id, string userId)
+        {
+            var suggestion = await _suggestionRepository
+                .GetAllAttached()
+                .Include(s => s.UsersSuggestions)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (suggestion == null)
+            {
+                return false;
+            }
+
+            var userSuggestion = suggestion.UsersSuggestions.FirstOrDefault();
+            if (userSuggestion == null || userSuggestion.ApplicationUserId.ToString() != userId)
+            {
+                return false;
+            }
+
+            await _suggestionLocationRepository.DeleteAsync(sl => sl.SuggestionId == suggestion.Id);
+            await _userSuggestionRepository.DeleteAsync(us => us.SuggestionId == suggestion.Id);
+
+            var comments = await _commentRepository.GetAllAttached()
+                .Where(c => c.SuggestionId == suggestion.Id)
+                .ToListAsync();
+
+            foreach (var comment in comments)
+            {
+                await _commentVoteRepository.DeleteAsync(cv => cv.CommentId == comment.Id);
+                await _commentRepository.DeleteAsync(comment.Id);
+            }
+
+            await _suggestionRepository.DeleteAsync(suggestion.Id);
 
             return true;
         }

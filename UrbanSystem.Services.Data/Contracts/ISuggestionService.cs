@@ -18,6 +18,8 @@ namespace UrbanSystem.Services.Data.Contracts
         Task<bool> VoteCommentAsync(Guid commentId, string userId, bool isUpvote);
         Task<CommentViewModel?> GetCommentAsync(Guid commentId);
         Task<bool> UpdateSuggestionAsync(Guid id, SuggestionFormViewModel model, string userId);
-        Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id);
+        Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id, ApplicationUser user);
+        Task<bool> DeleteSuggestionAsync(Guid id, string userId);
+        Task<ConfirmDeleteViewModel?> GetSuggestionForDeleteConfirmationAsync(Guid id, string userId);
     }
 }

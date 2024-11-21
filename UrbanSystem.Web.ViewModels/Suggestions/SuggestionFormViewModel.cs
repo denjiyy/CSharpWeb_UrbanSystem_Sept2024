@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using UrbanSystem.Data.Models;
 using UrbanSystem.Web.ViewModels.Locations;
 using static UrbanSystem.Common.EntityValidationConstants.Suggestion;
 using static UrbanSystem.Common.EntityValidationMessages.Suggestion;
@@ -11,6 +10,8 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
 {
     public class SuggestionFormViewModel
     {
+        public Guid Id { get; set; }
+
         [Required(ErrorMessage = TitleRequiredMessage)]
         [MinLength(TitleMinLength)]
         [MaxLength(TitleMaxLength)]
@@ -46,7 +47,7 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
 
         public Guid CityId { get; set; }
 
-        public Guid UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
         public IEnumerable<CityOption> Cities { get; set; } = new HashSet<CityOption>();
     }

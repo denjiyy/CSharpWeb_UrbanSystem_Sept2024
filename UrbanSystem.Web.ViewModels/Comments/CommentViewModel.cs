@@ -1,6 +1,4 @@
-﻿using UrbanSystem.Data.Models;
-
-namespace UrbanSystem.Web.ViewModels
+﻿namespace UrbanSystem.Web.ViewModels
 {
     public class CommentViewModel
     {

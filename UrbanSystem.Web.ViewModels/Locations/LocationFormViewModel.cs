@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UrbanSystem.Data.Models;
 using static UrbanSystem.Common.EntityValidationMessages.Location;
 
 namespace UrbanSystem.Web.ViewModels.Locations

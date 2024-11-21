@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using UrbanSystem.Data.Models;
 using UrbanSystem.Web.ViewModels.Locations;
 
 namespace UrbanSystem.Web.ViewModels.Meetings

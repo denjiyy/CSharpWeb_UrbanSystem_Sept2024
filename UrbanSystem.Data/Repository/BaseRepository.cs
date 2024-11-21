@@ -61,6 +61,20 @@ namespace UrbanSystem.Data.Repository
             return true;
         }
 
+        public async Task<bool> DeleteAsync(Expression<Func<TType, bool>> predicate)
+        {
+            var entities = await _dbSet.Where(predicate).ToListAsync();
+            if (!entities.Any())
+            {
+                return false;
+            }
+
+            _dbSet.RemoveRange(entities);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
         public IEnumerable<TType> GetAll()
         {
             return _dbSet.ToList();

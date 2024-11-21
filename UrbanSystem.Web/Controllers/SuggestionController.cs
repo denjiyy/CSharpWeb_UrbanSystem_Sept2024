@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph.Models;
@@ -89,7 +90,6 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> AddComment(string suggestionId, string content)
         {
             if (!Guid.TryParse(suggestionId, out Guid parsedSuggestionId))
@@ -110,7 +110,6 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> VoteComment(string commentId, bool isUpvote)
         {
             if (!Guid.TryParse(commentId, out Guid parsedCommentId))
@@ -146,7 +145,9 @@ namespace UrbanSystem.Web.Controllers
                 return RedirectToAction(nameof(All));
             }
 
-            var suggestion = await _suggestionService.GetSuggestionForEditAsync(suggestionId);
+            ApplicationUser? user = _userManager.GetUserAsync(User).Result; 
+
+            var suggestion = await _suggestionService.GetSuggestionForEditAsync(suggestionId, user);
 
             if (suggestion == null)
             {
@@ -154,7 +155,7 @@ namespace UrbanSystem.Web.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null || suggestion.UserId != currentUser.Id)
+            if (currentUser == null || Guid.Parse(suggestion.UserId) != currentUser.Id)
             {
                 return Forbid();
             }
@@ -172,10 +173,7 @@ namespace UrbanSystem.Web.Controllers
                 return RedirectToAction(nameof(All));
             }
 
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+            
 
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
@@ -193,6 +191,60 @@ namespace UrbanSystem.Web.Controllers
 
             TempData["SuccessMessage"] = "Suggestion updated successfully.";
             return RedirectToAction(nameof(Details), new { id = suggestionId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmDelete(string id)
+        {
+            if (!Guid.TryParse(id, out Guid suggestionId))
+            {
+                TempData["ErrorMessage"] = "Invalid suggestion ID.";
+                return RedirectToAction(nameof(All));
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+
+            var suggestion = await _suggestionService.GetSuggestionForDeleteConfirmationAsync(suggestionId, currentUser.Id.ToString());
+
+            if (suggestion == null)
+            {
+                TempData["ErrorMessage"] = "Suggestion not found or you're not authorized to delete it.";
+                return RedirectToAction(nameof(All));
+            }
+
+            return View(suggestion);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            if (!Guid.TryParse(id, out Guid suggestionId))
+            {
+                TempData["ErrorMessage"] = "Invalid suggestion ID.";
+                return RedirectToAction(nameof(All));
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _suggestionService.DeleteSuggestionAsync(suggestionId, currentUser.Id.ToString());
+
+            if (!result)
+            {
+                TempData["ErrorMessage"] = "An error occurred while deleting the suggestion.";
+                return RedirectToAction(nameof(Details), new { id = suggestionId });
+            }
+
+            TempData["SuccessMessage"] = "Suggestion deleted successfully.";
+            return RedirectToAction(nameof(All));
         }
     }
 }
