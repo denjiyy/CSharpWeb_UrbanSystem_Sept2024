@@ -1,16 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
-using System.Diagnostics;
-using System.Security.Claims;
-using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
-using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Suggestions;
 
 namespace UrbanSystem.Web.Controllers
@@ -20,35 +12,25 @@ namespace UrbanSystem.Web.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISuggestionService _suggestionService;
-        private new readonly IBaseService _baseService;
 
         public SuggestionController(IBaseService baseService, UserManager<ApplicationUser> userManager, ISuggestionService suggestionService) : base(baseService)
         {
             _userManager = userManager;
             _suggestionService = suggestionService;
-            _baseService = baseService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> All()
         {
-            var suggestions = await _suggestionService
-                .GetAllSuggestionsAsync();
-
+            var suggestions = await _suggestionService.GetAllSuggestionsAsync();
             return View(suggestions);
         }
 
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var cities = await CityList();
-
-            var viewModel = new SuggestionFormViewModel
-            {
-                Cities = cities
-            };
-
+            var viewModel = await _suggestionService.GetSuggestionFormViewModelAsync();
             return View(viewModel);
         }
 
@@ -56,12 +38,12 @@ namespace UrbanSystem.Web.Controllers
         public async Task<IActionResult> Add(SuggestionFormViewModel suggestionModel)
         {
             var userId = _userManager.GetUserId(User);
-            var isSuccessful = await _suggestionService.AddSuggestionAsync(suggestionModel, userId);
+            var result = await _suggestionService.AddSuggestionAsync(suggestionModel, userId);
 
-            if (!isSuccessful)
+            if (!result.IsSuccessful)
             {
-                suggestionModel.Cities = await CityList();
-                return View(suggestionModel);
+                ModelState.AddModelError("", result.ErrorMessage);
+                return View(result.ViewModel);
             }
 
             return RedirectToAction(nameof(All));
@@ -71,39 +53,27 @@ namespace UrbanSystem.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Details(string id)
         {
-            if (!Guid.TryParse(id, out Guid suggestionId))
-            {
-                TempData["ErrorMessage"] = "Invalid suggestion ID.";
-                return RedirectToAction(nameof(All));
-            }
-
             var userId = _userManager.GetUserId(User);
+            var result = await _suggestionService.GetSuggestionDetailsAsync(id, userId);
 
-            var suggestion = await _suggestionService.GetSuggestionDetailsAsync(suggestionId, userId);
-
-            if (suggestion == null)
+            if (!result.IsSuccessful)
             {
+                TempData["ErrorMessage"] = result.ErrorMessage;
                 return RedirectToAction(nameof(All));
             }
 
-            return View(suggestion);
+            return View(result.Suggestion);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddComment(string suggestionId, string content)
         {
-            if (!Guid.TryParse(suggestionId, out Guid parsedSuggestionId))
-            {
-                return BadRequest("Invalid suggestion ID.");
-            }
-
             var userId = _userManager.GetUserId(User);
+            var result = await _suggestionService.AddCommentAsync(suggestionId, content, userId);
 
-            var result = await _suggestionService.AddCommentAsync(parsedSuggestionId, content, userId);
-
-            if (!result)
+            if (!result.IsSuccessful)
             {
-                return BadRequest("Failed to add comment.");
+                return BadRequest(result.ErrorMessage);
             }
 
             return RedirectToAction(nameof(Details), new { id = suggestionId });
@@ -112,138 +82,75 @@ namespace UrbanSystem.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> VoteComment(string commentId, bool isUpvote)
         {
-            if (!Guid.TryParse(commentId, out Guid parsedCommentId))
-            {
-                return BadRequest("Invalid comment ID.");
-            }
-
             var userId = _userManager.GetUserId(User);
+            var result = await _suggestionService.VoteCommentAsync(commentId, userId, isUpvote);
 
-            var result = await _suggestionService.VoteCommentAsync(parsedCommentId, userId, isUpvote);
-
-            if (!result)
+            if (!result.IsSuccessful)
             {
-                return NotFound();
+                return NotFound(result.ErrorMessage);
             }
 
-            var updatedComment = await _suggestionService.GetCommentAsync(parsedCommentId);
-
-            if (updatedComment == null)
-            {
-                return NotFound();
-            }
-
-            return Json(new { upvotes = updatedComment.Upvotes, downvotes = updatedComment.Downvotes });
+            return Json(new { upvotes = result.Comment.Upvotes, downvotes = result.Comment.Downvotes });
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
-            if (!Guid.TryParse(id, out Guid suggestionId))
+            var currentUser = await _userManager.GetUserAsync(User);
+            var result = await _suggestionService.GetSuggestionForEditAsync(id, currentUser);
+
+            if (!result.IsSuccessful)
             {
-                TempData["ErrorMessage"] = "Invalid suggestion ID.";
+                TempData["ErrorMessage"] = result.ErrorMessage;
                 return RedirectToAction(nameof(All));
             }
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized();
-            }
-
-            var suggestion = await _suggestionService.GetSuggestionForEditAsync(suggestionId, currentUser);
-
-            if (suggestion == null)
-            {
-                return Unauthorized();
-            }
-
-            return View(suggestion);
+            return View(result.ViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, SuggestionFormViewModel model)
         {
-            if (!Guid.TryParse(id, out Guid suggestionId))
-            {
-                TempData["ErrorMessage"] = "Invalid suggestion ID.";
-                return RedirectToAction(nameof(All));
-            }
-
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized();
-            }
+            var result = await _suggestionService.UpdateSuggestionAsync(id, model, currentUser.Id.ToString());
 
-            var originalSuggestion = await _suggestionService.GetSuggestionForEditAsync(suggestionId, currentUser);
-            if (originalSuggestion == null)
+            if (!result.IsSuccessful)
             {
-                TempData["ErrorMessage"] = "You are not authorized to edit this suggestion or the suggestion was not found.";
-                return RedirectToAction(nameof(Details), new { id = suggestionId });
-            }
-
-            var result = await _suggestionService.UpdateSuggestionAsync(suggestionId, model, currentUser.Id.ToString());
-
-            if (!result)
-            {
-                TempData["ErrorMessage"] = "An error occurred while updating the suggestion.";
+                TempData["ErrorMessage"] = result.ErrorMessage;
                 return View(model);
             }
 
             TempData["SuccessMessage"] = "Suggestion updated successfully.";
-            return RedirectToAction(nameof(Details), new { id = suggestionId });
+            return RedirectToAction(nameof(Details), new { id = id });
         }
 
         [HttpGet]
         public async Task<IActionResult> ConfirmDelete(string id)
         {
-            if (!Guid.TryParse(id, out Guid suggestionId))
-            {
-                TempData["ErrorMessage"] = "Invalid suggestion ID.";
-                return RedirectToAction(nameof(All));
-            }
-
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized();
-            }
+            var result = await _suggestionService.GetSuggestionForDeleteConfirmationAsync(id, currentUser.Id.ToString());
 
-            var suggestion = await _suggestionService.GetSuggestionForDeleteConfirmationAsync(suggestionId, currentUser.Id.ToString());
-
-            if (suggestion == null)
+            if (!result.IsSuccessful)
             {
-                TempData["ErrorMessage"] = "Suggestion not found or you're not authorized to delete it.";
+                TempData["ErrorMessage"] = result.ErrorMessage;
                 return RedirectToAction(nameof(All));
             }
 
-            return View(suggestion);
+            return View(result.ViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            if (!Guid.TryParse(id, out Guid suggestionId))
-            {
-                TempData["ErrorMessage"] = "Invalid suggestion ID.";
-                return RedirectToAction(nameof(All));
-            }
-
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized();
-            }
+            var result = await _suggestionService.DeleteSuggestionAsync(id, currentUser.Id.ToString());
 
-            var result = await _suggestionService.DeleteSuggestionAsync(suggestionId, currentUser.Id.ToString());
-
-            if (!result)
+            if (!result.IsSuccessful)
             {
-                TempData["ErrorMessage"] = "An error occurred while deleting the suggestion.";
-                return RedirectToAction(nameof(Details), new { id = suggestionId });
+                TempData["ErrorMessage"] = result.ErrorMessage;
+                return RedirectToAction(nameof(Details), new { id = id });
             }
 
             TempData["SuccessMessage"] = "Suggestion deleted successfully.";

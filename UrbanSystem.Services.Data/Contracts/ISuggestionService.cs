@@ -12,14 +12,15 @@ namespace UrbanSystem.Services.Data.Contracts
     public interface ISuggestionService
     {
         Task<IEnumerable<SuggestionIndexViewModel>> GetAllSuggestionsAsync();
-        Task<bool> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId);
-        Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id, string userId);
-        Task<bool> AddCommentAsync(Guid suggestionId, string content, string userId);
-        Task<bool> VoteCommentAsync(Guid commentId, string userId, bool isUpvote);
+        Task<(bool IsSuccessful, SuggestionFormViewModel ViewModel, string ErrorMessage)> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId);
+        Task<(bool IsSuccessful, SuggestionIndexViewModel Suggestion, string ErrorMessage)> GetSuggestionDetailsAsync(string id, string userId);
+        Task<(bool IsSuccessful, string ErrorMessage)> AddCommentAsync(string suggestionId, string content, string userId);
+        Task<(bool IsSuccessful, CommentViewModel Comment, string ErrorMessage)> VoteCommentAsync(string commentId, string userId, bool isUpvote);
         Task<CommentViewModel?> GetCommentAsync(Guid commentId);
-        Task<bool> UpdateSuggestionAsync(Guid id, SuggestionFormViewModel model, string userId);
-        Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id, ApplicationUser user);
-        Task<bool> DeleteSuggestionAsync(Guid id, string userId);
-        Task<ConfirmDeleteViewModel?> GetSuggestionForDeleteConfirmationAsync(Guid id, string userId);
+        Task<(bool IsSuccessful, string ErrorMessage)> UpdateSuggestionAsync(string id, SuggestionFormViewModel model, string userId);
+        Task<(bool IsSuccessful, SuggestionFormViewModel ViewModel, string ErrorMessage)> GetSuggestionForEditAsync(string id, ApplicationUser user);
+        Task<(bool IsSuccessful, string ErrorMessage)> DeleteSuggestionAsync(string id, string userId);
+        Task<(bool IsSuccessful, ConfirmDeleteViewModel ViewModel, string ErrorMessage)> GetSuggestionForDeleteConfirmationAsync(string id, string userId);
+        Task<SuggestionFormViewModel> GetSuggestionFormViewModelAsync();
     }
 }

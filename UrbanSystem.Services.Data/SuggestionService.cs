@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
@@ -42,23 +41,51 @@ namespace UrbanSystem.Services.Data
             _userManager = userManager;
         }
 
-        public async Task<bool> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId)
+        public async Task<IEnumerable<SuggestionIndexViewModel>> GetAllSuggestionsAsync()
+        {
+            var suggestions = await _suggestionRepository.GetAllAsync();
+
+            return suggestions.Select(suggestion => new SuggestionIndexViewModel
+            {
+                Id = suggestion.Id.ToString(),
+                Title = suggestion.Title,
+                Category = suggestion.Category,
+                Description = suggestion.Description,
+                AttachmentUrl = suggestion.AttachmentUrl,
+                UploadedOn = suggestion.UploadedOn.ToString("yyyy-MM-dd HH:mm:ss"),
+                Status = suggestion.Status,
+                Priority = suggestion.Priority,
+                Upvotes = suggestion.Upvotes,
+                Downvotes = suggestion.Downvotes
+            });
+        }
+
+        public async Task<SuggestionFormViewModel> GetSuggestionFormViewModelAsync()
+        {
+            var cities = await _locationRepository.GetAllAsync();
+            return new SuggestionFormViewModel
+            {
+                Cities = cities.Select(c => new CityOption { Value = c.Id.ToString(), Text = c.CityName }).ToList()
+            };
+        }
+
+        public async Task<(bool IsSuccessful, SuggestionFormViewModel ViewModel, string ErrorMessage)> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId)
         {
             if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
             {
-                return false;
+                return (false, suggestionModel, "Invalid user ID.");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return false;
+                return (false, suggestionModel, "User not found.");
             }
 
             var location = await _locationRepository.GetByIdAsync(suggestionModel.CityId);
             if (location == null)
             {
-                return false;
+                return (false, suggestionModel, "Invalid city selected.");
             }
 
             var suggestion = new Suggestion
@@ -90,43 +117,27 @@ namespace UrbanSystem.Services.Data
 
             await _suggestionLocationRepository.AddAsync(suggestionLocation);
 
-            return true;
+            return (true, null, null);
         }
 
-        public async Task<IEnumerable<SuggestionIndexViewModel>> GetAllSuggestionsAsync()
+        public async Task<(bool IsSuccessful, SuggestionIndexViewModel Suggestion, string ErrorMessage)> GetSuggestionDetailsAsync(string id, string userId)
         {
-            // Fetch all suggestions from the database
-            var suggestions = await _suggestionRepository.GetAllAsync();
-
-            // Manually map each Suggestion to a SuggestionIndexViewModel
-            return suggestions.Select(suggestion => new SuggestionIndexViewModel
+            if (!Guid.TryParse(id, out Guid suggestionId))
             {
-                Id = suggestion.Id.ToString(),
-                Title = suggestion.Title,
-                Category = suggestion.Category,
-                Description = suggestion.Description,
-                AttachmentUrl = suggestion.AttachmentUrl,
-                UploadedOn = suggestion.UploadedOn.ToString("yyyy-MM-dd HH:mm:ss"),
-                Status = suggestion.Status,
-                Priority = suggestion.Priority,
-                Upvotes = suggestion.Upvotes,
-                Downvotes = suggestion.Downvotes
-            });
-        }
+                return (false, null, "Invalid suggestion ID.");
+            }
 
-        public async Task<SuggestionIndexViewModel?> GetSuggestionDetailsAsync(Guid id, string? userId = null)
-        {
             var suggestion = await _suggestionRepository
                  .GetAllAttached()
                  .Include(s => s.Comments)
                  .ThenInclude(c => c.User)
                  .Include(s => s.UsersSuggestions)
                  .ThenInclude(us => us.User)
-                 .FirstOrDefaultAsync(s => s.Id == id);
+                 .FirstOrDefaultAsync(s => s.Id == suggestionId);
 
             if (suggestion == null)
             {
-                return null;
+                return (false, null, "Suggestion not found.");
             }
 
             bool isOwner = false;
@@ -139,7 +150,7 @@ namespace UrbanSystem.Services.Data
                 }
             }
 
-            return new SuggestionIndexViewModel
+            var viewModel = new SuggestionIndexViewModel
             {
                 Id = suggestion.Id.ToString(),
                 Title = suggestion.Title,
@@ -163,48 +174,60 @@ namespace UrbanSystem.Services.Data
                 }).ToList(),
                 OrganizerName = string.Join(", ", suggestion.UsersSuggestions.Select(x => x.User.UserName))
             };
+
+            return (true, viewModel, null);
         }
 
-        public async Task<bool> AddCommentAsync(Guid suggestionId, string content, string userId)
+        public async Task<(bool IsSuccessful, string ErrorMessage)> AddCommentAsync(string suggestionId, string content, string userId)
         {
+            if (!Guid.TryParse(suggestionId, out Guid parsedSuggestionId))
+            {
+                return (false, "Invalid suggestion ID.");
+            }
+
             if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
             {
-                return false;
+                return (false, "Invalid user ID.");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return false;
+                return (false, "User not found.");
             }
 
             var comment = new Comment
             {
                 Content = content,
                 UserId = parsedUserId,
-                SuggestionId = suggestionId
+                SuggestionId = parsedSuggestionId
             };
 
             await _commentRepository.AddAsync(comment);
-            return true;
+            return (true, null);
         }
 
-        public async Task<bool> VoteCommentAsync(Guid commentId, string userId, bool isUpvote)
+        public async Task<(bool IsSuccessful, CommentViewModel Comment, string ErrorMessage)> VoteCommentAsync(string commentId, string userId, bool isUpvote)
         {
-            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
+            if (!Guid.TryParse(commentId, out Guid parsedCommentId))
             {
-                return false;
+                return (false, null, "Invalid comment ID.");
             }
 
-            var comment = await _commentRepository.GetByIdAsync(commentId);
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
+            {
+                return (false, null, "Invalid user ID.");
+            }
+
+            var comment = await _commentRepository.GetByIdAsync(parsedCommentId);
             if (comment == null)
             {
-                return false;
+                return (false, null, "Comment not found.");
             }
 
             var existingVote = await _commentVoteRepository
                 .GetAllAttached()
-                .FirstOrDefaultAsync(cv => cv.CommentId == commentId && cv.UserId == parsedUserId);
+                .FirstOrDefaultAsync(cv => cv.CommentId == parsedCommentId && cv.UserId == parsedUserId);
 
             if (existingVote != null)
             {
@@ -249,7 +272,7 @@ namespace UrbanSystem.Services.Data
 
             var newVote = new CommentVote
             {
-                CommentId = commentId,
+                CommentId = parsedCommentId,
                 UserId = parsedUserId,
                 IsUpvote = isUpvote
             };
@@ -257,7 +280,15 @@ namespace UrbanSystem.Services.Data
             await _commentVoteRepository.AddAsync(newVote);
             await _commentRepository.UpdateAsync(comment);
 
-            return true;
+            return (true, new CommentViewModel
+            {
+                Id = comment.Id,
+                Content = comment.Content ?? string.Empty,
+                AddedOn = comment.AddedOn,
+                UserName = "Unknown User", // You might want to fetch the username here
+                Upvotes = comment.Upvotes,
+                Downvotes = comment.Downvotes
+            }, null);
         }
 
         public async Task<CommentViewModel?> GetCommentAsync(Guid commentId)
@@ -287,62 +318,73 @@ namespace UrbanSystem.Services.Data
             };
         }
 
-        public async Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id, ApplicationUser user)
-{
-var suggestion = await _suggestionRepository
-.GetAllAttached()
-.Include(s => s.SuggestionsLocations)
-.ThenInclude(sl => sl.Location)
-.Include(s => s.UsersSuggestions)
-.FirstOrDefaultAsync(s => s.Id == id);
-
-if (suggestion == null)
-{
-    return null;
-}
-
-// Check if the current user is the original poster
-var isOriginalPoster = suggestion.UsersSuggestions.Any(us => us.ApplicationUserId == user.Id);
-if (!isOriginalPoster)
-{
-    return null;
-}
-
-var cities = await _locationRepository.GetAllAsync();
-
-return new SuggestionFormViewModel
-{
-    Id = suggestion.Id,
-    Title = suggestion.Title,
-    Category = suggestion.Category,
-    Description = suggestion.Description,
-    AttachmentUrl = suggestion.AttachmentUrl,
-    Status = suggestion.Status,
-    Priority = suggestion.Priority,
-    CityId = suggestion.SuggestionsLocations.FirstOrDefault()?.LocationId ?? Guid.Empty,
-    Cities = cities.Select(c => new CityOption { Value = c.Id.ToString(), Text = c.CityName }).ToList(),
-    UserId = user.Id.ToString()
-};
-
-}
-
-        public async Task<bool> UpdateSuggestionAsync(Guid id, SuggestionFormViewModel model, string userId)
+        public async Task<(bool IsSuccessful, SuggestionFormViewModel ViewModel, string ErrorMessage)> GetSuggestionForEditAsync(string id, ApplicationUser user)
         {
+            if (!Guid.TryParse(id, out Guid suggestionId))
+            {
+                return (false, null, "Invalid suggestion ID.");
+            }
+
+            var suggestion = await _suggestionRepository
+            .GetAllAttached()
+            .Include(s => s.SuggestionsLocations)
+            .ThenInclude(sl => sl.Location)
+            .Include(s => s.UsersSuggestions)
+            .FirstOrDefaultAsync(s => s.Id == suggestionId);
+
+            if (suggestion == null)
+            {
+                return (false, null, "Suggestion not found.");
+            }
+
+            // Check if the current user is the original poster
+            var isOriginalPoster = suggestion.UsersSuggestions.Any(us => us.ApplicationUserId == user.Id);
+            if (!isOriginalPoster)
+            {
+                return (false, null, "You are not authorized to edit this suggestion.");
+            }
+
+            var cities = await _locationRepository.GetAllAsync();
+
+            var viewModel = new SuggestionFormViewModel
+            {
+                Id = suggestion.Id,
+                Title = suggestion.Title,
+                Category = suggestion.Category,
+                Description = suggestion.Description,
+                AttachmentUrl = suggestion.AttachmentUrl,
+                Status = suggestion.Status,
+                Priority = suggestion.Priority,
+                CityId = suggestion.SuggestionsLocations.FirstOrDefault()?.LocationId ?? Guid.Empty,
+                Cities = cities.Select(c => new CityOption { Value = c.Id.ToString(), Text = c.CityName }).ToList(),
+                UserId = user.Id.ToString()
+            };
+
+            return (true, viewModel, null);
+        }
+
+        public async Task<(bool IsSuccessful, string ErrorMessage)> UpdateSuggestionAsync(string id, SuggestionFormViewModel model, string userId)
+        {
+            if (!Guid.TryParse(id, out Guid suggestionId))
+            {
+                return (false, "Invalid suggestion ID.");
+            }
+
             var suggestion = await _suggestionRepository
                 .GetAllAttached()
                 .Include(s => s.SuggestionsLocations)
                 .Include(s => s.UsersSuggestions)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == suggestionId);
 
             if (suggestion == null)
             {
-                return false;
+                return (false, "Suggestion not found.");
             }
 
             var userSuggestion = suggestion.UsersSuggestions.FirstOrDefault();
             if (userSuggestion == null || userSuggestion.ApplicationUserId.ToString() != userId)
             {
-                return false;
+                return (false, "You are not authorized to edit this suggestion.");
             }
 
             suggestion.Title = model.Title;
@@ -367,52 +409,64 @@ return new SuggestionFormViewModel
 
             await _suggestionRepository.UpdateAsync(suggestion);
 
-            return true;
+            return (true, null);
         }
 
-        public async Task<ConfirmDeleteViewModel?> GetSuggestionForDeleteConfirmationAsync(Guid id, string userId)
+        public async Task<(bool IsSuccessful, ConfirmDeleteViewModel ViewModel, string ErrorMessage)> GetSuggestionForDeleteConfirmationAsync(string id, string userId)
         {
+            if (!Guid.TryParse(id, out Guid suggestionId))
+            {
+                return (false, null, "Invalid suggestion ID.");
+            }
+
             var suggestion = await _suggestionRepository
                 .GetAllAttached()
                 .Include(s => s.UsersSuggestions)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == suggestionId);
 
             if (suggestion == null)
             {
-                return null;
+                return (false, null, "Suggestion not found.");
             }
 
             var userSuggestion = suggestion.UsersSuggestions.FirstOrDefault();
             if (userSuggestion == null || userSuggestion.ApplicationUserId.ToString() != userId)
             {
-                return null;
+                return (false, null, "You are not authorized to delete this suggestion.");
             }
 
-            return new ConfirmDeleteViewModel
+            var viewModel = new ConfirmDeleteViewModel
             {
                 Id = suggestion.Id,
                 Title = suggestion.Title,
                 Category = suggestion.Category,
                 Description = suggestion.Description
             };
+
+            return (true, viewModel, null);
         }
 
-        public async Task<bool> DeleteSuggestionAsync(Guid id, string userId)
+        public async Task<(bool IsSuccessful, string ErrorMessage)> DeleteSuggestionAsync(string id, string userId)
         {
+            if (!Guid.TryParse(id, out Guid suggestionId))
+            {
+                return (false, "Invalid suggestion ID.");
+            }
+
             var suggestion = await _suggestionRepository
                 .GetAllAttached()
                 .Include(s => s.UsersSuggestions)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == suggestionId);
 
             if (suggestion == null)
             {
-                return false;
+                return (false, "Suggestion not found.");
             }
 
             var userSuggestion = suggestion.UsersSuggestions.FirstOrDefault();
             if (userSuggestion == null || userSuggestion.ApplicationUserId.ToString() != userId)
             {
-                return false;
+                return (false, "You are not authorized to delete this suggestion.");
             }
 
             await _suggestionLocationRepository.DeleteAsync(sl => sl.SuggestionId == suggestion.Id);
@@ -430,7 +484,17 @@ return new SuggestionFormViewModel
 
             await _suggestionRepository.DeleteAsync(suggestion.Id);
 
-            return true;
+            return (true, null);
+        }
+
+        public Task<bool> DeleteSuggestionAsync(Guid id, string userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ConfirmDeleteViewModel?> GetSuggestionForDeleteConfirmationAsync(Guid id, string userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
