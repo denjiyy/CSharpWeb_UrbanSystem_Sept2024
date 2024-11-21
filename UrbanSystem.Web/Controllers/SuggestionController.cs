@@ -145,19 +145,17 @@ namespace UrbanSystem.Web.Controllers
                 return RedirectToAction(nameof(All));
             }
 
-            ApplicationUser? user = _userManager.GetUserAsync(User).Result; 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
 
-            var suggestion = await _suggestionService.GetSuggestionForEditAsync(suggestionId, user);
+            var suggestion = await _suggestionService.GetSuggestionForEditAsync(suggestionId, currentUser);
 
             if (suggestion == null)
             {
-                return NotFound();
-            }
-
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null || Guid.Parse(suggestion.UserId) != currentUser.Id)
-            {
-                return Forbid();
+                return Unauthorized();
             }
 
             return View(suggestion);
@@ -173,20 +171,25 @@ namespace UrbanSystem.Web.Controllers
                 return RedirectToAction(nameof(All));
             }
 
-            
-
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
                 return Unauthorized();
             }
 
+            var originalSuggestion = await _suggestionService.GetSuggestionForEditAsync(suggestionId, currentUser);
+            if (originalSuggestion == null)
+            {
+                TempData["ErrorMessage"] = "You are not authorized to edit this suggestion or the suggestion was not found.";
+                return RedirectToAction(nameof(Details), new { id = suggestionId });
+            }
+
             var result = await _suggestionService.UpdateSuggestionAsync(suggestionId, model, currentUser.Id.ToString());
 
             if (!result)
             {
-                TempData["ErrorMessage"] = "You are not authorized to edit this suggestion or the suggestion was not found.";
-                return RedirectToAction(nameof(All));
+                TempData["ErrorMessage"] = "An error occurred while updating the suggestion.";
+                return View(model);
             }
 
             TempData["SuccessMessage"] = "Suggestion updated successfully.";

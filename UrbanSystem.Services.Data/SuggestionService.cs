@@ -288,35 +288,43 @@ namespace UrbanSystem.Services.Data
         }
 
         public async Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id, ApplicationUser user)
-        {
-            var suggestion = await _suggestionRepository
-                   .GetAllAttached()
-                   .Include(s => s.SuggestionsLocations)
-                   .ThenInclude(sl => sl.Location)
-                   .FirstOrDefaultAsync(s => s.Id == id);
+{
+var suggestion = await _suggestionRepository
+.GetAllAttached()
+.Include(s => s.SuggestionsLocations)
+.ThenInclude(sl => sl.Location)
+.Include(s => s.UsersSuggestions)
+.FirstOrDefaultAsync(s => s.Id == id);
 
-            if (suggestion == null)
-            {
-                return null;
-            }
+if (suggestion == null)
+{
+    return null;
+}
 
-            var cities = await _locationRepository.GetAllAsync();
-            var userId = await _userManager.GetUserIdAsync(user);
+// Check if the current user is the original poster
+var isOriginalPoster = suggestion.UsersSuggestions.Any(us => us.ApplicationUserId == user.Id);
+if (!isOriginalPoster)
+{
+    return null;
+}
 
-            return new SuggestionFormViewModel
-            {
-                Id = suggestion.Id,
-                Title = suggestion.Title,
-                Category = suggestion.Category,
-                Description = suggestion.Description,
-                AttachmentUrl = suggestion.AttachmentUrl,
-                Status = suggestion.Status,
-                Priority = suggestion.Priority,
-                CityId = suggestion.SuggestionsLocations.FirstOrDefault()?.LocationId ?? Guid.Empty,
-                Cities = cities.Select(c => new CityOption { Value = c.Id.ToString(), Text = c.CityName }).ToList(),
-                UserId = userId
-            };
-        }
+var cities = await _locationRepository.GetAllAsync();
+
+return new SuggestionFormViewModel
+{
+    Id = suggestion.Id,
+    Title = suggestion.Title,
+    Category = suggestion.Category,
+    Description = suggestion.Description,
+    AttachmentUrl = suggestion.AttachmentUrl,
+    Status = suggestion.Status,
+    Priority = suggestion.Priority,
+    CityId = suggestion.SuggestionsLocations.FirstOrDefault()?.LocationId ?? Guid.Empty,
+    Cities = cities.Select(c => new CityOption { Value = c.Id.ToString(), Text = c.CityName }).ToList(),
+    UserId = user.Id.ToString()
+};
+
+}
 
         public async Task<bool> UpdateSuggestionAsync(Guid id, SuggestionFormViewModel model, string userId)
         {
