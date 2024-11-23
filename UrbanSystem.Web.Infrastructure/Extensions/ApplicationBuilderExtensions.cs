@@ -76,6 +76,11 @@ namespace UrbanSystem.Web.Infrastructure.Extensions
                     adminUser = await CreateAdminUserAsync(username, email, password, userStore, userManager);
                 }
 
+                if (await userManager.IsInRoleAsync(adminUser, AdminRoleName))
+                {
+                    return app;
+                }
+
                 IdentityResult userResult = await userManager.AddToRoleAsync(adminUser, AdminRoleName);
 
                 if (!userResult.Succeeded)
