@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -285,7 +286,7 @@ namespace UrbanSystem.Services.Data
                 Id = comment.Id,
                 Content = comment.Content ?? string.Empty,
                 AddedOn = comment.AddedOn,
-                UserName = "Unknown User", // You might want to fetch the username here
+                UserName = comment.User.UserName,
                 Upvotes = comment.Upvotes,
                 Downvotes = comment.Downvotes
             }, null);

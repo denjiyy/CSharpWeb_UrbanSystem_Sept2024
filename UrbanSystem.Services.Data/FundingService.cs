@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
@@ -38,8 +35,9 @@ namespace UrbanSystem.Services.Data
 
             await _fundingRepository.AddAsync(funding);
 
-            project.FundsRaised += amount;
-            project.FundsNeeded -= amount;
+            var totalFunding = await GetTotalFundingAsync(projectId);
+            project.FundsRaised = totalFunding;
+            project.FundsNeeded = Math.Max(0, project.FundsNeeded - amount);
 
             await _projectRepository.UpdateAsync(project);
 
@@ -54,3 +52,4 @@ namespace UrbanSystem.Services.Data
         }
     }
 }
+

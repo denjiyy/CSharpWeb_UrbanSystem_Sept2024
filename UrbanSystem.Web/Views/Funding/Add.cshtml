@@ -4,7 +4,13 @@
     ViewData["Title"] = "Add Funding";
 }
 
-<h1>Add Funding</h1>
+<h1>Add Funding for @Model.ProjectName</h1>
+
+<div class="mb-3">
+    <p>Funds Needed: @Model.FundsNeeded.ToString("C")</p>
+    <p>Funds Raised: @Model.FundsRaised.ToString("C")</p>
+    <p>Remaining: @((Model.FundsNeeded - Model.FundsRaised).ToString("C"))</p>
+</div>
 
 <form asp-action="Add" asp-controller="Funding" method="post">
     <input type="hidden" asp-for="ProjectId" />
@@ -22,5 +28,6 @@
 </form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+        <partial name="_ValidationScriptsPartial" />
 }
+

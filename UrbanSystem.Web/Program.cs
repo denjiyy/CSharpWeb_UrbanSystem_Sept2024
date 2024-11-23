@@ -3,16 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
 using static UrbanSystem.Web.Infrastructure.Extensions.ApplicationBuilderExtensions;
-using UrbanSystem.Web.ViewModels;
-using System.Reflection;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Data.Repository;
 using UrbanSystem.Web.Infrastructure.Extensions;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Services.Data;
-using UrbanSystem.Web.ViewModels.Meetings;
-using Microsoft.Build.Evaluation;
-using Microsoft.DotNet.Scaffolding.Shared.ProjectModel;
 using UrbanSystem.Services.Interfaces;
 using UrbanSystem.Services;
 
@@ -23,6 +18,9 @@ namespace UrbanSystem.Web
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            string adminEmail = builder.Configuration.GetValue<string>("Administrator:Email")!;
+            string adminUsername = builder.Configuration.GetValue<string>("Administrator:Username")!;
+            string adminPassword = builder.Configuration.GetValue<string>("Administrator:Password")!;
 
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -83,6 +81,8 @@ namespace UrbanSystem.Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.SeedAdministrator(adminUsername, adminEmail, adminPassword);
 
             app.MapControllerRoute(
                 name: "default",
