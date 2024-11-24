@@ -60,6 +60,7 @@ namespace UrbanSystem.Web
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IMeetingService, MeetingService>();
             builder.Services.AddScoped<IFundingService, FundingService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             // Add MVC services
             builder.Services.AddControllersWithViews();
