@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -6,6 +6,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>5a315bcb-27c3-4e9a-b078-c68299e224d0</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Areas\Meeting\**" />
+    <Compile Remove="Areas\Project\**" />
+    <Content Remove="Areas\Meeting\**" />
+    <Content Remove="Areas\Project\**" />
+    <EmbeddedResource Remove="Areas\Meeting\**" />
+    <EmbeddedResource Remove="Areas\Project\**" />
+    <None Remove="Areas\Meeting\**" />
+    <None Remove="Areas\Project\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
@@ -27,12 +38,6 @@
     <ProjectReference Include="..\UrbanSystem.Services.Data\UrbanSystem.Services.Data.csproj" />
     <ProjectReference Include="..\UrbanSystem.Web.Infrastructure\UrbanSystem.Web.Infrastructure.csproj" />
     <ProjectReference Include="..\UrbanSystem.Web.ViewModels\UrbanSystem.Web.ViewModels.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\Admin\Data\" />
-    <Folder Include="Areas\Admin\Models\" />
-    <Folder Include="Areas\Admin\Views\Shared\" />
   </ItemGroup>
 
 </Project>

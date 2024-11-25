@@ -42,9 +42,6 @@ namespace UrbanSystem.Web.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            public string Username { get; set; }
-
-            [Required]
             [EmailAddress]
             public string Email { get; set; }
 
@@ -75,14 +72,8 @@ namespace UrbanSystem.Web.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // Try to find the user by Email first
+                // Attempt sign-in without revealing if the email exists
                 var user = await _userManager.FindByEmailAsync(Input.Email);
-                if (user == null)
-                {
-                    // If not found by email, try finding by Username
-                    user = await _userManager.FindByNameAsync(Input.Username);
-                }
-
                 if (user != null)
                 {
                     var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe, lockoutOnFailure: false);
@@ -100,19 +91,14 @@ namespace UrbanSystem.Web.Areas.Identity.Pages.Account
                         _logger.LogWarning("User account locked out.");
                         return RedirectToPage("./Lockout");
                     }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                        return Page();
-                    }
                 }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
-                }
+
+                // Log generic error without hinting if the email exists
+                _logger.LogWarning("Invalid login attempt.");
+                ModelState.AddModelError(string.Empty, "Email or password is incorrect.");
             }
 
+            // If we got this far, something failed; redisplay the form
             return Page();
         }
     }

@@ -15,7 +15,6 @@ namespace UrbanSystem.Web.Controllers
     public class MeetingController : BaseController
     {
         private readonly IMeetingService _meetingService;
-        private readonly IBaseService _baseService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<MeetingController> _logger;
 

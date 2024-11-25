@@ -17,6 +17,8 @@ namespace UrbanSystem.Data.Repository.Contracts
 
         Task<IEnumerable<TType>> GetAllAsync();
 
+        Task<IEnumerable<TType>> GetAllAsync(Expression<Func<TType, bool>> predicate);
+
         IQueryable<TType> GetAllAttached();
 
         void Add(TType item);

@@ -85,6 +85,11 @@ namespace UrbanSystem.Data.Repository
             return await _dbSet.ToListAsync();
         }
 
+        public async Task<IEnumerable<TType>> GetAllAsync(Expression<Func<TType, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).ToListAsync();
+        }
+
         public IQueryable<TType> GetAllAttached()
         {
             return _dbSet.AsQueryable();

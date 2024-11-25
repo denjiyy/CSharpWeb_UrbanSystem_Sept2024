@@ -46,11 +46,6 @@ namespace UrbanSystem.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] SuggestionFormViewModel suggestionModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(suggestionModel);
-            }
-
             var userId = _userManager.GetUserId(User);
             var result = await _suggestionService.AddSuggestionAsync(suggestionModel, userId);
 
@@ -153,11 +148,6 @@ namespace UrbanSystem.Web.Controllers
             if (string.IsNullOrEmpty(id))
             {
                 return BadRequest("Invalid suggestion ID.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
             }
 
             var currentUser = await _userManager.GetUserAsync(User);

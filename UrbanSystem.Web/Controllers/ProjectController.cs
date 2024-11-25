@@ -15,7 +15,6 @@ namespace UrbanSystem.Web.Controllers
     public class ProjectController : BaseController
     {
         private readonly IProjectService _projectService;
-        private readonly IBaseService _baseService;
         private readonly ILogger<ProjectController> _logger;
 
         public ProjectController(
