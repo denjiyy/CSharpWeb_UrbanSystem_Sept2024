@@ -28,7 +28,7 @@ namespace UrbanSystem.Data.Configuration
                 .WithMany()
                 .HasForeignKey(m => m.LocationId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(m => m.Attendees)
                 .WithMany(u => u.Meetings);
@@ -37,7 +37,7 @@ namespace UrbanSystem.Data.Configuration
                 .WithMany(u => u.OrganizedMeetings)
                 .HasForeignKey(m => m.OrganizerId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

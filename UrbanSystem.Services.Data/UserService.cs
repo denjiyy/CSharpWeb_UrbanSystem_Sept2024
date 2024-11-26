@@ -54,7 +54,7 @@ namespace UrbanSystem.Services.Data
             return true;
         }
 
-        public async Task<bool> DeleteUserAndAssociatedDataAsync(Guid userId)
+        public async Task<bool> DeleteUserAsync(Guid userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
@@ -84,11 +84,6 @@ namespace UrbanSystem.Services.Data
             var result = await _userManager.DeleteAsync(user);
 
             return result.Succeeded;
-        }
-
-        public async Task<bool> DeleteUserAsync(Guid userId)
-        {
-            return await DeleteUserAndAssociatedDataAsync(userId);
         }
 
         public async Task<IEnumerable<UsersViewModel>> GetAllUsersAsync()

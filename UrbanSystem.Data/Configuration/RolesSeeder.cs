@@ -16,7 +16,5 @@ namespace UrbanSystem.Data.Configuration
         {
             _roleManager = roleManager;
         }
-
-
     }
 }

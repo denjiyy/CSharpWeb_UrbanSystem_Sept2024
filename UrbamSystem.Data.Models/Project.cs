@@ -25,7 +25,5 @@ namespace UrbanSystem.Data.Models
 
         public Guid LocationId { get; set; }
         public Location Location { get; set; } = null!;
-
-        public ICollection<Funding> Fundings { get; set; } = new HashSet<Funding>();
     }
 }

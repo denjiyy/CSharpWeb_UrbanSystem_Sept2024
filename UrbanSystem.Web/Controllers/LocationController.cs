@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Locations;
+using static UrbanSystem.Common.ApplicationConstants;
 
 namespace UrbanSystem.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = AdminRoleName)]
     [AutoValidateAntiforgeryToken]
     public class LocationController : BaseController
     {

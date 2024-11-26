@@ -5,7 +5,6 @@
 }
 
 <div class="container">
-    <!-- Suggestion Details -->
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="card-title">@Model.Title</h2>
@@ -31,8 +30,6 @@
             </div>
 
             <div class="mt-4">
-                <button class="btn btn-success mr-2" onclick="voteSuggestion('up')">👍 Upvote</button>
-                <button class="btn btn-danger mr-2" onclick="voteSuggestion('down')">👎 Downvote</button>
                 @if (User.Identity.Name == Model.OrganizerName)
                 {
                     <a asp-action="Edit" asp-controller="Suggestion" asp-route-id="@Model.Id" class="btn btn-primary mr-2">Edit Suggestion</a>
@@ -44,12 +41,10 @@
         </div>
     </div>
 
-    <!-- Comments Section -->
     <div class="card">
         <div class="card-body">
             <h3 class="card-title">Comments</h3>
 
-            <!-- Add Comment Form -->
             <form asp-action="AddComment" asp-controller="Suggestion" method="post" class="mb-4">
                 <input type="hidden" name="suggestionId" value="@Model.Id" />
                 <div class="form-group">
@@ -58,7 +53,6 @@
                 <button type="submit" class="btn btn-primary">Post Comment</button>
             </form>
 
-            <!-- Comments List -->
             <div id="commentsList">
                 @foreach (var comment in Model.Comments)
                 {
@@ -67,14 +61,6 @@
                             <h5 class="card-title">@comment.UserName</h5>
                             <h6 class="card-subtitle mb-2 text-muted">@comment.AddedOn.ToString("g")</h6>
                             <p class="card-text">@comment.Content</p>
-                            <div class="mt-2">
-                                <button class="btn btn-sm btn-outline-primary mr-2" onclick="voteComment('@comment.Id', true)">
-                                    👍 <span id="upvotes-@comment.Id">@comment.Upvotes</span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="voteComment('@comment.Id', false)">
-                                    👎 <span id="downvotes-@comment.Id">@comment.Downvotes</span>
-                                </button>
-                            </div>
                         </div>
                     </div>
                 }
@@ -82,37 +68,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        function voteSuggestion(type) {
-            $.ajax({
-                url: '@Url.Action("VoteSuggestion", "Suggestion")',
-                type: 'POST',
-                data: { suggestionId: '@Model.Id', isUpvote: type === 'up' },
-                success: function (result) {
-                    $('#upvoteCount').text(result.upvotes);
-                    $('#downvoteCount').text(result.downvotes);
-                },
-                error: function (error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-
-        function voteComment(commentId, isUpvote) {
-            $.ajax({
-                url: '@Url.Action("VoteComment", "Suggestion")',
-                type: 'POST',
-                data: { commentId: commentId, isUpvote: isUpvote },
-                success: function (result) {
-                    $(`#upvotes-${commentId}`).text(result.upvotes);
-                    $(`#downvotes-${commentId}`).text(result.downvotes);
-                },
-                error: function (error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-    </script>
-}

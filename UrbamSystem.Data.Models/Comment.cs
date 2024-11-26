@@ -11,7 +11,6 @@ namespace UrbanSystem.Data.Models
         public Comment()
         {
             Id = Guid.NewGuid();
-            CommentVotes = new HashSet<CommentVote>();
         }
 
         public Guid Id { get; set; }
@@ -21,10 +20,5 @@ namespace UrbanSystem.Data.Models
         public ApplicationUser User { get; set; } = null!;
         public Guid SuggestionId { get; set; }
         public Suggestion Suggestion { get; set; } = null!;
-
-        public int Upvotes { get; set; } = 0;
-        public int Downvotes { get; set; } = 0;
-
-        public ICollection<CommentVote> CommentVotes { get; set; }
     }
 }

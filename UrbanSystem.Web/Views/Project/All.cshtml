@@ -12,7 +12,10 @@
     <div class="container my-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-center mb-0">Projects</h1>
-            <a href="@Url.Action("Add", "Project")" class="btn btn-success">Add Project</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a href="@Url.Action("Add", "Project")" class="btn btn-success">Add Project</a>
+            }
         </div>
 
         <div class="row row-cols-1 row-cols-md-3 g-4">

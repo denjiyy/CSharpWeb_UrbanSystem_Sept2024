@@ -101,26 +101,6 @@ namespace UrbanSystem.Web.Controllers
             return RedirectToAction(nameof(Details), new { id = suggestionId });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> VoteComment(string commentId, bool isUpvote)
-        {
-            if (string.IsNullOrEmpty(commentId))
-            {
-                return BadRequest("Invalid comment ID.");
-            }
-
-            var userId = _userManager.GetUserId(User);
-            var result = await _suggestionService.VoteCommentAsync(commentId, userId, isUpvote);
-
-            if (!result.IsSuccessful)
-            {
-                _logger.LogWarning($"Failed to vote on comment {commentId}. Error: {result.ErrorMessage}");
-                return NotFound("Comment not found or voting failed.");
-            }
-
-            return Json(new { upvotes = result.Comment.Upvotes, downvotes = result.Comment.Downvotes });
-        }
-
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {

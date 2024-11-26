@@ -21,7 +21,6 @@ namespace UrbanSystem.Services.Data
         private readonly IRepository<ApplicationUserSuggestion, object> _userSuggestionRepository;
         private readonly IRepository<SuggestionLocation, object> _suggestionLocationRepository;
         private readonly IRepository<Comment, Guid> _commentRepository;
-        private readonly IRepository<CommentVote, object> _commentVoteRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public SuggestionService(
@@ -30,7 +29,6 @@ namespace UrbanSystem.Services.Data
             IRepository<ApplicationUserSuggestion, object> userSuggestionRepository,
             IRepository<SuggestionLocation, object> suggestionLocationRepository,
             IRepository<Comment, Guid> commentRepository,
-            IRepository<CommentVote, object> commentVoteRepository,
             UserManager<ApplicationUser> userManager)
         {
             _suggestionRepository = suggestionRepository;
@@ -38,7 +36,6 @@ namespace UrbanSystem.Services.Data
             _userSuggestionRepository = userSuggestionRepository;
             _suggestionLocationRepository = suggestionLocationRepository;
             _commentRepository = commentRepository;
-            _commentVoteRepository = commentVoteRepository;
             _userManager = userManager;
         }
 
@@ -169,9 +166,7 @@ namespace UrbanSystem.Services.Data
                     Id = c.Id,
                     Content = c.Content ?? string.Empty,
                     AddedOn = c.AddedOn,
-                    UserName = c.User?.UserName ?? "Unknown User",
-                    Upvotes = c.Upvotes,
-                    Downvotes = c.Downvotes
+                    UserName = c.User?.UserName ?? "Unknown User"
                 }).ToList(),
                 OrganizerName = string.Join(", ", suggestion.UsersSuggestions.Select(x => x.User.UserName))
             };
@@ -208,90 +203,6 @@ namespace UrbanSystem.Services.Data
             return (true, null);
         }
 
-        public async Task<(bool IsSuccessful, CommentViewModel Comment, string ErrorMessage)> VoteCommentAsync(string commentId, string userId, bool isUpvote)
-        {
-            if (!Guid.TryParse(commentId, out Guid parsedCommentId))
-            {
-                return (false, null, "Invalid comment ID.");
-            }
-
-            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
-            {
-                return (false, null, "Invalid user ID.");
-            }
-
-            var comment = await _commentRepository.GetByIdAsync(parsedCommentId);
-            if (comment == null)
-            {
-                return (false, null, "Comment not found.");
-            }
-
-            var existingVote = await _commentVoteRepository
-                .GetAllAttached()
-                .FirstOrDefaultAsync(cv => cv.CommentId == parsedCommentId && cv.UserId == parsedUserId);
-
-            if (existingVote != null)
-            {
-                if (existingVote.IsUpvote == isUpvote)
-                {
-                    await _commentVoteRepository.DeleteAsync(existingVote.Id);
-                    if (isUpvote)
-                    {
-                        comment.Upvotes = Math.Max(comment.Upvotes - 1, 0);
-                    }
-                    else
-                    {
-                        comment.Downvotes = Math.Max(comment.Downvotes - 1, 0);
-                    }
-                }
-                else
-                {
-                    await _commentVoteRepository.DeleteAsync(existingVote.Id);
-                    if (existingVote.IsUpvote)
-                    {
-                        comment.Upvotes = Math.Max(comment.Upvotes - 1, 0);
-                        comment.Downvotes++;
-                    }
-                    else
-                    {
-                        comment.Downvotes = Math.Max(comment.Downvotes - 1, 0);
-                        comment.Upvotes++;
-                    }
-                }
-            }
-            else
-            {
-                if (isUpvote)
-                {
-                    comment.Upvotes++;
-                }
-                else
-                {
-                    comment.Downvotes++;
-                }
-            }
-
-            var newVote = new CommentVote
-            {
-                CommentId = parsedCommentId,
-                UserId = parsedUserId,
-                IsUpvote = isUpvote
-            };
-
-            await _commentVoteRepository.AddAsync(newVote);
-            await _commentRepository.UpdateAsync(comment);
-
-            return (true, new CommentViewModel
-            {
-                Id = comment.Id,
-                Content = comment.Content ?? string.Empty,
-                AddedOn = comment.AddedOn,
-                UserName = comment.User.UserName,
-                Upvotes = comment.Upvotes,
-                Downvotes = comment.Downvotes
-            }, null);
-        }
-
         public async Task<CommentViewModel?> GetCommentAsync(Guid commentId)
         {
             if (commentId == Guid.Empty)
@@ -313,9 +224,7 @@ namespace UrbanSystem.Services.Data
                 Id = comment.Id,
                 Content = comment.Content ?? string.Empty,
                 AddedOn = comment.AddedOn,
-                UserName = comment.User?.UserName ?? "Unknown User",
-                Upvotes = comment.Upvotes,
-                Downvotes = comment.Downvotes
+                UserName = comment.User?.UserName ?? "Unknown User"
             };
         }
 
@@ -479,23 +388,12 @@ namespace UrbanSystem.Services.Data
 
             foreach (var comment in comments)
             {
-                await _commentVoteRepository.DeleteAsync(cv => cv.CommentId == comment.Id);
                 await _commentRepository.DeleteAsync(comment.Id);
             }
 
             await _suggestionRepository.DeleteAsync(suggestion.Id);
 
             return (true, null);
-        }
-
-        public Task<bool> DeleteSuggestionAsync(Guid id, string userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ConfirmDeleteViewModel?> GetSuggestionForDeleteConfirmationAsync(Guid id, string userId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

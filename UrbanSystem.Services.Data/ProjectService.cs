@@ -98,17 +98,11 @@ namespace UrbanSystem.Services
         {
             var project = await _projectRepository
                 .GetAllAttached()
-                .Include(p => p.Fundings)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (project == null)
             {
                 return false;
-            }
-
-            if (project.Fundings.Any())
-            {
-                throw new InvalidOperationException("Cannot delete a project with existing fundings.");
             }
 
             await _projectRepository.DeleteAsync(id);

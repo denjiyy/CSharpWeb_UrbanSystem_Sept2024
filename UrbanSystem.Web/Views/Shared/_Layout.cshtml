@@ -53,6 +53,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Meeting" asp-action="MyMeetings">My Meetings</a>
                         </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="/Admin">Admin Panel</a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)

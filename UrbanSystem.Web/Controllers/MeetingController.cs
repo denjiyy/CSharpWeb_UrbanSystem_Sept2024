@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using UrbanSystem.Data.Models;
+using UrbanSystem.Services.Data;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Meetings;
 
@@ -126,8 +127,18 @@ namespace UrbanSystem.Web.Controllers
                     return Forbid();
                 }
 
-                var meetingForm = await _meetingService.GetMeetingForEditAsync(id);
-                return View(meetingForm);
+                var editModel = new MeetingEditViewModel
+                {
+                    Id = meeting.Id,
+                    Title = meeting.Title,
+                    Description = meeting.Description,
+                    ScheduledDate = meeting.ScheduledDate,
+                    Duration = meeting.Duration,
+                    LocationId = meeting.LocationId.ToString(),
+                    Cities = await CityList()
+                };
+
+                return View(editModel);
             }
             catch (Exception ex)
             {
@@ -137,7 +148,7 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Guid id, [FromForm] MeetingFormViewModel meetingForm)
+        public async Task<IActionResult> Edit(Guid id, [FromForm] MeetingEditViewModel meetingEdit)
         {
             if (id == Guid.Empty)
             {
@@ -146,15 +157,8 @@ namespace UrbanSystem.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                try
-                {
-                    meetingForm = await _meetingService.GetMeetingFormViewModelAsync(meetingForm);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error occurred while repopulating the Edit Meeting form");
-                }
-                return View(meetingForm);
+                meetingEdit.Cities = await CityList();
+                return View(meetingEdit);
             }
 
             try
@@ -172,6 +176,16 @@ namespace UrbanSystem.Web.Controllers
                     return Forbid();
                 }
 
+                // Map MeetingEditViewModel to MeetingFormViewModel
+                var meetingForm = new MeetingFormViewModel
+                {
+                    Title = meetingEdit.Title,
+                    Description = meetingEdit.Description,
+                    ScheduledDate = meetingEdit.ScheduledDate,
+                    Duration = double.Parse(meetingEdit.Duration.ToString()),
+                    LocationId = Guid.Parse(meetingEdit.LocationId)
+                };
+
                 await _meetingService.UpdateMeetingAsync(id, meetingForm);
                 _logger.LogInformation("Meeting {MeetingId} updated by user {UserId}", id, currentUser.Id);
                 return RedirectToAction(nameof(All));
@@ -184,8 +198,8 @@ namespace UrbanSystem.Web.Controllers
             {
                 _logger.LogError(ex, "Error occurred while updating meeting {MeetingId}", id);
                 ModelState.AddModelError(string.Empty, "An error occurred while updating the meeting. Please try again.");
-                meetingForm = await _meetingService.GetMeetingFormViewModelAsync(meetingForm);
-                return View(meetingForm);
+                meetingEdit.Cities = await CityList();
+                return View(meetingEdit);
             }
         }
 

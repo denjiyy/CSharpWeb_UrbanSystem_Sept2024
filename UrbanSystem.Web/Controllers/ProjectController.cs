@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Services.Interfaces;
 using UrbanSystem.Web.ViewModels.Projects;
+using static UrbanSystem.Common.ApplicationConstants;
 
 namespace UrbanSystem.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = AdminRoleName)]
     [AutoValidateAntiforgeryToken]
     public class ProjectController : BaseController
     {
