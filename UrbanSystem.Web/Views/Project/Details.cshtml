@@ -1,0 +1,18 @@
+﻿@model UrbanSystem.Web.ViewModels.Projects.ProjectIndexViewModel
+
+<div class="container">
+    <h1>@Model.Name</h1>
+    <p>Funds Needed: @Model.DesiredSum</p>
+    <p>Funds Raised: @Model.Amount</p>
+    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid" />
+    <p>@Model.Description</p>
+    <p>Created On: @Model.CreatedOn.ToShortDateString()</p>
+    <p>Status: @(Model.IsCompleted ? "Completed" : "In Progress")</p>
+    <p>Location: @Model.LocationName</p>
+
+    <h3>Fund the Project</h3>
+    <form asp-action="Add" asp-controller="Funding" method="get">
+        <input type="hidden" name="projectId" value="@Model.Id" />
+        <button type="submit" class="btn btn-success mt-3">Contribute</button>
+    </form>
+</div>

@@ -1,0 +1,39 @@
+﻿@model IEnumerable<UrbanSystem.Web.ViewModels.Locations.LocationDetailsViewModel>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locations</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body>
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-center mb-0">Locations</h1>
+            <a href="@Url.Action("Add", "Location")" class="btn btn-success">Add Location</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var location in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@location.CityPicture" class="card-img-top" alt="Image of @location.CityName" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@location.CityName</h5>
+                        </div>
+                        <div class="card-footer text-center">
+                            <p>Location Id: @location.Id</p>
+                            <a asp-action="Details" asp-controller="Location" asp-route-id="@location.Id" class="btn btn-primary">View Suggestions For This City</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
