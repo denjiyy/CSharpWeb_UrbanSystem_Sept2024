@@ -1,0 +1,74 @@
+﻿@model UrbanSystem.Web.ViewModels.Suggestions.SuggestionIndexViewModel
+
+@{
+    ViewData["Title"] = $"{Model.Title} - Details";
+}
+
+<div class="container">
+    <!-- Suggestion Details -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">@Model.Title</h2>
+            <h5 class="card-subtitle mb-2 text-muted">Category: @Model.Category</h5>
+            <p class="card-text">@Model.Description</p>
+
+            @if (!string.IsNullOrEmpty(Model.AttachmentUrl))
+            {
+                <div class="mb-4">
+                    <p class="font-weight-bold">Attachment:</p>
+                    <img src="@Model.AttachmentUrl" alt="Attachment Image" class="img-fluid rounded" />
+                </div>
+            }
+
+            <div class="mb-4">
+                <p><strong>Uploaded On:</strong> @Model.UploadedOn</p>
+                <p><strong>Status:</strong> @Model.Status</p>
+                <p><strong>Upvotes:</strong> <span id="upvoteCount">@Model.Upvotes</span></p>
+                <p><strong>Downvotes:</strong> <span id="downvoteCount">@Model.Downvotes</span></p>
+                <p><strong>Priority:</strong> @Model.Priority</p>
+                <p><strong>Locations:</strong> @string.Join(", ", Model.LocationNames)</p>
+                <p><strong>Posted by:</strong> @Model.OrganizerName</p>
+            </div>
+
+            <div class="mt-4">
+                @if (User.Identity.Name == Model.OrganizerName)
+                {
+                    <a asp-action="Edit" asp-controller="Suggestion" asp-route-id="@Model.Id" class="btn btn-primary mr-2">Edit Suggestion</a>
+                    <a asp-action="ConfirmDelete" asp-controller="Suggestion" asp-route-id="@Model.Id" class="btn btn-danger">Delete Suggestion</a>
+                }
+            </div>
+
+            <a asp-action="All" asp-controller="Suggestion" class="btn btn-secondary mt-4">⬅️ Back to List</a>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Comments</h3>
+
+            <!-- Add Comment Form -->
+            <form asp-action="AddComment" asp-controller="Suggestion" method="post" class="mb-4">
+                <input type="hidden" name="suggestionId" value="@Model.Id" />
+                <div class="form-group">
+                    <textarea name="content" class="form-control" rows="3" placeholder="Add a comment..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+
+            <!-- Comments List -->
+            <div id="commentsList">
+                @foreach (var comment in Model.Comments)
+                {
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">@comment.UserName</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@comment.AddedOn.ToString("g")</h6>
+                            <p class="card-text">@comment.Content</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
