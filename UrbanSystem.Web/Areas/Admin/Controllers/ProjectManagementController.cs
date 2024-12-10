@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UrbanSystem.Data.Models;
 using static UrbanSystem.Common.ApplicationConstants;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.Controllers;
@@ -116,7 +115,7 @@ namespace UrbanSystem.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleCompletion(string id)
+        public async Task<IActionResult> ToggleCompletion(string id, bool IsCompleted)
         {
             Guid projectGuid = Guid.Empty;
 
@@ -125,7 +124,7 @@ namespace UrbanSystem.Web.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            bool toggleResult = await _projectManagementService.ToggleProjectCompletionAsync(projectGuid);
+            bool toggleResult = await _projectManagementService.UpdateProjectCompletionAsync(projectGuid, IsCompleted);
             if (!toggleResult)
             {
                 return NotFound();

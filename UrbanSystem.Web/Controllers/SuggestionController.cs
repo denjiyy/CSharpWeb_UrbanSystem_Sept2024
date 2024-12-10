@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Suggestions;
+using static UrbanSystem.Common.ValidationMessages.SuggestionControllerMessages;
 
 namespace UrbanSystem.Web.Controllers
 {
@@ -30,9 +29,15 @@ namespace UrbanSystem.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(string searchQuery, string sortBy, bool ascending = true, int? page = 1)
         {
-            var suggestions = await _suggestionService.GetAllSuggestionsAsync();
+            int pageSize = 10; // You can adjust this value as needed
+            var suggestions = await _suggestionService.GetAllSuggestionsAsync(page ?? 1, pageSize, searchQuery, sortBy, ascending);
+
+            ViewData["SearchQuery"] = searchQuery;
+            ViewData["SortBy"] = sortBy;
+            ViewData["Ascending"] = ascending;
+
             return View(suggestions);
         }
 
@@ -47,7 +52,7 @@ namespace UrbanSystem.Web.Controllers
         public async Task<IActionResult> Add([FromForm] SuggestionFormViewModel suggestionModel)
         {
             var userId = _userManager.GetUserId(User);
-            var result = await _suggestionService.AddSuggestionAsync(suggestionModel, userId);
+            var result = await _suggestionService.AddSuggestionAsync(suggestionModel, userId!);
 
             if (!result.IsSuccessful)
             {
@@ -55,7 +60,7 @@ namespace UrbanSystem.Web.Controllers
                 return View(result.ViewModel);
             }
 
-            _logger.LogInformation($"User {userId} added a new suggestion.");
+            _logger.LogInformation(AddSuggestionLog, userId);
             return RedirectToAction(nameof(All));
         }
 
@@ -65,16 +70,16 @@ namespace UrbanSystem.Web.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("Invalid suggestion ID.");
+                return BadRequest(InvalidSuggestionId);
             }
 
             var userId = _userManager.GetUserId(User);
-            var result = await _suggestionService.GetSuggestionDetailsAsync(id, userId);
+            var result = await _suggestionService.GetSuggestionDetailsAsync(id, userId!);
 
             if (!result.IsSuccessful)
             {
                 _logger.LogWarning($"Failed to retrieve suggestion details for ID: {id}. Error: {result.ErrorMessage}");
-                TempData["ErrorMessage"] = "The requested suggestion could not be found.";
+                TempData["ErrorMessage"] = SuggestionNotFoundError;
                 return RedirectToAction(nameof(All));
             }
 
@@ -86,39 +91,19 @@ namespace UrbanSystem.Web.Controllers
         {
             if (string.IsNullOrEmpty(suggestionId) || string.IsNullOrEmpty(content))
             {
-                return BadRequest("Invalid suggestion ID or comment content.");
+                return BadRequest(InvalidSuggestionOrCommentContent);
             }
 
             var userId = _userManager.GetUserId(User);
-            var result = await _suggestionService.AddCommentAsync(suggestionId, content, userId);
+            var result = await _suggestionService.AddCommentAsync(suggestionId, content, userId!);
 
             if (!result.IsSuccessful)
             {
                 _logger.LogWarning($"Failed to add comment to suggestion {suggestionId}. Error: {result.ErrorMessage}");
-                return BadRequest("Failed to add comment. Please try again.");
+                return BadRequest(AddSuggestionError);
             }
 
             return RedirectToAction(nameof(Details), new { id = suggestionId });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> VoteComment(string commentId, bool isUpvote)
-        {
-            if (string.IsNullOrEmpty(commentId))
-            {
-                return BadRequest("Invalid comment ID.");
-            }
-
-            var userId = _userManager.GetUserId(User);
-            var result = await _suggestionService.VoteCommentAsync(commentId, userId, isUpvote);
-
-            if (!result.IsSuccessful)
-            {
-                _logger.LogWarning($"Failed to vote on comment {commentId}. Error: {result.ErrorMessage}");
-                return NotFound("Comment not found or voting failed.");
-            }
-
-            return Json(new { upvotes = result.Comment.Upvotes, downvotes = result.Comment.Downvotes });
         }
 
         [HttpGet]
@@ -126,16 +111,16 @@ namespace UrbanSystem.Web.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("Invalid suggestion ID.");
+                return BadRequest(InvalidSuggestionId);
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var result = await _suggestionService.GetSuggestionForEditAsync(id, currentUser);
+            var result = await _suggestionService.GetSuggestionForEditAsync(id, currentUser!);
 
             if (!result.IsSuccessful)
             {
-                _logger.LogWarning($"Failed to retrieve suggestion for edit. ID: {id}, User: {currentUser.Id}. Error: {result.ErrorMessage}");
-                TempData["ErrorMessage"] = "You do not have permission to edit this suggestion.";
+                _logger.LogWarning(RetrieveSuggestionForEditLog, id, currentUser!.Id, result.ErrorMessage);
+                TempData["ErrorMessage"] = RetrieveSuggestionForEditError;
                 return RedirectToAction(nameof(All));
             }
 
@@ -147,21 +132,21 @@ namespace UrbanSystem.Web.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("Invalid suggestion ID.");
+                return BadRequest(InvalidSuggestionId);
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var result = await _suggestionService.UpdateSuggestionAsync(id, model, currentUser.Id.ToString());
+            var result = await _suggestionService.UpdateSuggestionAsync(id, model, currentUser!.Id.ToString());
 
             if (!result.IsSuccessful)
             {
-                _logger.LogWarning($"Failed to update suggestion. ID: {id}, User: {currentUser.Id}. Error: {result.ErrorMessage}");
-                TempData["ErrorMessage"] = "Failed to update the suggestion. Please try again.";
+                _logger.LogWarning(UpdateSuggestionError, id, currentUser.Id, result.ErrorMessage);
+                TempData["ErrorMessage"] = UpdateSuggestionError;
                 return View(model);
             }
 
-            _logger.LogInformation($"User {currentUser.Id} updated suggestion {id}.");
-            TempData["SuccessMessage"] = "Suggestion updated successfully.";
+            _logger.LogInformation(UpdateSuggestionLog, currentUser.Id, id);
+            TempData["SuccessMessage"] = SuggestionUpdateSuccess;
             return RedirectToAction(nameof(Details), new { id = id });
         }
 
@@ -170,16 +155,16 @@ namespace UrbanSystem.Web.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("Invalid suggestion ID.");
+                return BadRequest(InvalidSuggestionId);
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var result = await _suggestionService.GetSuggestionForDeleteConfirmationAsync(id, currentUser.Id.ToString());
+            var result = await _suggestionService.GetSuggestionForDeleteConfirmationAsync(id, currentUser!.Id.ToString());
 
             if (!result.IsSuccessful)
             {
-                _logger.LogWarning($"Failed to retrieve suggestion for delete confirmation. ID: {id}, User: {currentUser.Id}. Error: {result.ErrorMessage}");
-                TempData["ErrorMessage"] = "You do not have permission to delete this suggestion.";
+                _logger.LogWarning(RetrieveSuggestionForDeleteLog, id, currentUser.Id, result.ErrorMessage);
+                TempData["ErrorMessage"] = RetrieveSuggestionForDeleteError;
                 return RedirectToAction(nameof(All));
             }
 
@@ -191,23 +176,22 @@ namespace UrbanSystem.Web.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("Invalid suggestion ID.");
+                return BadRequest(InvalidSuggestionId);
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var result = await _suggestionService.DeleteSuggestionAsync(id, currentUser.Id.ToString());
+            var result = await _suggestionService.DeleteSuggestionAsync(id, currentUser!.Id.ToString());
 
             if (!result.IsSuccessful)
             {
-                _logger.LogWarning($"Failed to delete suggestion. ID: {id}, User: {currentUser.Id}. Error: {result.ErrorMessage}");
-                TempData["ErrorMessage"] = "Failed to delete the suggestion. Please try again.";
+                _logger.LogWarning(DeleteSuggestionLog, id, currentUser.Id, result.ErrorMessage);
+                TempData["ErrorMessage"] = DeleteSuggestionError;
                 return RedirectToAction(nameof(Details), new { id = id });
             }
 
-            _logger.LogInformation($"User {currentUser.Id} deleted suggestion {id}.");
-            TempData["SuccessMessage"] = "Suggestion deleted successfully.";
+            _logger.LogInformation(DeleteSuggestionLog, currentUser.Id, id);
+            TempData["SuccessMessage"] = SuggestionDeleteSuccess;
             return RedirectToAction(nameof(All));
         }
     }
 }
-

@@ -1,21 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Services.Interfaces;
 using UrbanSystem.Web.ViewModels.Projects;
+using static UrbanSystem.Common.ApplicationConstants;
+using static UrbanSystem.Common.ValidationMessages.ProjectControllerMessages;
 
 namespace UrbanSystem.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = AdminRoleName)]
     [AutoValidateAntiforgeryToken]
     public class ProjectController : BaseController
     {
         private readonly IProjectService _projectService;
-        private readonly IBaseService _baseService;
         private readonly ILogger<ProjectController> _logger;
 
         public ProjectController(
@@ -39,8 +36,8 @@ namespace UrbanSystem.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching all projects");
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, FetchAllProjectsError);
+                return StatusCode(500, ProcessingRequestError);
             }
         }
 
@@ -50,7 +47,7 @@ namespace UrbanSystem.Web.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("Invalid project ID.");
+                return BadRequest(InvalidProjectId);
             }
 
             try
@@ -59,16 +56,16 @@ namespace UrbanSystem.Web.Controllers
 
                 if (project == null)
                 {
-                    _logger.LogWarning("Project not found: {ProjectId}", id);
-                    return NotFound("The requested project could not be found.");
+                    _logger.LogWarning(ProjectNotFoundError, id);
+                    return NotFound(ProjectNotFoundError);
                 }
 
                 return View(project);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching project details for ID: {ProjectId}", id);
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, string.Format(FetchProjectDetailsError, id));
+                return StatusCode(500, ProcessingRequestError);
             }
         }
 
@@ -88,8 +85,8 @@ namespace UrbanSystem.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while preparing the Add Project form");
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, AddProjectFormError);
+                return StatusCode(500, ProcessingRequestError);
             }
         }
 
@@ -104,7 +101,7 @@ namespace UrbanSystem.Web.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred while fetching city list for invalid Add Project form");
+                    _logger.LogError(ex, FetchCityListError);
                 }
                 return View(model);
             }
@@ -112,13 +109,13 @@ namespace UrbanSystem.Web.Controllers
             try
             {
                 await _projectService.AddProjectAsync(model);
-                _logger.LogInformation("New project added successfully");
+                _logger.LogInformation(NewProjectAdded);
                 return RedirectToAction(nameof(All));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while adding a new project");
-                ModelState.AddModelError(string.Empty, "An error occurred while adding the project. Please try again.");
+                _logger.LogError(ex, AddProjectError);
+                ModelState.AddModelError(string.Empty, AddProjectRetryError);
                 model.Cities = await CityList();
                 return View(model);
             }
@@ -129,7 +126,7 @@ namespace UrbanSystem.Web.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("Invalid project ID.");
+                return BadRequest(InvalidProjectId);
             }
 
             try
@@ -138,26 +135,25 @@ namespace UrbanSystem.Web.Controllers
 
                 if (!isDeleted)
                 {
-                    _logger.LogWarning("Attempt to delete non-existent project: {ProjectId}", id);
-                    return NotFound("The project you're trying to delete could not be found.");
+                    _logger.LogWarning(DeleteNonExistentProjectWarning, id);
+                    return NotFound(DeleteNonExistentProjectWarning);
                 }
 
-                _logger.LogInformation("Project deleted successfully: {ProjectId}", id);
+                _logger.LogInformation(ProjectDeletedSuccessfully, id);
                 return RedirectToAction(nameof(All));
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogWarning(ex, "Invalid operation while deleting project: {ProjectId}", id);
+                _logger.LogWarning(ex, string.Format(InvalidOperationWhileDeletingProject, id));
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return RedirectToAction(nameof(Details), new { id });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while deleting project: {ProjectId}", id);
-                TempData["ErrorMessage"] = "An unexpected error occurred while deleting the project.";
+                _logger.LogError(ex, string.Format(DeleteProjectError, id));
+                TempData["ErrorMessage"] = DeleteProjectUnexpectedError;
                 return RedirectToAction(nameof(Details), new { id });
             }
         }
     }
 }
-

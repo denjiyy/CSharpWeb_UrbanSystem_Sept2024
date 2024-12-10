@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using UrbanSystem.Common;
 using UrbanSystem.Web.ViewModels;
 
 namespace UrbanSystem.Web.Controllers
@@ -12,8 +13,8 @@ namespace UrbanSystem.Web.Controllers
 
         public IActionResult Index()
         {
-            ViewData["Title"] = "Home Page";
-            ViewData["Message"] = "Welcome to the Urban System web app!";
+            ViewData[ValidationMessages.Home.TitleKey] = ValidationMessages.Home.TitleValue;
+            ViewData[ValidationMessages.Home.MessageKey] = ValidationMessages.Home.WelcomeMessage;
             return View();
         }
 

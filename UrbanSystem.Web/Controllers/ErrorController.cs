@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using UrbanSystem.Web.ViewModels;
+using UrbanSystem.Common;
 
 namespace UrbanSystem.Web.Controllers
 {
@@ -15,14 +16,14 @@ namespace UrbanSystem.Web.Controllers
             switch (statusCode)
             {
                 case 404:
-                    ViewBag.ErrorMessage = "Sorry, the page you requested could not be found";
-                    ViewBag.ErrorCode = "404";
-                    return View("NotFound");
+                    ViewBag.ErrorMessage = ValidationMessages.Error.PageNotFoundMessage;
+                    ViewBag.ErrorCode = 404;
+                    return View(ValidationMessages.Error.NotFoundView);
                 default:
                     break;
             }
 
-            return View("Error");
+            return View(ValidationMessages.Error.ErrorView);
         }
 
         [Route("Error")]
@@ -31,8 +32,8 @@ namespace UrbanSystem.Web.Controllers
         {
             var exceptionDetails = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            ViewBag.ErrorMessage = "Sorry, something went wrong on our end";
-            ViewBag.ErrorCode = "500";
+            ViewBag.ErrorMessage = ValidationMessages.Error.GeneralErrorMessage;
+            ViewBag.ErrorCode = 500;
 
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }

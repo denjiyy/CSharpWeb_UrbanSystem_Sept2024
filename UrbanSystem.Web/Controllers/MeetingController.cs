@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using static UrbanSystem.Common.ValidationMessages.Meeting;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Meetings;
@@ -46,8 +44,8 @@ namespace UrbanSystem.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching all meetings");
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, ErrorFetchingAllMeetings);
+                return StatusCode(500, ErrorProcessingRequest);
             }
         }
 
@@ -61,8 +59,8 @@ namespace UrbanSystem.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while preparing the Add Meeting form");
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, ErrorPreparingAddMeetingForm);
+                return StatusCode(500, ErrorProcessingRequest);
             }
         }
 
@@ -77,7 +75,7 @@ namespace UrbanSystem.Web.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred while repopulating the Add Meeting form");
+                    _logger.LogError(ex, ErrorRepopulatingAddMeetingForm);
                 }
                 return View(meetingForm);
             }
@@ -90,14 +88,14 @@ namespace UrbanSystem.Web.Controllers
 
             try
             {
-                await _meetingService.CreateMeetingAsync(meetingForm, currentUser.UserName);
-                _logger.LogInformation("New meeting created by user {UserId}", currentUser.Id);
+                await _meetingService.CreateMeetingAsync(meetingForm, currentUser.UserName!);
+                _logger.LogInformation(NewMeetingCreatedByUser, currentUser.Id);
                 return RedirectToAction(nameof(All));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while creating a new meeting");
-                ModelState.AddModelError(string.Empty, "An error occurred while creating the meeting. Please try again.");
+                _logger.LogError(ex, ErrorCreatingNewMeeting);
+                ModelState.AddModelError(string.Empty, ErrorProcessingRequest);
                 meetingForm = await _meetingService.GetMeetingFormViewModelAsync(meetingForm);
                 return View(meetingForm);
             }
@@ -108,53 +106,40 @@ namespace UrbanSystem.Web.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("Invalid meeting ID.");
+                return BadRequest(InvalidMeetingId);
             }
 
             try
             {
-                var meeting = await _meetingService.GetMeetingByIdAsync(id);
+                var meeting = await _meetingService.GetMeetingForEditAsync(id);
                 if (meeting == null)
                 {
                     return NotFound();
                 }
 
-                var currentUser = await _userManager.GetUserAsync(User);
-                if (currentUser == null || meeting.OrganizerId != currentUser.Id)
-                {
-                    _logger.LogWarning("Unauthorized edit attempt for meeting {MeetingId} by user {UserId}", id, currentUser?.Id);
-                    return Forbid();
-                }
+                meeting.Cities = await CityList();
 
-                var meetingForm = await _meetingService.GetMeetingForEditAsync(id);
-                return View(meetingForm);
+                return View(meeting);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while preparing to edit meeting {MeetingId}", id);
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, ErrorPreparingEditMeeting, id);
+                return StatusCode(500, ErrorProcessingRequest);
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Guid id, [FromForm] MeetingFormViewModel meetingForm)
+        public async Task<IActionResult> Edit(Guid id, [FromForm] MeetingEditViewModel meetingEdit)
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("Invalid meeting ID.");
+                return BadRequest(InvalidMeetingId);
             }
 
             if (!ModelState.IsValid)
             {
-                try
-                {
-                    meetingForm = await _meetingService.GetMeetingFormViewModelAsync(meetingForm);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error occurred while repopulating the Edit Meeting form");
-                }
-                return View(meetingForm);
+                meetingEdit.Cities = await CityList();
+                return View(meetingEdit);
             }
 
             try
@@ -168,12 +153,24 @@ namespace UrbanSystem.Web.Controllers
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null || meeting.OrganizerId != currentUser.Id)
                 {
-                    _logger.LogWarning("Unauthorized edit attempt for meeting {MeetingId} by user {UserId}", id, currentUser?.Id);
+                    _logger.LogWarning(UnauthorizedEditAttempt, id, currentUser?.Id);
                     return Forbid();
                 }
 
+                meetingEdit.Duration = double.Parse(meetingEdit.Duration.ToString());
+
+                var meetingForm = new MeetingEditViewModel
+                {
+                    Title = meetingEdit.Title,
+                    Description = meetingEdit.Description,
+                    ScheduledDate = meetingEdit.ScheduledDate,
+                    Duration = meetingEdit.Duration,
+                    LocationId = meetingEdit.LocationId
+                };
+
                 await _meetingService.UpdateMeetingAsync(id, meetingForm);
-                _logger.LogInformation("Meeting {MeetingId} updated by user {UserId}", id, currentUser.Id);
+                _logger.LogInformation(MeetingUpdatedByUser, id, currentUser.Id);
+
                 return RedirectToAction(nameof(All));
             }
             catch (ArgumentException)
@@ -182,10 +179,10 @@ namespace UrbanSystem.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while updating meeting {MeetingId}", id);
-                ModelState.AddModelError(string.Empty, "An error occurred while updating the meeting. Please try again.");
-                meetingForm = await _meetingService.GetMeetingFormViewModelAsync(meetingForm);
-                return View(meetingForm);
+                _logger.LogError(ex, ErrorUpdatingMeeting, id);
+                ModelState.AddModelError(string.Empty, ErrorProcessingRequest);
+                meetingEdit.Cities = await CityList();
+                return View(meetingEdit);
             }
         }
 
@@ -194,7 +191,7 @@ namespace UrbanSystem.Web.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("Invalid meeting ID.");
+                return BadRequest(InvalidMeetingId);
             }
 
             try
@@ -208,7 +205,7 @@ namespace UrbanSystem.Web.Controllers
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null || meeting.OrganizerId != currentUser.Id)
                 {
-                    _logger.LogWarning("Unauthorized delete attempt for meeting {MeetingId} by user {UserId}", id, currentUser?.Id);
+                    _logger.LogWarning(UnauthorizedDeleteAttempt, id, currentUser?.Id);
                     return Forbid();
                 }
 
@@ -216,8 +213,8 @@ namespace UrbanSystem.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while preparing to delete meeting {MeetingId}", id);
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, ErrorPreparingDeleteMeeting, id);
+                return StatusCode(500, ErrorProcessingRequest);
             }
         }
 
@@ -226,7 +223,7 @@ namespace UrbanSystem.Web.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("Invalid meeting ID.");
+                return BadRequest(InvalidMeetingId);
             }
 
             try
@@ -240,12 +237,12 @@ namespace UrbanSystem.Web.Controllers
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null || meeting.OrganizerId != currentUser.Id)
                 {
-                    _logger.LogWarning("Unauthorized delete attempt for meeting {MeetingId} by user {UserId}", id, currentUser?.Id);
+                    _logger.LogWarning(UnauthorizedDeleteAttempt, id, currentUser?.Id);
                     return Forbid();
                 }
 
                 await _meetingService.DeleteMeetingAsync(id);
-                _logger.LogInformation("Meeting {MeetingId} deleted by user {UserId}", id, currentUser.Id);
+                _logger.LogInformation(ErrorDeletingMeeting, id, currentUser.Id);
                 return RedirectToAction(nameof(All));
             }
             catch (ArgumentException)
@@ -254,8 +251,8 @@ namespace UrbanSystem.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while deleting meeting {MeetingId}", id);
-                TempData["ErrorMessage"] = "An error occurred while deleting the meeting. Please try again.";
+                _logger.LogError(ex, ErrorDeletingMeeting, id);
+                TempData["ErrorMessage"] = ErrorDeletingMeetingMessage;
                 return RedirectToAction(nameof(Details), new { id });
             }
         }
@@ -266,7 +263,7 @@ namespace UrbanSystem.Web.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("Invalid meeting ID.");
+                return BadRequest(InvalidMeetingId);
             }
 
             try
@@ -284,87 +281,52 @@ namespace UrbanSystem.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching details for meeting {MeetingId}", id);
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, ErrorFetchingMeetingDetails, id);
+                return StatusCode(500, ErrorProcessingRequest);
             }
         }
 
         [HttpPost]
         public async Task<IActionResult> Attend(Guid id)
         {
-            if (id == Guid.Empty)
-            {
-                return BadRequest("Invalid meeting ID.");
-            }
-
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized();
-            }
-
             try
             {
-                await _meetingService.AttendMeetingAsync(currentUser.UserName, id);
-                _logger.LogInformation("User {UserId} registered for meeting {MeetingId}", currentUser.Id, id);
-                TempData["SuccessMessage"] = "You have successfully registered for the meeting!";
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "Error occurred while user {UserId} was attempting to attend meeting {MeetingId}", currentUser.Id, id);
-                TempData["ErrorMessage"] = ex.Message;
-            }
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return Unauthorized();
+                }
 
-            return RedirectToAction(nameof(All));
+                await _meetingService.AttendMeetingAsync(currentUser.UserName!, currentUser.Id);
+                _logger.LogInformation(UserRegisteredForMeeting, currentUser.Id, id);
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ErrorAttendingMeeting!, id);
+                return StatusCode(500, ErrorProcessingRequest);
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CancelAttendance(Guid id)
         {
-            if (id == Guid.Empty)
-            {
-                return BadRequest("Invalid meeting ID.");
-            }
-
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized();
-            }
-
             try
             {
-                await _meetingService.CancelAttendanceAsync(currentUser.UserName, id);
-                _logger.LogInformation("User {UserId} cancelled attendance for meeting {MeetingId}", currentUser.Id, id);
-                TempData["SuccessMessage"] = "You have successfully cancelled your attendance.";
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "Error occurred while user {UserId} was attempting to cancel attendance for meeting {MeetingId}", currentUser.Id, id);
-                TempData["ErrorMessage"] = ex.Message;
-            }
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return Unauthorized();
+                }
 
-            return RedirectToAction(nameof(All));
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> MyMeetings()
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized();
-            }
-
-            try
-            {
-                var viewModel = await _meetingService.GetUserAttendedMeetingsAsync(currentUser.UserName);
-                return View(viewModel);
+                await _meetingService.CancelAttendanceAsync(currentUser.UserName!, currentUser.Id);
+                _logger.LogInformation(UserCancelledAttendanceForMeeting, currentUser.Id, id);
+                return RedirectToAction(nameof(Details), new { id });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching attended meetings for user {UserId}", currentUser.Id);
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, ErrorCancelingAttendance!, id);
+                return StatusCode(500, ErrorProcessingRequest);
             }
         }
     }

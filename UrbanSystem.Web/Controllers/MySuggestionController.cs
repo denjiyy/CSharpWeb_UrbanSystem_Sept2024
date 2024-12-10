@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
+using static UrbanSystem.Common.ValidationMessages.MySuggestionControllerMessages;
 
 namespace UrbanSystem.Web.Controllers
 {
@@ -24,7 +25,7 @@ namespace UrbanSystem.Web.Controllers
             string? userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
             {
-                return RedirectToPage("/Identity/Account/Login");
+                return RedirectToPage(RedirectToLoginPage);
             }
 
             var mySuggestions = await _mySuggestionService.GetAllSuggestionsForLoggedInUser(userId);

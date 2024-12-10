@@ -42,23 +42,10 @@ namespace UrbanSystem.Web
             });
 
             // Register repositories
-            builder.Services.AddScoped(typeof(IRepository<,>), typeof(BaseRepository<,>));
-            builder.Services.AddScoped<IRepository<CommentVote, object>, BaseRepository<CommentVote, object>>();
-            builder.Services.AddScoped<IRepository<Meeting, Guid>, BaseRepository<Meeting, Guid>>();
-            builder.Services.AddScoped<IRepository<ApplicationUser, Guid>, BaseRepository<ApplicationUser, Guid>>();
-            builder.Services.AddScoped<IRepository<ApplicationUserSuggestion, object>, BaseRepository<ApplicationUserSuggestion, object>>();
-            builder.Services.AddScoped<IRepository<Data.Models.Project, Guid>, BaseRepository<Data.Models.Project, Guid>>();
-            builder.Services.AddScoped<IRepository<Meeting, Guid>, BaseRepository<Meeting, Guid>>();
+            RegisterUserDefinedRepositories(builder);
 
             // Register user-defined services
-            builder.Services.AddScoped<IBaseService, BaseService>();
-            builder.Services.AddScoped<ILocationService, LocationService>();
-            builder.Services.AddScoped<IMeetingService, MeetingService>();
-            builder.Services.AddScoped<ISuggestionService, SuggestionService>();
-            builder.Services.AddScoped<IMySuggestionService, MySuggestionService>();
-            builder.Services.AddScoped<IProjectService, ProjectService>();
-            builder.Services.AddScoped<IMeetingService, MeetingService>();
-            builder.Services.AddScoped<IUserService, UserService>();
+            RegisterUserDefinedServices(builder);
 
             // Add MVC services
             builder.Services.AddControllersWithViews();
@@ -67,7 +54,7 @@ namespace UrbanSystem.Web
             var app = builder.Build();
 
             // Configure the HTTP request pipeline
-            if (true || !app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
@@ -99,6 +86,31 @@ namespace UrbanSystem.Web
 
             app.ApplyMigrations();
             app.Run();
+        }
+
+        private static void RegisterUserDefinedRepositories(WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped(typeof(IRepository<,>), typeof(BaseRepository<,>));
+            builder.Services.AddScoped<IRepository<Meeting, Guid>, BaseRepository<Meeting, Guid>>();
+            builder.Services.AddScoped<IRepository<ApplicationUser, Guid>, BaseRepository<ApplicationUser, Guid>>();
+            builder.Services.AddScoped<IRepository<ApplicationUserSuggestion, object>, BaseRepository<ApplicationUserSuggestion, object>>();
+            builder.Services.AddScoped<IRepository<Data.Models.Project, Guid>, BaseRepository<Data.Models.Project, Guid>>();
+            builder.Services.AddScoped<IRepository<Meeting, Guid>, BaseRepository<Meeting, Guid>>();
+        }
+
+        private static void RegisterUserDefinedServices(WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped<IBaseService, BaseService>();
+            builder.Services.AddScoped<ILocationService, LocationService>();
+            builder.Services.AddScoped<IMeetingService, MeetingService>();
+            builder.Services.AddScoped<ISuggestionService, SuggestionService>();
+            builder.Services.AddScoped<IMySuggestionService, MySuggestionService>();
+            builder.Services.AddScoped<IProjectService, ProjectService>();
+            builder.Services.AddScoped<IMeetingService, MeetingService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ISuggestionManagementService, SuggestionManagementService>();
+            builder.Services.AddScoped<IProjectManagementService, ProjectManagementService>();
+            builder.Services.AddScoped<IMeetingManagementService, MeetingManagementService>();
         }
 
         private static void ConfigureIdentity(IdentityOptions options, WebApplicationBuilder builder)

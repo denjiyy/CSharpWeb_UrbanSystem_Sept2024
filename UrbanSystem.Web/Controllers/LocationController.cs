@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Locations;
+using static UrbanSystem.Common.ApplicationConstants;
+using static UrbanSystem.Common.ValidationMessages.LocationControllerMessages;
 
 namespace UrbanSystem.Web.Controllers
 {
@@ -23,17 +22,19 @@ namespace UrbanSystem.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(int? page)
         {
             try
             {
-                var locations = await _locationService.GetAllOrderedByNameAsync();
+                int pageNumber = page ?? 1;
+                int pageSize = 9;
+                var locations = await _locationService.GetAllOrderedByNameAsync(pageNumber, pageSize);
                 return View(locations);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching all locations");
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, FetchAllLocationsError);
+                return StatusCode(500, GeneralProcessingError);
             }
         }
 
@@ -44,6 +45,7 @@ namespace UrbanSystem.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = AdminRoleName)]
         public async Task<IActionResult> Add([FromForm] LocationFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -54,13 +56,13 @@ namespace UrbanSystem.Web.Controllers
             try
             {
                 await _locationService.AddLocationAsync(model);
-                _logger.LogInformation("New location added successfully");
+                _logger.LogInformation(LocationAddedLog);
                 return RedirectToAction(nameof(All));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while adding a new location");
-                ModelState.AddModelError(string.Empty, "An error occurred while adding the location. Please try again.");
+                _logger.LogError(ex, AddLocationError);
+                ModelState.AddModelError(string.Empty, AddLocationRetryError);
                 return View(model);
             }
         }
@@ -71,7 +73,7 @@ namespace UrbanSystem.Web.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("Invalid location ID.");
+                return BadRequest(InvalidLocationIdError);
             }
 
             try
@@ -80,16 +82,16 @@ namespace UrbanSystem.Web.Controllers
 
                 if (details == null)
                 {
-                    _logger.LogWarning("Location not found: {LocationId}", id);
-                    return NotFound("The requested location could not be found.");
+                    _logger.LogWarning(LocationNotFoundLog, id);
+                    return NotFound(LocationNotFoundError);
                 }
 
                 return View(details);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching location details for ID: {LocationId}", id);
-                return StatusCode(500, "An error occurred while processing your request.");
+                _logger.LogError(ex, FetchLocationDetailsError, id);
+                return StatusCode(500, GeneralProcessingError);
             }
         }
     }

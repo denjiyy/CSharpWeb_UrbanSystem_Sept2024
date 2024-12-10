@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UrbanSystem.Data.Models;
 using static UrbanSystem.Common.ApplicationConstants;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.Controllers;

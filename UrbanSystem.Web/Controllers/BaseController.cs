@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SQLitePCL;
-using UrbanSystem.Data;
 using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Services.Data.Contracts;
 
 namespace UrbanSystem.Web.Controllers
 {
-	public class BaseController : Controller
+    public class BaseController : Controller
 	{
         public IBaseService _baseService { get; set; }
 

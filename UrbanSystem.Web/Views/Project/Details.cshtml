@@ -1,18 +1,49 @@
 ﻿@model UrbanSystem.Web.ViewModels.Projects.ProjectIndexViewModel
 
-<div class="container">
-    <h1>@Model.Name</h1>
-    <p>Funds Needed: @Model.DesiredSum</p>
-    <p>Funds Raised: @Model.Amount</p>
-    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid" />
-    <p>@Model.Description</p>
-    <p>Created On: @Model.CreatedOn.ToShortDateString()</p>
-    <p>Status: @(Model.IsCompleted ? "Completed" : "In Progress")</p>
-    <p>Location: @Model.LocationName</p>
-
-    <h3>Fund the Project</h3>
-    <form asp-action="Add" asp-controller="Funding" method="get">
-        <input type="hidden" name="projectId" value="@Model.Id" />
-        <button type="submit" class="btn btn-success mt-3">Contribute</button>
-    </form>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="card-img-top" style="max-height: 400px; object-fit: cover;">
+                }
+                <div class="card-body">
+                    <h1 class="card-title text-primary">@Model.Name</h1>
+                    <p class="card-text">
+                        <strong>Description:</strong> @Model.Description
+                    </p>
+                    <div class="row mt-3">
+                        <div class="col-sm-6">
+                            <p>
+                                <strong>Funds Needed:</strong> @Model.DesiredSum.ToString("C")
+                            </p>
+                            <p>
+                                <strong>Created On:</strong> @Model.CreatedOn.ToString("yyyy-MM-dd")
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p>
+                                <strong>Status:</strong>
+                                <span class="badge @(Model.IsCompleted ? "bg-success" : "bg-warning")">
+                                    @(Model.IsCompleted ? "Completed" : "In Progress")
+                                </span>
+                            </p>
+                            @if (!string.IsNullOrEmpty(Model.LocationName))
+                            {
+                                <p>
+                                    <strong>Location:</strong> @Model.LocationName
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="@Url.Action("Index", "Projects")" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Projects
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
