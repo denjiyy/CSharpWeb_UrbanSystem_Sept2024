@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using UrbanSystem.Data.Models;
+﻿using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels;
@@ -33,8 +32,6 @@ namespace UrbanSystem.Services.Data
                 Description = s.Description,
                 UploadedOn = s.UploadedOn.ToString("yyyy-MM-dd"),
                 Status = s.Status,
-                Upvotes = s.Upvotes,
-                Downvotes = s.Downvotes,
                 Priority = s.Priority,
                 LocationNames = s.SuggestionsLocations.Select(sl => sl.Location.CityName)
             });
@@ -58,8 +55,6 @@ namespace UrbanSystem.Services.Data
                 Description = suggestion.Description,
                 UploadedOn = suggestion.UploadedOn.ToString("yyyy-MM-dd"),
                 Status = suggestion.Status,
-                Upvotes = suggestion.Upvotes,
-                Downvotes = suggestion.Downvotes,
                 Priority = suggestion.Priority,
                 LocationNames = suggestion.SuggestionsLocations.Select(sl => sl.Location.CityName),
                 Comments = suggestion.Comments.Select(c => new CommentViewModel

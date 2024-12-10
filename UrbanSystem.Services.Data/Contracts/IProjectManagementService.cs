@@ -9,6 +9,7 @@ namespace UrbanSystem.Services.Data.Contracts
         Task<ProjectFormViewModel?> GetProjectForEditAsync(Guid id);
         Task<bool> UpdateProjectAsync(Guid id, ProjectFormViewModel model);
         Task<bool> DeleteProjectAsync(Guid id);
+        Task<bool> UpdateProjectCompletionAsync(Guid id, bool isCompleted);
         Task<bool> ToggleProjectCompletionAsync(Guid id);
     }
 }

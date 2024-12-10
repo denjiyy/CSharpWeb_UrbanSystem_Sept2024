@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UrbanSystem.Data.Models;
+﻿using UrbanSystem.Data.Models;
 using UrbanSystem.Web.ViewModels;
 using UrbanSystem.Web.ViewModels.Suggestions;
+using UrbanSystem.Web.Helpers;
 
 namespace UrbanSystem.Services.Data.Contracts
 {
     public interface ISuggestionService
     {
-        Task<IEnumerable<SuggestionIndexViewModel>> GetAllSuggestionsAsync();
+        Task<PaginatedList<SuggestionIndexViewModel>> GetAllSuggestionsAsync(int pageIndex, int pageSize, string searchQuery = "", string sortBy = "", bool ascending = true);
         Task<(bool IsSuccessful, SuggestionFormViewModel ViewModel, string ErrorMessage)> AddSuggestionAsync(SuggestionFormViewModel suggestionModel, string userId);
         Task<(bool IsSuccessful, SuggestionIndexViewModel Suggestion, string ErrorMessage)> GetSuggestionDetailsAsync(string id, string userId);
         Task<(bool IsSuccessful, string ErrorMessage)> AddCommentAsync(string suggestionId, string content, string userId);
-        Task<(bool IsSuccessful, CommentViewModel Comment, string ErrorMessage)> VoteCommentAsync(string commentId, string userId, bool isUpvote);
+        List<SuggestionIndexViewModel> SortSuggestions(List<SuggestionIndexViewModel> suggestions, string sortBy, bool ascending);
         Task<CommentViewModel?> GetCommentAsync(Guid commentId);
         Task<(bool IsSuccessful, string ErrorMessage)> UpdateSuggestionAsync(string id, SuggestionFormViewModel model, string userId);
         Task<(bool IsSuccessful, SuggestionFormViewModel ViewModel, string ErrorMessage)> GetSuggestionForEditAsync(string id, ApplicationUser user);

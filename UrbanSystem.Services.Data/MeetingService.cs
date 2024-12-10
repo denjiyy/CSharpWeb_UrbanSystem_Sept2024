@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
@@ -67,13 +63,13 @@ namespace UrbanSystem.Services.Data
                 ScheduledDate = meeting.ScheduledDate,
                 Duration = meeting.Duration,
                 CityName = meeting.Location?.CityName ?? "Unknown",
-                Attendees = meeting.Attendees.Select(a => a.UserName).ToList(),
-                OrganizerName = meeting.Organizer.UserName,
+                Attendees = meeting.Attendees.Select(a => a.UserName).ToList()!,
+                OrganizerName = meeting.Organizer.UserName!,
                 OrganizerId = meeting.OrganizerId
             };
         }
 
-        public async Task<MeetingFormViewModel> GetMeetingFormViewModelAsync(MeetingFormViewModel existingModel = null)
+        public async Task<MeetingFormViewModel> GetMeetingFormViewModelAsync(MeetingFormViewModel existingModel = null!)
         {
             var locations = await _locationRepository.GetAllAsync();
             var cities = locations.Select(l => new CityOption
@@ -93,7 +89,27 @@ namespace UrbanSystem.Services.Data
             };
         }
 
-        public async Task<MeetingFormViewModel> GetMeetingForEditAsync(Guid id)
+        public async Task<MeetingEditViewModel> GetMeetingEditViewModelAsync(MeetingFormViewModel existingModel = null!)
+        {
+            var locations = await _locationRepository.GetAllAsync();
+            var cities = locations.Select(l => new CityOption
+            {
+                Value = l.Id.ToString(),
+                Text = l.CityName
+            }).AsEnumerable();
+
+            return new MeetingEditViewModel
+            {
+                Title = existingModel?.Title ?? string.Empty,
+                Description = existingModel?.Description ?? string.Empty,
+                ScheduledDate = existingModel?.ScheduledDate ?? DateTime.Now,
+                Duration = existingModel?.Duration ?? 1,
+                LocationId = existingModel?.LocationId.ToString(),
+                Cities = cities
+            };
+        }
+
+        public async Task<MeetingEditViewModel> GetMeetingForEditAsync(Guid id)
         {
             var meeting = await _meetingRepository.GetByIdAsync(id);
             if (meeting == null)
@@ -101,12 +117,12 @@ namespace UrbanSystem.Services.Data
                 return null!;
             }
 
-            var viewModel = await GetMeetingFormViewModelAsync();
+            var viewModel = await GetMeetingEditViewModelAsync();
             viewModel.Title = meeting.Title;
             viewModel.Description = meeting.Description;
             viewModel.ScheduledDate = meeting.ScheduledDate;
-            viewModel.Duration = meeting.Duration.TotalHours;
-            viewModel.LocationId = meeting.LocationId;
+            viewModel.Duration = 0.0;
+            viewModel.LocationId = meeting.LocationId.ToString();
 
             return viewModel;
         }
@@ -141,7 +157,7 @@ namespace UrbanSystem.Services.Data
             return meeting.Id;
         }
 
-        public async Task UpdateMeetingAsync(Guid id, MeetingFormViewModel meetingForm)
+        public async Task UpdateMeetingAsync(Guid id, MeetingEditViewModel meetingForm)
         {
             var meeting = await _meetingRepository.GetAllAttached()
                 .Include(m => m.Location)
@@ -152,7 +168,7 @@ namespace UrbanSystem.Services.Data
                 throw new ArgumentException("Meeting not found", nameof(id));
             }
 
-            var location = await _locationRepository.GetByIdAsync(meetingForm.LocationId ?? Guid.Empty);
+            var location = await _locationRepository.GetByIdAsync(Guid.Parse(meetingForm.LocationId!));
             if (location == null)
             {
                 throw new ArgumentException("Invalid location ID.");

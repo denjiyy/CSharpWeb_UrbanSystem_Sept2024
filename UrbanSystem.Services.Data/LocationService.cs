@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
+using UrbanSystem.Web.Helpers;
 using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.SuggestionsLocations;
 
@@ -32,30 +29,32 @@ namespace UrbanSystem.Services.Data
             await _locationRepository.AddAsync(location);
         }
 
-        public async Task<IEnumerable<LocationDetailsViewModel>> GetAllOrderedByNameAsync()
+        public async Task<PaginatedList<LocationDetailsViewModel>> GetAllOrderedByNameAsync(int pageIndex, int pageSize)
         {
-            var locations = await _locationRepository
+            var query = _locationRepository
                 .GetAllAttached()
                 .OrderBy(l => l.CityName)
-                .ToListAsync();
+                .Select(l => new LocationDetailsViewModel
+                {
+                    Id = l.Id.ToString(),
+                    CityName = l.CityName,
+                    StreetName = l.StreetName,
+                    CityPicture = l.CityPicture,
+                    Suggestions = l.SuggestionsLocations.Select(sl => new SuggestionLocationViewModel
+                    {
+                        Id = sl.Suggestion.Id.ToString(),
+                        Title = sl.Suggestion.Title
+                    }).ToList()
+                });
 
-            var viewModel = locations.Select(l => new LocationDetailsViewModel
-            {
-                Id = l.Id.ToString(),
-                CityName = l.CityName,
-                StreetName = l.StreetName,
-                CityPicture = l.CityPicture,
-                Suggestions = new List<SuggestionLocationViewModel>()
-            });
-
-            return viewModel;
+            return PaginatedList<LocationDetailsViewModel>.Create(query, pageIndex, pageSize);
         }
 
         public async Task<LocationDetailsViewModel> GetLocationDetailsByIdAsync(string? id)
         {
             if (!IsGuidIdValid(id?.ToLower(), out Guid locationGuid))
             {
-                return null;
+                return null!;
             }
 
             var location = await _locationRepository

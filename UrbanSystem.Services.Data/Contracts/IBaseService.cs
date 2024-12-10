@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using UrbanSystem.Web.ViewModels.Locations;
+﻿using UrbanSystem.Web.ViewModels.Locations;
 
 namespace UrbanSystem.Services.Data.Contracts
 {

@@ -10,5 +10,13 @@ namespace UrbanSystem.Services.Data.Contracts
     public interface IUserService
     {
         Task<IEnumerable<UsersViewModel>> GetAllUsersAsync();
+
+        Task<bool> UserExistsByIdAsync(Guid userId);
+
+        Task<bool> AssignUserToRoleAsync(Guid userId, string roleName);
+
+        Task<bool> RemoveUserFromRoleAsync(Guid userId, string roleName);
+
+        Task<bool> DeleteUserAsync(Guid userId);
     }
 }

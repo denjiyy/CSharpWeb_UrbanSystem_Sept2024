@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Interfaces;
@@ -29,7 +25,6 @@ namespace UrbanSystem.Services
                     Id = p.Id,
                     Name = p.Name,
                     DesiredSum = p.FundsNeeded,
-                    Amount = p.FundsRaised,
                     ImageUrl = p.ImageUrl,
                     Description = p.Description,
                     CreatedOn = p.CreatedOn,
@@ -58,7 +53,6 @@ namespace UrbanSystem.Services
                 Id = project.Id,
                 Name = project.Name,
                 DesiredSum = project.FundsNeeded,
-                Amount = project.FundsRaised,
                 ImageUrl = project.ImageUrl,
                 Description = project.Description,
                 CreatedOn = project.CreatedOn,

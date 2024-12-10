@@ -22,14 +22,17 @@ namespace UrbanSystem.Services.Data
 
         public async Task<IEnumerable<CityOption>> GetCitiesAsync()
         {
-            var cities = await _locationRepository
-                .GetAllAsync();
+            var cities = await _locationRepository.GetAllAsync();
 
-            return cities.Select(l => new CityOption
-            {
-                Value = l.Id.ToString(),
-                Text = l.CityName
-            }).ToHashSet();
+            return cities
+                .Where(l => !string.IsNullOrEmpty(l.CityName))
+                .GroupBy(l => l.CityName)
+                .Select(g => new CityOption
+                {
+                    Value = g.First().Id.ToString(),
+                    Text = g.Key
+                })
+                .ToList();
         }
     }
 }

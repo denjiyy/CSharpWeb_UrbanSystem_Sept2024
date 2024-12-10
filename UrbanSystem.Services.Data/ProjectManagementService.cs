@@ -29,7 +29,6 @@ namespace UrbanSystem.Services.Data
             {
                 Id = p.Id,
                 Name = p.Name,
-                Amount = p.FundsRaised,
                 DesiredSum = p.FundsNeeded,
                 ImageUrl = p.ImageUrl,
                 Description = p.Description,
@@ -54,7 +53,6 @@ namespace UrbanSystem.Services.Data
             {
                 Id = project.Id,
                 Name = project.Name,
-                Amount = project.FundsRaised,
                 DesiredSum = project.FundsNeeded,
                 ImageUrl = project.ImageUrl,
                 Description = project.Description,
@@ -62,6 +60,22 @@ namespace UrbanSystem.Services.Data
                 IsCompleted = project.IsCompleted,
                 LocationName = project.Location.CityName
             };
+        }
+
+        public async Task<bool> UpdateProjectCompletionAsync(Guid id, bool isCompleted)
+        {
+            var project = await _projectRepository
+                .GetAllAttached()
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null)
+            {
+                return false;
+            }
+
+            project.IsCompleted = isCompleted;
+            await _projectRepository.UpdateAsync(project);
+            return true;
         }
 
         public async Task<ProjectFormViewModel?> GetProjectForEditAsync(Guid id)

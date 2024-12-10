@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
@@ -38,13 +34,13 @@ namespace UrbanSystem.Services.Data
                 Category = us.Suggestion.Category,
                 UploadedOn = us.Suggestion.UploadedOn.ToString("yyyy-MM-dd HH:mm:ss"),
                 AttachmentUrl = us.Suggestion.AttachmentUrl,
-                Upvotes = us.Suggestion.Upvotes.ToString(),
-                Downvotes = us.Suggestion.Downvotes.ToString(),
-                LocationNames = us.Suggestion.SuggestionsLocations.Select(sl => new CityOption
-                {
-                    Value = sl.Location.Id.ToString(),
-                    Text = sl.Location.CityName
-                }).ToList()
+                LocationNames = us.Suggestion.SuggestionsLocations?
+                    .Where(sl => sl.Location != null)
+                    .Select(sl => new CityOption
+                    {
+                        Value = sl.Location.Id.ToString(),
+                        Text = sl.Location.CityName
+                    }).ToList() ?? new List<CityOption>()
             });
 
             return viewModel;
