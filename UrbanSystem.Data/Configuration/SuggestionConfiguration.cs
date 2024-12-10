@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
 using UrbanSystem.Data.Models;
 using static UrbanSystem.Common.EntityValidationConstants.Suggestion;
 
@@ -47,8 +45,6 @@ namespace UrbanSystem.Data.Configuration
                     Description = "Implement more frequent bus routes during peak hours to reduce congestion.",
                     UploadedOn = DateTime.UtcNow,
                     Status = "Pending",
-                    Upvotes = 10,
-                    Downvotes = 2,
                     Priority = "High"
                 },
                 new Suggestion
@@ -60,8 +56,6 @@ namespace UrbanSystem.Data.Configuration
                     Description = "Renovate the central park by adding new benches, lighting, and a playground area.",
                     UploadedOn = DateTime.UtcNow,
                     Status = "Approved",
-                    Upvotes = 25,
-                    Downvotes = 1,
                     Priority = "Medium"
                 },
                 new Suggestion
@@ -73,8 +67,6 @@ namespace UrbanSystem.Data.Configuration
                     Description = "Introduce a recycling program and increase the frequency of waste collection.",
                     UploadedOn = DateTime.UtcNow,
                     Status = "In Review",
-                    Upvotes = 15,
-                    Downvotes = 0,
                     Priority = "High"
                 }
             };

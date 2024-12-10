@@ -27,9 +27,6 @@ namespace UrbanSystem.Data.Configuration
             builder.Property(p => p.FundingDeadline)
                 .IsRequired();
 
-            builder.Property(p => p.FundsRaised)
-                .HasPrecision(18, 2);
-
             builder.Property(p => p.FundsNeeded)
                 .IsRequired()
                 .HasPrecision(18, 2);

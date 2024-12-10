@@ -26,12 +26,6 @@ namespace UrbanSystem.Data.Configuration
                 .WithMany(s => s.Comments)
                 .HasForeignKey(c => c.SuggestionId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Property(c => c.Upvotes)
-                .HasDefaultValue(0);
-
-            builder.Property(c => c.Downvotes)
-                .HasDefaultValue(0);
         }
     }
 }
