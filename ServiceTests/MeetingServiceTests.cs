@@ -1,14 +1,8 @@
 ﻿using MockQueryable.Moq;
 using Moq;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data;
-using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Meetings;
 
 namespace ServiceTests
@@ -70,10 +64,10 @@ namespace ServiceTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Count());
-            Assert.AreEqual("Meeting 1", result.First().Title);
-            Assert.AreEqual("New York", result.First().CityName);
-            Assert.AreEqual(1, result.First().AttendeesCount);
+            Assert.That(result.Count(), Is.EqualTo(2));
+            Assert.That(result.First().Title, Is.EqualTo("Meeting 1"));
+            Assert.That(result.First().CityName, Is.EqualTo("New York"));
+            Assert.That(result.First().AttendeesCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -105,10 +99,47 @@ namespace ServiceTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(meetingId, result.Id);
-            Assert.AreEqual("Test Meeting", result.Title);
-            Assert.AreEqual("Organizer", result.OrganizerName);
-            Assert.AreEqual(2, result.Attendees.Count());
+            Assert.That(result.Id, Is.EqualTo(meetingId));
+            Assert.That(result.Title, Is.EqualTo("Test Meeting"));
+            Assert.That(result.OrganizerName, Is.EqualTo("Organizer"));
+            Assert.That(result.Attendees.Count(), Is.EqualTo(2));
+        }
+
+        [Test]
+        public async Task GetMeetingByIdAsync_ReturnsNull_WhenMeetingDoesNotExist()
+        {
+            // Arrange
+            var nonExistentMeetingId = Guid.NewGuid();
+            _mockMeetingRepository.Setup(repo => repo.GetAllAttached())
+                .Returns(new List<Meeting>().AsQueryable().BuildMockDbSet().Object);
+
+            // Act
+            var result = await _meetingService.GetMeetingByIdAsync(nonExistentMeetingId);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task GetMeetingFormViewModelAsync_ReturnsCorrectViewModel()
+        {
+            // Arrange
+            var locations = new List<Location>
+            {
+                new Location { Id = Guid.NewGuid(), CityName = "New York" },
+                new Location { Id = Guid.NewGuid(), CityName = "Los Angeles" }
+            };
+            _mockLocationRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(locations);
+
+            // Act
+            var result = await _meetingService.GetMeetingFormViewModelAsync();
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.That(result.Cities.Count(), Is.EqualTo(2));
+            Assert.IsTrue(result.Cities.Any(c => c.Text == "New York"));
+            Assert.IsTrue(result.Cities.Any(c => c.Text == "Los Angeles"));
         }
 
         [Test]
@@ -146,6 +177,50 @@ namespace ServiceTests
                 m.Duration == TimeSpan.FromHours(2) &&
                 m.LocationId == locationId &&
                 m.Organizer.UserName == "Organizer"
+            )), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateMeetingAsync_UpdatesMeeting_WithCorrectDetails()
+        {
+            // Arrange
+            var meetingId = Guid.NewGuid();
+            var locationId = Guid.NewGuid();
+            var meeting = new Meeting
+            {
+                Id = meetingId,
+                Title = "Old Title",
+                Description = "Old Description",
+                ScheduledDate = DateTime.UtcNow,
+                Duration = TimeSpan.FromHours(1),
+                LocationId = Guid.NewGuid()
+            };
+            var location = new Location { Id = locationId, CityName = "New York" };
+            var updateForm = new MeetingEditViewModel
+            {
+                Title = "Updated Title",
+                Description = "Updated Description",
+                ScheduledDate = DateTime.UtcNow.AddDays(1),
+                Duration = 2,
+                LocationId = locationId.ToString()
+            };
+
+            _mockMeetingRepository.Setup(repo => repo.GetAllAttached())
+                .Returns(new List<Meeting> { meeting }.AsQueryable().BuildMockDbSet().Object);
+            _mockLocationRepository.Setup(repo => repo.GetByIdAsync(locationId))
+                .ReturnsAsync(location);
+
+            // Act
+            await _meetingService.UpdateMeetingAsync(meetingId, updateForm);
+
+            // Assert
+            _mockMeetingRepository.Verify(repo => repo.UpdateAsync(It.Is<Meeting>(m =>
+                m.Id == meetingId &&
+                m.Title == updateForm.Title &&
+                m.Description == updateForm.Description &&
+                m.ScheduledDate == updateForm.ScheduledDate &&
+                m.Duration == TimeSpan.FromHours(updateForm.Duration) &&
+                m.LocationId == locationId
             )), Times.Once);
         }
 
@@ -192,14 +267,12 @@ namespace ServiceTests
             _mockUserRepository.Setup(repo => repo.GetAllAttached())
                 .Returns(new List<ApplicationUser> { user }.AsQueryable().BuildMockDbSet().Object);
 
-            _mockMeetingRepository.Setup(repo => repo.DeleteAsync(meetingId)).ReturnsAsync(false);
-
             // Act
             await _meetingService.AttendMeetingAsync("User1", meetingId);
 
             // Assert
-            Assert.AreEqual(1, meeting.Attendees.Count);
-            Assert.AreEqual("User1", meeting.Attendees.First().UserName);
+            Assert.That(meeting.Attendees.Count, Is.EqualTo(1));
+            Assert.That(meeting.Attendees.First().UserName, Is.EqualTo("User1"));
         }
 
         [Test]
@@ -220,13 +293,36 @@ namespace ServiceTests
             _mockUserRepository.Setup(repo => repo.GetAllAttached())
                 .Returns(new List<ApplicationUser> { user }.AsQueryable().BuildMockDbSet().Object);
 
-            _mockMeetingRepository.Setup(repo => repo.DeleteAsync(meetingId)).ReturnsAsync(true);
-
             // Act
             await _meetingService.CancelAttendanceAsync("User1", meetingId);
 
             // Assert
-            Assert.AreEqual(0, meeting.Attendees.Count);
+            Assert.That(meeting.Attendees.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task AttendMeetingAsync_DoesNotAddDuplicateUser_WhenAlreadyAttending()
+        {
+            var meetingId = Guid.NewGuid();
+            var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = "User1" };
+            var meeting = new Meeting
+            {
+                Id = meetingId,
+                Attendees = new List<ApplicationUser> { user }
+            };
+
+            _mockMeetingRepository.Setup(repo => repo.GetAllAttached())
+                .Returns(new List<Meeting> { meeting }.AsQueryable().BuildMockDbSet().Object);
+
+            _mockUserRepository.Setup(repo => repo.GetAllAttached())
+                .Returns(new List<ApplicationUser> { user }.AsQueryable().BuildMockDbSet().Object);
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _meetingService.AttendMeetingAsync("User1", meetingId));
+
+            Assert.That(exception.Message, Is.EqualTo("You are already attending this meeting."));
+
+            Assert.That(meeting.Attendees.Count, Is.EqualTo(1));
         }
     }
 }

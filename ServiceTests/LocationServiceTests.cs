@@ -1,16 +1,9 @@
 ﻿using Moq;
 using MockQueryable.Moq;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data;
 using UrbanSystem.Web.ViewModels.Locations;
-using UrbanSystem.Web.ViewModels.SuggestionsLocations;
-using Microsoft.EntityFrameworkCore;
 
 namespace ServiceTests
 {
@@ -51,33 +44,66 @@ namespace ServiceTests
             // Assert
             _mockLocationRepository.Verify(repo => repo.AddAsync(It.IsAny<Location>()), Times.Once);
             Assert.IsNotNull(savedLocation);
-            Assert.AreEqual(model.CityName, savedLocation.CityName);
-            Assert.AreEqual(model.StreetName, savedLocation.StreetName);
-            Assert.AreEqual(model.CityPicture, savedLocation.CityPicture);
+            Assert.That(savedLocation.CityName, Is.EqualTo(model.CityName));
+            Assert.That(savedLocation.StreetName, Is.EqualTo(model.StreetName));
+            Assert.That(savedLocation.CityPicture, Is.EqualTo(model.CityPicture));
         }
 
         [Test]
-        public async Task GetAllOrderedByNameAsync_ReturnsCorrectlyOrderedLocations()
+        public async Task GetAllOrderedByNameAsync_ReturnsCorrectlyOrderedAndPaginatedLocations()
         {
             // Arrange
             var testLocations = new List<Location>
             {
                 new Location { Id = Guid.NewGuid(), CityName = "Chicago", StreetName = "Main Street", CityPicture = "chicago.jpg" },
                 new Location { Id = Guid.NewGuid(), CityName = "New York", StreetName = "5th Avenue", CityPicture = "newyork.jpg" },
-                new Location { Id = Guid.NewGuid(), CityName = "Los Angeles", StreetName = "Sunset Blvd", CityPicture = "la.jpg" }
+                new Location { Id = Guid.NewGuid(), CityName = "Los Angeles", StreetName = "Sunset Blvd", CityPicture = "la.jpg" },
+                new Location { Id = Guid.NewGuid(), CityName = "Boston", StreetName = "Beacon Street", CityPicture = "boston.jpg" },
+                new Location { Id = Guid.NewGuid(), CityName = "Miami", StreetName = "Ocean Drive", CityPicture = "miami.jpg" }
             };
 
             _mockLocationRepository.Setup(repo => repo.GetAllAttached())
                 .Returns(testLocations.AsQueryable().BuildMockDbSet().Object);
 
             // Act
-            var result = await _locationService.GetAllOrderedByNameAsync();
+            var result = await _locationService.GetAllOrderedByNameAsync(1, 2);
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(3, result.Count());
-            Assert.AreEqual("Chicago", result.First().CityName);
-            Assert.AreEqual("New York", result.Last().CityName);
+            Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(result[0].CityName, Is.EqualTo("Boston"));
+            Assert.That(result[1].CityName, Is.EqualTo("Chicago"));
+            Assert.That(result.TotalPages, Is.EqualTo(3));
+            Assert.That(result.HasPreviousPage, Is.False);
+            Assert.That(result.HasNextPage, Is.True);
+        }
+
+        [Test]
+        public async Task GetAllOrderedByNameAsync_ReturnsLastPage()
+        {
+            // Arrange
+            var testLocations = new List<Location>
+            {
+                new Location { Id = Guid.NewGuid(), CityName = "Chicago", StreetName = "Main Street", CityPicture = "chicago.jpg" },
+                new Location { Id = Guid.NewGuid(), CityName = "New York", StreetName = "5th Avenue", CityPicture = "newyork.jpg" },
+                new Location { Id = Guid.NewGuid(), CityName = "Los Angeles", StreetName = "Sunset Blvd", CityPicture = "la.jpg" },
+                new Location { Id = Guid.NewGuid(), CityName = "Boston", StreetName = "Beacon Street", CityPicture = "boston.jpg" },
+                new Location { Id = Guid.NewGuid(), CityName = "Miami", StreetName = "Ocean Drive", CityPicture = "miami.jpg" }
+            };
+
+            _mockLocationRepository.Setup(repo => repo.GetAllAttached())
+                .Returns(testLocations.AsQueryable().BuildMockDbSet().Object);
+
+            // Act
+            var result = await _locationService.GetAllOrderedByNameAsync(3, 2);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].CityName, Is.EqualTo("New York"));
+            Assert.That(result.TotalPages, Is.EqualTo(3));
+            Assert.That(result.HasPreviousPage, Is.True);
+            Assert.That(result.HasNextPage, Is.False);
         }
 
         [Test]
@@ -135,13 +161,55 @@ namespace ServiceTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(locationId.ToString(), result.Id);
-            Assert.AreEqual("New York", result.CityName);
-            Assert.AreEqual("5th Avenue", result.StreetName);
-            Assert.AreEqual("image.jpg", result.CityPicture);
-            Assert.AreEqual(1, result.Suggestions.Count());
-            Assert.AreEqual(suggestionId.ToString(), result.Suggestions.First().Id);
-            Assert.AreEqual("Suggestion 1", result.Suggestions.First().Title);
+            Assert.That(result.Id, Is.EqualTo(locationId.ToString()));
+            Assert.That(result.CityName, Is.EqualTo("New York"));
+            Assert.That(result.StreetName, Is.EqualTo("5th Avenue"));
+            Assert.That(result.CityPicture, Is.EqualTo("image.jpg"));
+            Assert.That(result.Suggestions.Count(), Is.EqualTo(1));
+            Assert.That(result.Suggestions.First().Id, Is.EqualTo(suggestionId.ToString()));
+            Assert.That(result.Suggestions.First().Title, Is.EqualTo("Suggestion 1"));
+        }
+
+        [Test]
+        public async Task GetAllOrderedByNameAsync_ReturnsEmptyList_WhenNoLocationsExist()
+        {
+            // Arrange
+            _mockLocationRepository.Setup(repo => repo.GetAllAttached())
+                .Returns(new List<Location>().AsQueryable().BuildMockDbSet().Object);
+
+            // Act
+            var result = await _locationService.GetAllOrderedByNameAsync(1, 10);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsEmpty(result);
+            Assert.That(result.TotalPages, Is.EqualTo(0));
+            Assert.That(result.HasPreviousPage, Is.False);
+            Assert.That(result.HasNextPage, Is.False);
+        }
+
+        [Test]
+        public async Task GetAllOrderedByNameAsync_ReturnsCorrectPage_WhenPageNumberExceedsTotalPages()
+        {
+            // Arrange
+            var testLocations = new List<Location>
+            {
+                new Location { Id = Guid.NewGuid(), CityName = "Chicago", StreetName = "Main Street", CityPicture = "chicago.jpg" },
+                new Location { Id = Guid.NewGuid(), CityName = "New York", StreetName = "5th Avenue", CityPicture = "newyork.jpg" },
+            };
+
+            _mockLocationRepository.Setup(repo => repo.GetAllAttached())
+                .Returns(testLocations.AsQueryable().BuildMockDbSet().Object);
+
+            // Act
+            var result = await _locationService.GetAllOrderedByNameAsync(3, 1);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsEmpty(result);
+            Assert.That(result.TotalPages, Is.EqualTo(2));
+            Assert.That(result.HasPreviousPage, Is.True);
+            Assert.That(result.HasNextPage, Is.False);
         }
     }
 }
