@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using UrbanSystem.Web.ViewModels.Locations;
 using static UrbanSystem.Common.EntityValidationConstants.Suggestion;
-using static UrbanSystem.Common.EntityValidationMessages.Suggestion;
+using static UrbanSystem.Common.ValidationMessages.Suggestion;
 using static UrbanSystem.Common.EntityValidationConstants.Location;
 
 namespace UrbanSystem.Web.ViewModels.Suggestions

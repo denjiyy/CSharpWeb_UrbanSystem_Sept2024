@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace UrbanSystem.Web.ViewModels.Funding
 {
@@ -8,7 +7,7 @@ namespace UrbanSystem.Web.ViewModels.Funding
         [Required]
         public Guid ProjectId { get; set; }
 
-        public string ProjectName { get; set; }
+        public string ProjectName { get; set; } = null!;
 
         public decimal FundsNeeded { get; set; }
 

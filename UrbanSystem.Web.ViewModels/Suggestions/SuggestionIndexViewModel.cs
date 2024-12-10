@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace UrbanSystem.Web.ViewModels.Suggestions
+﻿namespace UrbanSystem.Web.ViewModels.Suggestions
 {
     public class SuggestionIndexViewModel
     {
@@ -22,11 +18,7 @@ namespace UrbanSystem.Web.ViewModels.Suggestions
 
         public string Status { get; set; } = null!;
 
-        public int Upvotes { get; set; }
-
-        public int Downvotes { get; set; }
-
-        public string Priority { get; set; } = "Medium";
+        public string Priority { get; set; } = "Low";
 
         public IEnumerable<string> LocationNames { get; set; } = new HashSet<string>();
         public ICollection<CommentViewModel> Comments { get; set; } = new HashSet<CommentViewModel>();

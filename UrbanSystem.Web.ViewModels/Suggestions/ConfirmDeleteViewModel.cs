@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace UrbanSystem.Web.ViewModels.Suggestions
+﻿namespace UrbanSystem.Web.ViewModels.Suggestions
 {
     public class ConfirmDeleteViewModel
     {

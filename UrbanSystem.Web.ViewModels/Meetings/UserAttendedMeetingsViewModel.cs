@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace UrbanSystem.Web.ViewModels.Meetings
+﻿namespace UrbanSystem.Web.ViewModels.Meetings
 {
     public class UserAttendedMeetingsViewModel
     {

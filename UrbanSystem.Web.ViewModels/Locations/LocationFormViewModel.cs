@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static UrbanSystem.Common.EntityValidationMessages.Location;
+﻿using System.ComponentModel.DataAnnotations;
+using static UrbanSystem.Common.ValidationMessages.Location;
 
 namespace UrbanSystem.Web.ViewModels.Locations
 {

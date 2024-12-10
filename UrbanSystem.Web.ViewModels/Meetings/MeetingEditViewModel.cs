@@ -3,8 +3,11 @@ using UrbanSystem.Web.ViewModels.Locations;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {
-    public class MeetingFormViewModel
+    public class MeetingEditViewModel
     {
+        [Required(ErrorMessage = "Id is required")]
+        public Guid Id { get; set; }
+
         [Required(ErrorMessage = "Title is required")]
         [StringLength(200, ErrorMessage = "Title cannot be longer than 200 characters")]
         public string Title { get; set; } = null!;
@@ -23,8 +26,8 @@ namespace UrbanSystem.Web.ViewModels.Meetings
         public double Duration { get; set; }
 
         [Required(ErrorMessage = "Location is required")]
-        public Guid? LocationId { get; set; }
-
-        public IEnumerable<CityOption> Cities { get; set; } = new List<CityOption>();
+        public string? LocationId { get; set; }
+        
+        public IEnumerable<CityOption> Cities { get; set; } = new HashSet<CityOption>();
     }
 }
