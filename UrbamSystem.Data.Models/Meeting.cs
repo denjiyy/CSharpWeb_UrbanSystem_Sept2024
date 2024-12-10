@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace UrbanSystem.Data.Models
+﻿namespace UrbanSystem.Data.Models
 {
     public class Meeting
     {

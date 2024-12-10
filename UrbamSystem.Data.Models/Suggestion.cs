@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace UrbanSystem.Data.Models
+﻿namespace UrbanSystem.Data.Models
 {
     public class Suggestion
     {
@@ -24,13 +19,9 @@ namespace UrbanSystem.Data.Models
 
         public DateTime UploadedOn { get; set; } = DateTime.UtcNow.Date;
 
-        public string Status { get; set; } = null!;
+        public string Status { get; set; } = "Open";
 
-        public int Upvotes { get; set; } = 0;
-
-        public int Downvotes { get; set; } = 0;
-
-        public string Priority { get; set; } = "Medium";
+        public string Priority { get; set; } = "Low";
 
         public virtual ICollection<SuggestionLocation> SuggestionsLocations { get; set; } = new HashSet<SuggestionLocation>();
 

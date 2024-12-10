@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UrbanSystem.Data.Models
+﻿namespace UrbanSystem.Data.Models
 {
     public class Project
     {
@@ -15,7 +9,6 @@ namespace UrbanSystem.Data.Models
 
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
-        public decimal FundsRaised { get; set; } = 0m;
         public decimal FundsNeeded { get; set; }
         public string? ImageUrl { get; set; }
         public string Description { get; set; } = null!;
