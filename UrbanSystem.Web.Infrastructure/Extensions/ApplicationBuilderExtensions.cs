@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
 using static UrbanSystem.Common.ApplicationConstants;
 using UrbanSystem.Data;
 using UrbanSystem.Data.Models;
