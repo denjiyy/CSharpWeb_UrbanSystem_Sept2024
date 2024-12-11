@@ -10,8 +10,8 @@ Download the zip file from the `WorkingApplicationZip` branch.
 
 ### Step 2: Open the Project in Visual Studio
 
-1. Open the `UrbanSystem.Data` project in Visual Studio.
-2. Open the **Package Manager Console**.
+1. Select the `UrbanSystem.Data` project in Visual Studio.
+3. Open the **Package Manager Console**.
 
 ### Step 3: Run the Database Migrations
 
