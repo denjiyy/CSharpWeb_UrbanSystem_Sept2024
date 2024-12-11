@@ -6,8 +6,6 @@ namespace UrbanSystem.Services.Data.Contracts
     {
         Task<IEnumerable<ProjectIndexViewModel>> GetAllProjectsAsync();
         Task<ProjectIndexViewModel?> GetProjectByIdAsync(Guid id);
-        Task<ProjectFormViewModel?> GetProjectForEditAsync(Guid id);
-        Task<bool> UpdateProjectAsync(Guid id, ProjectFormViewModel model);
         Task<bool> DeleteProjectAsync(Guid id);
         Task<bool> UpdateProjectCompletionAsync(Guid id, bool isCompleted);
         Task<bool> ToggleProjectCompletionAsync(Guid id);

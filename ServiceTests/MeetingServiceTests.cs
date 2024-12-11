@@ -40,7 +40,7 @@ namespace ServiceTests
                     Title = "Meeting 1",
                     Description = "Description 1",
                     ScheduledDate = DateTime.UtcNow,
-                    Duration = TimeSpan.FromHours(1),
+                    Duration = 1.0,
                     Location = new Location { CityName = "New York" },
                     Attendees = new List<ApplicationUser> { new ApplicationUser() }
                 },
@@ -50,7 +50,7 @@ namespace ServiceTests
                     Title = "Meeting 2",
                     Description = "Description 2",
                     ScheduledDate = DateTime.UtcNow.AddHours(1),
-                    Duration = TimeSpan.FromHours(2),
+                    Duration = 2.0,
                     Location = new Location { CityName = "Chicago" },
                     Attendees = new List<ApplicationUser> { new ApplicationUser(), new ApplicationUser() }
                 }
@@ -81,7 +81,7 @@ namespace ServiceTests
                 Title = "Test Meeting",
                 Description = "Test Description",
                 ScheduledDate = DateTime.UtcNow,
-                Duration = TimeSpan.FromHours(2),
+                Duration = 2.0,
                 Location = new Location { CityName = "New York" },
                 Organizer = new ApplicationUser { UserName = "Organizer" },
                 Attendees = new List<ApplicationUser>
@@ -174,7 +174,7 @@ namespace ServiceTests
                 m.Title == meetingForm.Title &&
                 m.Description == meetingForm.Description &&
                 m.ScheduledDate == meetingForm.ScheduledDate &&
-                m.Duration == TimeSpan.FromHours(2) &&
+                m.Duration == 2.0 &&
                 m.LocationId == locationId &&
                 m.Organizer.UserName == "Organizer"
             )), Times.Once);
@@ -192,7 +192,7 @@ namespace ServiceTests
                 Title = "Old Title",
                 Description = "Old Description",
                 ScheduledDate = DateTime.UtcNow,
-                Duration = TimeSpan.FromHours(1),
+                Duration = 1.0,
                 LocationId = Guid.NewGuid()
             };
             var location = new Location { Id = locationId, CityName = "New York" };
@@ -219,7 +219,7 @@ namespace ServiceTests
                 m.Title == updateForm.Title &&
                 m.Description == updateForm.Description &&
                 m.ScheduledDate == updateForm.ScheduledDate &&
-                m.Duration == TimeSpan.FromHours(updateForm.Duration) &&
+                m.Duration == updateForm.Duration &&
                 m.LocationId == locationId
             )), Times.Once);
         }

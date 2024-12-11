@@ -78,48 +78,6 @@ namespace UrbanSystem.Services.Data
             return true;
         }
 
-        public async Task<ProjectFormViewModel?> GetProjectForEditAsync(Guid id)
-        {
-            var project = await _projectRepository.GetAllAttached()
-                .Include(p => p.Location)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (project == null)
-            {
-                return null;
-            }
-
-            return new ProjectFormViewModel
-            {
-                Name = project.Name,
-                DesiredSum = project.FundsNeeded,
-                ImageUrl = project.ImageUrl,
-                Description = project.Description,
-                FundingDeadline = project.FundingDeadline,
-                IsCompleted = project.IsCompleted,
-                LocationId = project.LocationId
-            };
-        }
-
-        public async Task<bool> UpdateProjectAsync(Guid id, ProjectFormViewModel model)
-        {
-            var project = await _projectRepository.GetByIdAsync(id);
-            if (project == null)
-            {
-                return false;
-            }
-
-            project.Name = model.Name;
-            project.FundsNeeded = model.DesiredSum;
-            project.ImageUrl = model.ImageUrl;
-            project.Description = model.Description;
-            project.FundingDeadline = model.FundingDeadline;
-            project.IsCompleted = model.IsCompleted;
-            project.LocationId = model.LocationId;
-
-            return await _projectRepository.UpdateAsync(project);
-        }
-
         public async Task<bool> DeleteProjectAsync(Guid id)
         {
             return await _projectRepository.DeleteAsync(id);

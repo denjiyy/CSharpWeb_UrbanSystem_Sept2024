@@ -1,4 +1,7 @@
-﻿using UrbanSystem.Data.Models;
+﻿using static UrbanSystem.Common.ValidationStrings.Suggestion;
+using static UrbanSystem.Common.ValidationStrings.Formatting;
+using static UrbanSystem.Common.ValidationStrings.Location;
+using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels;
@@ -25,15 +28,15 @@ namespace UrbanSystem.Services.Data
             return suggestions.Select(s => new SuggestionIndexViewModel
             {
                 Id = s.Id.ToString(),
-                Title = s.Title,
-                Category = s.Category,
-                OrganizerName = s.UsersSuggestions.FirstOrDefault()?.User.UserName ?? "Unknown",
+                Title = s.Title ?? UnknownUserMessage,
+                Category = s.Category ?? UnknownUserMessage,
+                OrganizerName = s.UsersSuggestions.FirstOrDefault()?.User.UserName ?? UnknownUserMessage,
                 AttachmentUrl = s.AttachmentUrl,
-                Description = s.Description,
-                UploadedOn = s.UploadedOn.ToString("yyyy-MM-dd"),
+                Description = s.Description ?? DescriptionRequiredMessage,
+                UploadedOn = s.UploadedOn.ToString(DateDisplayFormat),
                 Status = s.Status,
                 Priority = s.Priority,
-                LocationNames = s.SuggestionsLocations.Select(sl => sl.Location.CityName)
+                LocationNames = s.SuggestionsLocations.Select(sl => sl.Location.CityName ?? UnknownLocation)
             });
         }
 
@@ -48,114 +51,33 @@ namespace UrbanSystem.Services.Data
             return new SuggestionIndexViewModel
             {
                 Id = suggestion.Id.ToString(),
-                Title = suggestion.Title,
-                Category = suggestion.Category,
-                OrganizerName = suggestion.UsersSuggestions.FirstOrDefault()?.User.UserName ?? "Unknown",
+                Title = suggestion.Title ?? UnknownUserMessage,
+                Category = suggestion.Category ?? UnknownUserMessage,
+                OrganizerName = suggestion.UsersSuggestions.FirstOrDefault()?.User.UserName ?? UnknownUserMessage,
                 AttachmentUrl = suggestion.AttachmentUrl,
-                Description = suggestion.Description,
-                UploadedOn = suggestion.UploadedOn.ToString("yyyy-MM-dd"),
+                Description = suggestion.Description ?? DescriptionRequiredMessage,
+                UploadedOn = suggestion.UploadedOn.ToString(DateDisplayFormat),
                 Status = suggestion.Status,
                 Priority = suggestion.Priority,
-                LocationNames = suggestion.SuggestionsLocations.Select(sl => sl.Location.CityName),
+                LocationNames = suggestion.SuggestionsLocations.Select(sl => sl.Location.CityName ?? UnknownLocation),
                 Comments = suggestion.Comments.Select(c => new CommentViewModel
                 {
                     Id = c.Id,
-                    Content = c.Content,
+                    Content = c.Content ?? DescriptionRequiredMessage,
                     AddedOn = c.AddedOn,
-                    UserName = c.User.UserName
+                    UserName = c.User.UserName ?? UnknownUserMessage
                 }).ToList()
             };
         }
 
-        public async Task<bool> CreateSuggestionAsync(SuggestionFormViewModel model)
-        {
-            var suggestion = new Suggestion
-            {
-                Title = model.Title,
-                Category = model.Category,
-                AttachmentUrl = model.AttachmentUrl,
-                Description = model.Description,
-                Status = model.Status,
-                Priority = model.Priority
-            };
-
-            var location = (await _locationRepository.GetAllAsync(l => l.CityName == model.CityName && l.StreetName == model.StreetName)).FirstOrDefault();
-            if (location == null)
-            {
-                location = new Location
-                {
-                    CityName = model.CityName,
-                    StreetName = model.StreetName
-                };
-                await _locationRepository.AddAsync(location);
-            }
-
-            suggestion.SuggestionsLocations.Add(new SuggestionLocation { Location = location });
-
-            await _suggestionRepository.AddAsync(suggestion);
-            return true;
-        }
-
-        public async Task<SuggestionFormViewModel?> GetSuggestionForEditAsync(Guid id)
-        {
-            var suggestion = await _suggestionRepository.GetByIdAsync(id);
-            if (suggestion == null)
-            {
-                return null;
-            }
-
-            var location = suggestion.SuggestionsLocations.FirstOrDefault()?.Location;
-
-            return new SuggestionFormViewModel
-            {
-                Id = suggestion.Id,
-                Title = suggestion.Title,
-                Category = suggestion.Category,
-                AttachmentUrl = suggestion.AttachmentUrl,
-                Description = suggestion.Description,
-                Status = suggestion.Status,
-                Priority = suggestion.Priority,
-                CityName = location?.CityName ?? "",
-                StreetName = location?.StreetName ?? ""
-            };
-        }
-
-        public async Task<bool> UpdateSuggestionAsync(Guid id, SuggestionFormViewModel model)
-        {
-            var suggestion = await _suggestionRepository.GetByIdAsync(id);
-            if (suggestion == null)
-            {
-                return false;
-            }
-
-            suggestion.Title = model.Title;
-            suggestion.Category = model.Category;
-            suggestion.AttachmentUrl = model.AttachmentUrl;
-            suggestion.Description = model.Description;
-            suggestion.Status = model.Status;
-            suggestion.Priority = model.Priority;
-
-            var locationList = await _locationRepository.GetAllAsync(l => l.CityName == model.CityName && l.StreetName == model.StreetName);
-            var location = locationList.FirstOrDefault();
-            if (location == null)
-            {
-                location = new Location
-                {
-                    CityName = model.CityName,
-                    StreetName = model.StreetName
-                };
-                await _locationRepository.AddAsync(location);
-            }
-
-            suggestion.SuggestionsLocations.Clear();
-            suggestion.SuggestionsLocations.Add(new SuggestionLocation { Location = location });
-
-            return await _suggestionRepository.UpdateAsync(suggestion);
-        }
-
         public async Task<bool> DeleteSuggestionAsync(Guid id)
         {
-            return await _suggestionRepository.DeleteAsync(id);
+            var success = await _suggestionRepository.DeleteAsync(id);
+            if (!success)
+            {
+                throw new InvalidOperationException(SuggestionNotFoundMessage);
+            }
+            return true;
         }
 
         public async Task<bool> UpdateSuggestionStatusAsync(Guid id, string status)
@@ -163,10 +85,10 @@ namespace UrbanSystem.Services.Data
             var suggestion = await _suggestionRepository.GetByIdAsync(id);
             if (suggestion == null)
             {
-                return false;
+                throw new ArgumentException(SuggestionNotFoundMessage);
             }
 
-            suggestion.Status = status;
+            suggestion.Status = status ?? throw new ArgumentException(StatusRequiredMessage);
             return await _suggestionRepository.UpdateAsync(suggestion);
         }
 
@@ -175,10 +97,10 @@ namespace UrbanSystem.Services.Data
             var suggestion = await _suggestionRepository.GetByIdAsync(id);
             if (suggestion == null)
             {
-                return false;
+                throw new ArgumentException(SuggestionNotFoundMessage);
             }
 
-            suggestion.Priority = priority;
+            suggestion.Priority = priority ?? throw new ArgumentException(PriorityRequiredMessage);
             return await _suggestionRepository.UpdateAsync(suggestion);
         }
     }

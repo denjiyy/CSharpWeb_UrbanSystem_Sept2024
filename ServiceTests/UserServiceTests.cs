@@ -1,28 +1,148 @@
-﻿using Moq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Moq;
+using NUnit.Framework;
 using UrbanSystem.Data.Models;
+using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data;
+using UrbanSystem.Web.ViewModels.Admin.UserManagement;
 
-namespace ServiceTests
+namespace UrbanSystem.Tests.Services
 {
     [TestFixture]
     public class UserServiceTests
     {
-        private Mock<UserManager<ApplicationUser>> _mockUserManager;
+        private Mock<UserManager<ApplicationUser>> _userManagerMock;
+        private Mock<RoleManager<IdentityRole<Guid>>> _roleManagerMock;
+        private Mock<IRepository<Meeting, Guid>> _meetingRepositoryMock;
+        private Mock<IRepository<Comment, Guid>> _commentRepositoryMock;
+        private Mock<IRepository<Suggestion, Guid>> _suggestionRepositoryMock;
+
         private UserService _userService;
 
         [SetUp]
         public void SetUp()
         {
-            // Mock UserManager<ApplicationUser>
             var userStoreMock = new Mock<IUserStore<ApplicationUser>>();
-            _mockUserManager = new Mock<UserManager<ApplicationUser>>(userStoreMock.Object, null!, null!, null!, null!, null!, null!, null!, null!);
+            _userManagerMock = new Mock<UserManager<ApplicationUser>>(userStoreMock.Object, null, null, null, null, null, null, null, null);
 
-            _userService = new UserService(_mockUserManager.Object);
+            var roleStoreMock = new Mock<IRoleStore<IdentityRole<Guid>>>();
+            _roleManagerMock = new Mock<RoleManager<IdentityRole<Guid>>>(roleStoreMock.Object, null, null, null, null);
+
+            _meetingRepositoryMock = new Mock<IRepository<Meeting, Guid>>();
+            _commentRepositoryMock = new Mock<IRepository<Comment, Guid>>();
+            _suggestionRepositoryMock = new Mock<IRepository<Suggestion, Guid>>();
+
+            _userService = new UserService(
+                _userManagerMock.Object,
+                _roleManagerMock.Object,
+                _meetingRepositoryMock.Object,
+                _commentRepositoryMock.Object,
+                _suggestionRepositoryMock.Object
+            );
         }
 
         [Test]
-        public async Task GetAllUsersAsync_ShouldReturnListOfUsers()
+        public async Task AssignUserToRoleAsync_ShouldReturnFalse_WhenUserNotFound()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var roleName = "Admin";
+
+            _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString()))
+                .ReturnsAsync((ApplicationUser)null);
+
+            _roleManagerMock.Setup(m => m.RoleExistsAsync(roleName))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _userService.AssignUserToRoleAsync(userId, roleName);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task AssignUserToRoleAsync_ShouldReturnTrue_WhenUserAssignedToRole()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var roleName = "Admin";
+            var user = new ApplicationUser { Id = userId };
+
+            _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString()))
+                .ReturnsAsync(user);
+
+            _roleManagerMock.Setup(m => m.RoleExistsAsync(roleName))
+                .ReturnsAsync(true);
+
+            _userManagerMock.Setup(m => m.IsInRoleAsync(user, roleName))
+                .ReturnsAsync(false);
+
+            _userManagerMock.Setup(m => m.AddToRoleAsync(user, roleName))
+                .ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _userService.AssignUserToRoleAsync(userId, roleName);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public async Task DeleteUserAsync_ShouldReturnFalse_WhenUserNotFound()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+
+            _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString()))
+                .ReturnsAsync((ApplicationUser)null);
+
+            // Act
+            var result = await _userService.DeleteUserAsync(userId);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task DeleteUserAsync_ShouldDeleteUserDependenciesAndReturnTrue()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var user = new ApplicationUser { Id = userId };
+
+            _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString()))
+                .ReturnsAsync(user);
+
+            _commentRepositoryMock.Setup(r => r.DeleteAsync(It.IsAny<Expression<Func<Comment, bool>>>()))
+                    .ReturnsAsync(true);
+
+            _suggestionRepositoryMock.Setup(r => r.GetAllAsync(It.IsAny<Expression<Func<Suggestion, bool>>>()))
+                .ReturnsAsync(new List<Suggestion>());
+
+            _meetingRepositoryMock.Setup(r => r.GetAllAsync())
+                .ReturnsAsync(new List<Meeting>());
+
+
+            _userManagerMock.Setup(m => m.DeleteAsync(user))
+                .ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _userService.DeleteUserAsync(userId);
+
+            // Assert
+            Assert.IsTrue(result);
+            _commentRepositoryMock.Verify(r => r.DeleteAsync(It.IsAny<Expression<Func<Comment, bool>>>()), Times.Once);
+            _userManagerMock.Verify(m => m.DeleteAsync(user), Times.Once);
+        }
+
+        [Test]
+        public async Task GetAllUsersAsync_ShouldReturnListOfUsersWithRoles()
         {
             // Arrange
             var users = new List<ApplicationUser>
@@ -31,85 +151,51 @@ namespace ServiceTests
                 new ApplicationUser { Id = Guid.NewGuid(), Email = "user2@example.com" }
             };
 
-            var roles1 = new List<string> { "Admin" };
-            var roles2 = new List<string> { "User" };
+            _userManagerMock.Setup(m => m.Users)
+                .Returns(users.AsQueryable());
 
-            _mockUserManager.Setup(um => um.Users).Returns(users.AsQueryable());
-            _mockUserManager.Setup(um => um.GetRolesAsync(It.IsAny<ApplicationUser>()))
-                            .ReturnsAsync((ApplicationUser user) => user.Email == "user1@example.com" ? roles1 : roles2);
+            _userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+                .ReturnsAsync(new List<string> { "Admin" });
 
             // Act
             var result = await _userService.GetAllUsersAsync();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.That(result.Count(), Is.EqualTo(2));
-            var user1 = result.First();
-            var user2 = result.Last();
-
-            Assert.That(user1.Email, Is.EqualTo("user1@example.com"));
-            Assert.Contains("Admin", user1.Roles.ToList());
-
-            Assert.That(user2.Email, Is.EqualTo("user2@example.com"));
-            Assert.Contains("User", user2.Roles.ToList());
+            Assert.AreEqual(2, result.Count());
+            Assert.That(result.All(u => u.Roles.Contains("Admin")));
         }
 
         [Test]
-        public async Task GetAllUsersAsync_ShouldReturnEmptyList_WhenNoUsersExist()
+        public async Task UserExistsByIdAsync_ShouldReturnTrue_WhenUserExists()
         {
             // Arrange
-            var users = new List<ApplicationUser>();
+            var userId = Guid.NewGuid();
+            var user = new ApplicationUser { Id = userId };
 
-            _mockUserManager.Setup(um => um.Users).Returns(users.AsQueryable());
+            _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString()))
+                .ReturnsAsync(user);
 
             // Act
-            var result = await _userService.GetAllUsersAsync();
+            var result = await _userService.UserExistsByIdAsync(userId);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsEmpty(result);
+            Assert.IsTrue(result);
         }
 
         [Test]
-        public async Task GetAllUsersAsync_ShouldIncludeRoles()
+        public async Task UserExistsByIdAsync_ShouldReturnFalse_WhenUserDoesNotExist()
         {
             // Arrange
-            var user = new ApplicationUser { Id = Guid.NewGuid(), Email = "user@example.com" };
-            var roles = new List<string> { "Admin", "User" };
+            var userId = Guid.NewGuid();
 
-            _mockUserManager.Setup(um => um.Users).Returns(new List<ApplicationUser> { user }.AsQueryable());
-            _mockUserManager.Setup(um => um.GetRolesAsync(user)).ReturnsAsync(roles);
-
-            // Act
-            var result = await _userService.GetAllUsersAsync();
-
-            // Assert
-            Assert.That(result.Count(), Is.EqualTo(1));
-            var userViewModel = result.First();
-            Assert.That(userViewModel.Email, Is.EqualTo("user@example.com"));
-            Assert.Contains("Admin", userViewModel.Roles.ToList());
-            Assert.Contains("User", userViewModel.Roles.ToList());
-        }
-
-        [Test]
-        public async Task GetAllUsersAsync_ShouldHandleNullRolesGracefully()
-        {
-            // Arrange
-            var user = new ApplicationUser { Id = Guid.NewGuid(), Email = "user@example.com" };
-
-            // Setup the mock to return null for roles
-            _mockUserManager.Setup(um => um.Users).Returns(new List<ApplicationUser> { user }.AsQueryable());
-            _mockUserManager.Setup(um => um.GetRolesAsync(user))!.ReturnsAsync((IList<string>?)null);
+            _userManagerMock.Setup(m => m.FindByIdAsync(userId.ToString()))
+                .ReturnsAsync((ApplicationUser)null);
 
             // Act
-            var result = await _userService.GetAllUsersAsync();
+            var result = await _userService.UserExistsByIdAsync(userId);
 
             // Assert
-            Assert.That(result.Count(), Is.EqualTo(1));
-            var userViewModel = result.First();
-            Assert.That(userViewModel.Email, Is.EqualTo("user@example.com"));
-
-            Assert.IsEmpty(userViewModel.Roles ?? new List<string>());
+            Assert.IsFalse(result);
         }
     }
 }

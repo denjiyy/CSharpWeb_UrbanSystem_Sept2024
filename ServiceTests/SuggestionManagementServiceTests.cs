@@ -100,85 +100,6 @@ namespace ServiceTests
         }
 
         [Test]
-        public async Task CreateSuggestionAsync_ShouldReturnTrueWhenSuggestionIsCreated()
-        {
-            // Arrange
-            var model = new SuggestionFormViewModel
-            {
-                Title = "New Suggestion",
-                Category = "Category",
-                AttachmentUrl = "http://example.com",
-                Description = "Test description",
-                Status = "Open",
-                Priority = "High",
-                CityName = "City1",
-                StreetName = "Street1"
-            };
-
-            // Mock the location repository to return a location matching the city and street
-            _mockLocationRepository.Setup(repo => repo.GetAllAsync(It.IsAny<Expression<Func<Location, bool>>>()))
-                                   .ReturnsAsync(new List<Location> { new Location { CityName = "City1", StreetName = "Street1" } });
-
-            // Mock the suggestion repository to simulate the addition of a new suggestion
-            _mockSuggestionRepository.Setup(repo => repo.AddAsync(It.IsAny<Suggestion>())).Returns(Task.CompletedTask);
-
-            // Act
-            var result = await _suggestionService.CreateSuggestionAsync(model);
-
-            // Assert
-            Assert.IsTrue(result);
-            _mockSuggestionRepository.Verify(repo => repo.AddAsync(It.IsAny<Suggestion>()), Times.Once);
-        }
-
-        [Test]
-        public async Task GetSuggestionForEditAsync_ShouldReturnNullIfNotFound()
-        {
-            // Arrange
-            var suggestionId = Guid.NewGuid();
-            _mockSuggestionRepository.Setup(repo => repo.GetByIdAsync(suggestionId))!.ReturnsAsync((Suggestion?)null);
-
-            // Act
-            var result = await _suggestionService.GetSuggestionForEditAsync(suggestionId);
-
-            // Assert
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public async Task UpdateSuggestionAsync_ShouldReturnTrueIfUpdated()
-        {
-            // Arrange
-            var suggestionId = Guid.NewGuid();
-            var model = new SuggestionFormViewModel
-            {
-                Title = "Updated Suggestion",
-                Category = "Updated Category",
-                AttachmentUrl = "http://updated.com",
-                Description = "Updated description",
-                Status = "Closed",
-                Priority = "Low",
-                CityName = "Updated City",
-                StreetName = "Updated Street"
-            };
-
-            var suggestion = new Suggestion { Id = suggestionId };
-            _mockSuggestionRepository.Setup(repo => repo.GetByIdAsync(suggestionId)).ReturnsAsync(suggestion);
-
-            // Mock the location repository to return a matching location
-            _mockLocationRepository.Setup(repo => repo.GetAllAsync(It.IsAny<Expression<Func<Location, bool>>>()))
-                                   .ReturnsAsync(new List<Location> { new Location { CityName = "Updated City", StreetName = "Updated Street" } });
-
-            _mockSuggestionRepository.Setup(repo => repo.UpdateAsync(suggestion)).ReturnsAsync(true);
-
-            // Act
-            var result = await _suggestionService.UpdateSuggestionAsync(suggestionId, model);
-
-            // Assert
-            Assert.IsTrue(result);
-            _mockSuggestionRepository.Verify(repo => repo.UpdateAsync(suggestion), Times.Once);
-        }
-
-        [Test]
         public async Task DeleteSuggestionAsync_ShouldReturnTrueIfDeleted()
         {
             // Arrange
@@ -194,17 +115,21 @@ namespace ServiceTests
         }
 
         [Test]
-        public async Task UpdateSuggestionStatusAsync_ShouldReturnFalseIfNotFound()
+        public void UpdateSuggestionStatusAsync_ShouldThrowArgumentExceptionIfNotFound()
         {
             // Arrange
             var suggestionId = Guid.NewGuid();
-            _mockSuggestionRepository.Setup(repo => repo.GetByIdAsync(suggestionId))!.ReturnsAsync((Suggestion?)null);
+            const string status = "Closed";
+            const string expectedErrorMessage = "Suggestion not found.";
 
-            // Act
-            var result = await _suggestionService.UpdateSuggestionStatusAsync(suggestionId, "Closed");
+            _mockSuggestionRepository.Setup(repo => repo.GetByIdAsync(suggestionId)).ReturnsAsync((Suggestion?)null);
 
-            // Assert
-            Assert.IsFalse(result);
+            // Act & Assert
+            var exception = Assert.ThrowsAsync<ArgumentException>(async () =>
+                await _suggestionService.UpdateSuggestionStatusAsync(suggestionId, status));
+
+            Assert.That(exception.Message, Is.EqualTo(expectedErrorMessage));
+            _mockSuggestionRepository.Verify(repo => repo.GetByIdAsync(suggestionId), Times.Once);
         }
 
         [Test]

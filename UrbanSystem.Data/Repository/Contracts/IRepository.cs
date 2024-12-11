@@ -23,6 +23,7 @@ namespace UrbanSystem.Data.Repository.Contracts
         bool Delete(TId id);
 
         Task<bool> DeleteAsync(Expression<Func<TType, bool>> predicate);
+        Task<bool> DeleteAsync(object id);
 
         Task<bool> DeleteAsync(TId id);
 

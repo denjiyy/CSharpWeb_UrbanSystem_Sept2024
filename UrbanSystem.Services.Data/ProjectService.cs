@@ -3,6 +3,7 @@ using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Interfaces;
 using UrbanSystem.Web.ViewModels.Projects;
+using static UrbanSystem.Common.ValidationStrings.Location;
 
 namespace UrbanSystem.Services
 {
@@ -70,7 +71,7 @@ namespace UrbanSystem.Services
 
             if (project.LocationId == Guid.Empty)
             {
-                throw new ArgumentException("Invalid location ID.");
+                throw new ArgumentException(UnknownLocation);
             }
 
             var newProject = new Project

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UrbanSystem.Data.Models;
-using static UrbanSystem.Common.EntityValidationConstants.Location;
+using static UrbanSystem.Common.ValidationConstants.Location;
 
 namespace UrbanSystem.Data.Configuration
 {

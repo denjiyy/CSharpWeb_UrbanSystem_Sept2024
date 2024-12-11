@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using static UrbanSystem.Common.ValidationConstants.Meeting;
 using UrbanSystem.Data.Models;
 
 namespace UrbanSystem.Data.Configuration
@@ -12,17 +13,18 @@ namespace UrbanSystem.Data.Configuration
 
             builder.Property(m => m.Title)
                 .IsRequired()
-                .HasMaxLength(200);
+                .HasMaxLength(TitleMaxLength);
 
             builder.Property(m => m.Description)
                 .IsRequired()
-                .HasMaxLength(1000);
+                .HasMaxLength(DescriptionMaxLength);
 
             builder.Property(m => m.ScheduledDate)
                 .IsRequired();
 
             builder.Property(m => m.Duration)
-                .IsRequired();
+                .IsRequired()
+                .HasMaxLength(DurationMaxValue);
 
             builder.HasOne(m => m.Location)
                 .WithMany()

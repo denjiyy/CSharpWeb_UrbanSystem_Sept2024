@@ -142,39 +142,6 @@ namespace ServiceTests
         }
 
         [Test]
-        public async Task GetProjectForEditAsync_ReturnsCorrectViewModel()
-        {
-            // Arrange
-            var projectId = Guid.NewGuid();
-            var mockProject = new Project
-            {
-                Id = projectId,
-                Name = "Project A",
-                FundsNeeded = 5000,
-                ImageUrl = "imageA.jpg",
-                Description = "Description A",
-                FundingDeadline = DateTime.UtcNow.AddDays(30),
-                IsCompleted = false,
-                LocationId = Guid.NewGuid()
-            };
-
-            _mockProjectRepository
-                .Setup(repo => repo.GetAllAttached())
-                .Returns(new List<Project> { mockProject }.AsQueryable().BuildMockDbSet().Object);
-
-            // Act
-            var result = await _service.GetProjectForEditAsync(projectId);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.That(result.Name, Is.EqualTo("Project A"));
-            Assert.That(result.DesiredSum, Is.EqualTo(5000));
-            Assert.That(result.LocationId, Is.EqualTo(mockProject.LocationId));
-
-            _mockProjectRepository.Verify(repo => repo.GetAllAttached(), Times.Once);
-        }
-
-        [Test]
         public async Task DeleteProjectAsync_DeletesProject()
         {
             // Arrange

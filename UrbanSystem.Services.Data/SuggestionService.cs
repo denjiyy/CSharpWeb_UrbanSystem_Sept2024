@@ -6,9 +6,9 @@ using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels;
 using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Suggestions;
-using static UrbanSystem.Common.ValidationMessages.Suggestion;
-using static UrbanSystem.Common.ValidationMessages.Sorting;
-using static UrbanSystem.Common.ValidationMessages.Formatting;
+using static UrbanSystem.Common.ValidationStrings.Suggestion;
+using static UrbanSystem.Common.ValidationStrings.Sorting;
+using static UrbanSystem.Common.ValidationStrings.Formatting;
 using UrbanSystem.Web.Helpers;
 
 namespace UrbanSystem.Services.Data

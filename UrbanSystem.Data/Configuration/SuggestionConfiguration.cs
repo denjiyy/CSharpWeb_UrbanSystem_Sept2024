@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UrbanSystem.Data.Models;
-using static UrbanSystem.Common.EntityValidationConstants.Suggestion;
+using static System.Net.WebRequestMethods;
+using static UrbanSystem.Common.ValidationConstants.Suggestion;
 
 namespace UrbanSystem.Data.Configuration
 {
@@ -41,7 +42,7 @@ namespace UrbanSystem.Data.Configuration
                     Id = Guid.NewGuid(),
                     Title = "Improve Public Transport",
                     Category = "Transport",
-                    AttachmentUrl = null,
+                    AttachmentUrl = "https://sofiacheap.com/p/a/v/avtobus-sofia-28-1140x0.jpg.pagespeed.ce._682L6k5Ui.jpg",
                     Description = "Implement more frequent bus routes during peak hours to reduce congestion.",
                     UploadedOn = DateTime.UtcNow,
                     Status = "Pending",
@@ -52,7 +53,7 @@ namespace UrbanSystem.Data.Configuration
                     Id = Guid.NewGuid(),
                     Title = "Park Renovation",
                     Category = "Environment",
-                    AttachmentUrl = null,
+                    AttachmentUrl = "https://images.adsttc.com/media/images/65ef/ba05/4ad7/6901/7c36/0da6/slideshow/renovation-of-peace-parks-gate-6-atelier-z-plus_14.jpg?1710209562",
                     Description = "Renovate the central park by adding new benches, lighting, and a playground area.",
                     UploadedOn = DateTime.UtcNow,
                     Status = "Approved",
@@ -61,12 +62,34 @@ namespace UrbanSystem.Data.Configuration
                 new Suggestion
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Waste Management System",
+                    Title = "Recycling Initiative",
                     Category = "Waste Management",
-                    AttachmentUrl = null,
-                    Description = "Introduce a recycling program and increase the frequency of waste collection.",
+                    AttachmentUrl = "https://cleanlites.com/wp-content/uploads/2020/01/011420_Cleanlites-Blog-Image_Encourage-Recycling-Community.jpg",
+                    Description = "Introduce a recycling program and provide more public recycling bins.",
                     UploadedOn = DateTime.UtcNow,
                     Status = "In Review",
+                    Priority = "High"
+                },
+                new Suggestion
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Street Lighting Upgrade",
+                    Category = "Infrastructure",
+                    AttachmentUrl = "https://www.silabs.com/content/dam/siliconlabs/images/applications/smart-cities/street-lighting-poster.png",
+                    Description = "Upgrade street lighting in residential areas to improve safety during nighttime.",
+                    UploadedOn = DateTime.UtcNow,
+                    Status = "Pending",
+                    Priority = "Medium"
+                },
+                new Suggestion
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Community Wi-Fi Access",
+                    Category = "Technology",
+                    AttachmentUrl = "https://www-res.cablelabs.com/wp-content/uploads/2016/10/28093617/Community_Wi-Fi_A_Primer_vivek_ganti-1024x576.jpg",
+                    Description = "Install free Wi-Fi hotspots in key public areas for better community connectivity.",
+                    UploadedOn = DateTime.UtcNow,
+                    Status = "Approved",
                     Priority = "High"
                 }
             };

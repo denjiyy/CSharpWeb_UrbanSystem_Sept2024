@@ -11,7 +11,7 @@
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
         public DateTime ScheduledDate { get; set; }
-        public TimeSpan Duration { get; set; }
+        public double Duration { get; set; }
         public Guid LocationId { get; set; }
         public Location Location { get; set; } = null!;
         public Guid OrganizerId { get; set; }

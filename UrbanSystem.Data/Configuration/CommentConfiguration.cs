@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UrbanSystem.Data.Models;
+using static UrbanSystem.Common.ValidationConstants.Comment;
 
 namespace UrbanSystem.Data.Configuration
 {
@@ -12,7 +13,7 @@ namespace UrbanSystem.Data.Configuration
 
             builder.Property(c => c.Content)
                 .IsRequired()
-                .HasMaxLength(1000);
+                .HasMaxLength(ContentMaxLength);
 
             builder.Property(c => c.AddedOn)
                 .IsRequired();

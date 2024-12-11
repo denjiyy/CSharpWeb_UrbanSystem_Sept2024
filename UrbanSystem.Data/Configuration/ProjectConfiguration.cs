@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using static UrbanSystem.Common.ValidationConstants.Project;
 using UrbanSystem.Data.Models;
 
 namespace UrbanSystem.Data.Configuration
@@ -18,29 +19,29 @@ namespace UrbanSystem.Data.Configuration
 
             builder.Property(p => p.Name)
                    .IsRequired()
-                   .HasMaxLength(100);
+                   .HasMaxLength(NameMaxLength);
 
             builder.Property(p => p.Description)
                    .IsRequired()
-                   .HasMaxLength(500);
+                   .HasMaxLength(DescriptionMaxLength);
 
             builder.Property(p => p.FundingDeadline)
                 .IsRequired();
 
             builder.Property(p => p.FundsNeeded)
                 .IsRequired()
-                .HasPrecision(18, 2);
+                .HasPrecision(FundsPrecision, FundsScale);
 
             builder.Property(p => p.ImageUrl)
-                   .HasMaxLength(2048);
+                   .HasMaxLength(ImageUrlMaxLength);
 
             builder.Property(p => p.CreatedOn)
                    .IsRequired()
-                   .HasDefaultValueSql("GETUTCDATE()");
+                   .HasDefaultValueSql(DefaultCreationDateSql);
 
             builder.Property(p => p.IsCompleted)
                    .IsRequired()
-                   .HasDefaultValue(false);
+                   .HasDefaultValue(DefaultIsCompleted);
         }
     }
 }

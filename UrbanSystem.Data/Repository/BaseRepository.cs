@@ -120,6 +120,31 @@ namespace UrbanSystem.Data.Repository
             }
         }
 
+        public async Task<bool> DeleteAsync(object id)
+        {
+            TType? entity;
+
+            if (id is object[] compositeKey)
+            {
+                entity = await _dbSet.FindAsync(compositeKey);
+            }
+            else if (id is ValueTuple<object, object> tupleKey)
+            {
+                entity = await _dbSet.FindAsync(tupleKey.Item1, tupleKey.Item2);
+            }
+            else
+            {
+                entity = await _dbSet.FindAsync(id);
+            }
+
+            if (entity == null) return false;
+
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
         public async Task<bool> UpdateAsync(TType item)
         {
             try

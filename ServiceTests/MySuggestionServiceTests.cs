@@ -64,7 +64,7 @@ namespace ServiceTests
             Assert.That(suggestionViewModel.Id, Is.EqualTo(suggestionId.ToString()));
             Assert.That(suggestionViewModel.Title, Is.EqualTo("Test Suggestion"));
             Assert.That(suggestionViewModel.Category, Is.EqualTo("General"));
-            Assert.That(suggestionViewModel.UploadedOn, Is.EqualTo("2024-01-01 10:00:00"));
+            Assert.That(suggestionViewModel.UploadedOn, Is.EqualTo("01/01/2024 10:00"));
             Assert.That(suggestionViewModel.AttachmentUrl, Is.EqualTo("http://example.com/attachment"));
             Assert.That(suggestionViewModel.LocationNames.Count(), Is.EqualTo(2));
             Assert.IsTrue(suggestionViewModel.LocationNames.Any(l => l.Text == "New York"));

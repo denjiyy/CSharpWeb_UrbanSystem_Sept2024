@@ -4,6 +4,7 @@ using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Locations;
 using UrbanSystem.Web.ViewModels.Suggestions;
+using static UrbanSystem.Common.ValidationStrings.Formatting;
 
 namespace UrbanSystem.Services.Data
 {
@@ -32,7 +33,7 @@ namespace UrbanSystem.Services.Data
                 Id = us.Suggestion.Id.ToString(),
                 Title = us.Suggestion.Title,
                 Category = us.Suggestion.Category,
-                UploadedOn = us.Suggestion.UploadedOn.ToString("yyyy-MM-dd HH:mm:ss"),
+                UploadedOn = us.Suggestion.UploadedOn.ToString(SuggestionUploadedOnFormat),
                 AttachmentUrl = us.Suggestion.AttachmentUrl,
                 LocationNames = us.Suggestion.SuggestionsLocations?
                     .Where(sl => sl.Location != null)

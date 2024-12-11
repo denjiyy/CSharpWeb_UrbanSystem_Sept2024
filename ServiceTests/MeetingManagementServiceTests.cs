@@ -43,7 +43,7 @@ namespace ServiceTests
                     Title = "Meeting A",
                     Description = "Description A",
                     ScheduledDate = DateTime.UtcNow,
-                    Duration = TimeSpan.FromHours(2),
+                    Duration = 2.0,
                     Location = new Location { CityName = "City A" },
                     Attendees = new List<ApplicationUser> { new ApplicationUser { UserName = "User1" } },
                     Organizer = new ApplicationUser { UserName = "Organizer1" }
@@ -54,7 +54,7 @@ namespace ServiceTests
                     Title = "Meeting B",
                     Description = "Description B",
                     ScheduledDate = DateTime.UtcNow.AddDays(1),
-                    Duration = TimeSpan.FromHours(1),
+                    Duration = 1.0,
                     Location = new Location { CityName = "City B" },
                     Attendees = new List<ApplicationUser> { new ApplicationUser { UserName = "User2" } },
                     Organizer = new ApplicationUser { UserName = "Organizer2" }
@@ -84,124 +84,6 @@ namespace ServiceTests
             Assert.AreEqual("Organizer2", meetings[1].OrganizerName);
 
             _mockMeetingRepository.Verify(repo => repo.GetAllAttached(), Times.Once);
-        }
-
-        [Test]
-        public async Task GetMeetingByIdAsync_ReturnsCorrectViewModel()
-        {
-            // Arrange
-            var meetingId = Guid.NewGuid();
-            var mockMeeting = new Meeting
-            {
-                Id = meetingId,
-                Title = "Meeting A",
-                Description = "Description A",
-                ScheduledDate = DateTime.UtcNow,
-                Duration = TimeSpan.FromHours(2),
-                Location = new Location { CityName = "City A" },
-                Attendees = new List<ApplicationUser> { new ApplicationUser { UserName = "User1" } },
-                Organizer = new ApplicationUser { UserName = "Organizer1" }
-            };
-
-            _mockMeetingRepository
-                .Setup(repo => repo.GetAllAttached())
-                .Returns(new List<Meeting> { mockMeeting }.AsQueryable().BuildMockDbSet().Object);
-
-            // Act
-            var result = await _service.GetMeetingByIdAsync(meetingId);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Meeting A", result.Title);
-            Assert.AreEqual("City A", result.CityName);
-            Assert.AreEqual("Organizer1", result.OrganizerName);
-
-            _mockMeetingRepository.Verify(repo => repo.GetAllAttached(), Times.Once);
-        }
-
-        [Test]
-        public async Task GetMeetingForEditAsync_ReturnsCorrectViewModel()
-        {
-            // Arrange
-            var meetingId = Guid.NewGuid();
-            var mockMeeting = new Meeting
-            {
-                Id = meetingId,
-                Title = "Meeting A",
-                Description = "Description A",
-                ScheduledDate = DateTime.UtcNow,
-                Duration = TimeSpan.FromHours(2),
-                LocationId = Guid.NewGuid()
-            };
-
-            var mockCities = new List<Location>
-            {
-                new Location { Id = Guid.NewGuid(), CityName = "City A" },
-                new Location { Id = Guid.NewGuid(), CityName = "City B" }
-            };
-
-            _mockMeetingRepository
-                .Setup(repo => repo.GetAllAttached())
-                .Returns(new List<Meeting> { mockMeeting }.AsQueryable().BuildMockDbSet().Object);
-
-            _mockLocationRepository
-                .Setup(repo => repo.GetAllAsync())
-                .ReturnsAsync(mockCities);
-
-            // Act
-            var result = await _service.GetMeetingForEditAsync(meetingId);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Meeting A", result.Title);
-            Assert.AreEqual(mockMeeting.LocationId.ToString(), result.LocationId);
-            Assert.AreEqual(2, result.Cities.Count());
-
-            _mockMeetingRepository.Verify(repo => repo.GetAllAttached(), Times.Once);
-            _mockLocationRepository.Verify(repo => repo.GetAllAsync(), Times.Once);
-        }
-
-        [Test]
-        public async Task UpdateMeetingAsync_UpdatesCorrectly()
-        {
-            // Arrange
-            var meetingId = Guid.NewGuid();
-            var mockMeeting = new Meeting
-            {
-                Id = meetingId,
-                Title = "Meeting A",
-                Description = "Description A",
-                ScheduledDate = DateTime.UtcNow,
-                Duration = TimeSpan.FromHours(2),
-                LocationId = Guid.NewGuid()
-            };
-
-            var mockMeetingEdit = new MeetingEditViewModel
-            {
-                Title = "Updated Meeting",
-                Description = "Updated Description",
-                ScheduledDate = DateTime.UtcNow.AddDays(1),
-                Duration = 4.5,
-                LocationId = mockMeeting.LocationId.ToString()
-            };
-
-            _mockMeetingRepository
-                .Setup(repo => repo.GetByIdAsync(meetingId))
-                .ReturnsAsync(mockMeeting);
-
-            _mockMeetingRepository
-                .Setup(repo => repo.UpdateAsync(It.IsAny<Meeting>()))
-                .ReturnsAsync(true);
-
-            // Act
-            var result = await _service.UpdateMeetingAsync(meetingId, mockMeetingEdit);
-
-            // Assert
-            Assert.IsTrue(result);
-            Assert.AreEqual("Updated Meeting", mockMeeting.Title);
-            Assert.AreEqual("Updated Description", mockMeeting.Description);
-
-            _mockMeetingRepository.Verify(repo => repo.UpdateAsync(mockMeeting), Times.Once);
         }
 
         [Test]

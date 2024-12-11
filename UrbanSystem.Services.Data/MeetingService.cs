@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using static UrbanSystem.Common.ValidationStrings.Meeting;
+using static UrbanSystem.Common.ValidationStrings.Location;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Data.Repository.Contracts;
 using UrbanSystem.Services.Data.Contracts;
@@ -37,7 +39,7 @@ namespace UrbanSystem.Services.Data
                 Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
                 Duration = m.Duration,
-                CityName = m.Location?.CityName ?? "Unknown",
+                CityName = m.Location?.CityName ?? UnknownLocation,
                 AttendeesCount = m.Attendees.Count
             });
         }
@@ -62,7 +64,7 @@ namespace UrbanSystem.Services.Data
                 Description = meeting.Description,
                 ScheduledDate = meeting.ScheduledDate,
                 Duration = meeting.Duration,
-                CityName = meeting.Location?.CityName ?? "Unknown",
+                CityName = meeting.Location?.CityName ?? UnknownLocation,
                 Attendees = meeting.Attendees.Select(a => a.UserName).ToList()!,
                 OrganizerName = meeting.Organizer.UserName!,
                 OrganizerId = meeting.OrganizerId
@@ -132,13 +134,13 @@ namespace UrbanSystem.Services.Data
             var location = await _locationRepository.GetByIdAsync(meetingForm.LocationId ?? Guid.Empty);
             if (location == null)
             {
-                throw new ArgumentException("Invalid location ID.");
+                throw new ArgumentException(InvalidLocationId);
             }
 
             var organizer = await _userRepository.GetAllAttached().FirstOrDefaultAsync(u => u.UserName == organizerUsername);
             if (organizer == null)
             {
-                throw new ArgumentException("Organizer not found.");
+                throw new ArgumentException(OrganizerNotFound);
             }
 
             var meeting = new Meeting
@@ -146,7 +148,7 @@ namespace UrbanSystem.Services.Data
                 Title = meetingForm.Title,
                 Description = meetingForm.Description,
                 ScheduledDate = meetingForm.ScheduledDate,
-                Duration = TimeSpan.FromHours(meetingForm.Duration),
+                Duration = meetingForm.Duration,
                 LocationId = location.Id,
                 Location = location,
                 OrganizerId = organizer.Id,
@@ -165,19 +167,19 @@ namespace UrbanSystem.Services.Data
 
             if (meeting == null)
             {
-                throw new ArgumentException("Meeting not found", nameof(id));
+                throw new ArgumentException(MeetingNotFound, nameof(id));
             }
 
             var location = await _locationRepository.GetByIdAsync(Guid.Parse(meetingForm.LocationId!));
             if (location == null)
             {
-                throw new ArgumentException("Invalid location ID.");
+                throw new ArgumentException(InvalidLocationId);
             }
 
             meeting.Title = meetingForm.Title;
             meeting.Description = meetingForm.Description;
             meeting.ScheduledDate = meetingForm.ScheduledDate;
-            meeting.Duration = TimeSpan.FromHours(meetingForm.Duration);
+            meeting.Duration = meetingForm.Duration;
             meeting.LocationId = location.Id;
             meeting.Location = location;
 
@@ -189,7 +191,7 @@ namespace UrbanSystem.Services.Data
             var success = await _meetingRepository.DeleteAsync(id);
             if (!success)
             {
-                throw new ArgumentException("Meeting not found", nameof(id));
+                throw new ArgumentException(MeetingNotFound, nameof(id));
             }
         }
 
@@ -201,18 +203,18 @@ namespace UrbanSystem.Services.Data
 
             if (meeting == null)
             {
-                throw new InvalidOperationException("Meeting not found.");
+                throw new InvalidOperationException(MeetingNotFound);
             }
 
             var user = await _userRepository.GetAllAttached().FirstOrDefaultAsync(u => u.UserName == username);
             if (user == null)
             {
-                throw new InvalidOperationException("User not found.");
+                throw new InvalidOperationException(UserNotFound);
             }
 
             if (meeting.Attendees.Any(a => a.Id == user.Id))
             {
-                throw new InvalidOperationException("You are already attending this meeting.");
+                throw new InvalidOperationException(AlreadyAttendingMeeting);
             }
 
             meeting.Attendees.Add(user);
@@ -227,19 +229,19 @@ namespace UrbanSystem.Services.Data
 
             if (meeting == null)
             {
-                throw new InvalidOperationException("Meeting not found.");
+                throw new InvalidOperationException(MeetingNotFound);
             }
 
             var user = await _userRepository.GetAllAttached().FirstOrDefaultAsync(u => u.UserName == username);
             if (user == null)
             {
-                throw new InvalidOperationException("User not found.");
+                throw new InvalidOperationException(UserNotFound);
             }
 
             var attendee = meeting.Attendees.FirstOrDefault(a => a.Id == user.Id);
             if (attendee == null)
             {
-                throw new InvalidOperationException("You are not attending this meeting.");
+                throw new InvalidOperationException(NotAttendingMeeting);
             }
 
             meeting.Attendees.Remove(attendee);
@@ -265,7 +267,7 @@ namespace UrbanSystem.Services.Data
                 Description = m.Description,
                 ScheduledDate = m.ScheduledDate,
                 Duration = m.Duration,
-                Location = m.Location?.CityName ?? "Unknown",
+                Location = m.Location?.CityName ?? UnknownLocation,
                 CanCancelAttendance = m.ScheduledDate > DateTime.Now.AddHours(24)
             }).ToList();
 
