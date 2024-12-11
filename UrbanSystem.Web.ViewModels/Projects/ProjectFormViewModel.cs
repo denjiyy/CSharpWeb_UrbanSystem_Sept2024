@@ -1,23 +1,24 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using UrbanSystem.Web.ViewModels.Locations;
+using static UrbanSystem.Common.ValidationStrings.Project;
 
 namespace UrbanSystem.Web.ViewModels.Projects
 {
     public class ProjectFormViewModel
     {
         [Required]
-        [StringLength(100, ErrorMessage = "Name must be less than 100 characters.")]
+        [StringLength(100, ErrorMessage = NameLengthErrorMessage)]
         public string Name { get; set; } = null!;
 
         [Required]
-        [Range(0.01, 10000000, ErrorMessage = "Desired sum must be between 0.01 and 10,000,000.")]
+        [Range(0.01, 10000000, ErrorMessage = DesiredSumRangeErrorMessage)]
         public decimal DesiredSum { get; set; }
 
-        [StringLength(2048, ErrorMessage = "Image URL must be less than 2048 characters.")]
+        [StringLength(2048, ErrorMessage = ImageUrlLengthErrorMessage)]
         public string? ImageUrl { get; set; }
 
         [Required]
-        [StringLength(500, ErrorMessage = "Description must be less than 500 characters.")]
+        [StringLength(500, ErrorMessage = DescriptionLengthErrorMessage)]
         public string Description { get; set; } = null!;
 
         [Required]

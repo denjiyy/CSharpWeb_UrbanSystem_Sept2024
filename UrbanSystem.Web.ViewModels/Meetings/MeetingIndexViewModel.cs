@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using UrbanSystem.Web.ViewModels.Locations;
+using static UrbanSystem.Common.ValidationStrings.Formatting;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {
@@ -10,18 +12,17 @@ namespace UrbanSystem.Web.ViewModels.Meetings
 
         public string Description { get; set; } = null!;
 
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = DateDisplayFormat, ApplyFormatInEditMode = true)]
         public DateTime ScheduledDate { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:hh\\:mm}", ApplyFormatInEditMode = true)]
-        public TimeSpan Duration { get; set; }
+        public double Duration { get; set; }
 
         public Guid LocationId { get; set; }
 
         public string? CityName { get; set; }
-        
+
         public int AttendeesCount { get; set; }
-        
+
         public IEnumerable<string> Attendees { get; set; } = new HashSet<string>();
 
         public string OrganizerName { get; set; } = null!;

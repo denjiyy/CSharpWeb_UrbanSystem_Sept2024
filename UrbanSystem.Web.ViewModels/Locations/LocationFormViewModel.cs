@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using static UrbanSystem.Common.ValidationMessages.Location;
+using static UrbanSystem.Common.ValidationStrings.Location;
 
 namespace UrbanSystem.Web.ViewModels.Locations
 {

@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using UrbanSystem.Web.ViewModels.Locations;
-using static UrbanSystem.Common.EntityValidationConstants.Suggestion;
-using static UrbanSystem.Common.ValidationMessages.Suggestion;
-using static UrbanSystem.Common.EntityValidationConstants.Location;
+using static UrbanSystem.Common.ValidationConstants.Suggestion;
+using static UrbanSystem.Common.ValidationStrings.Suggestion;
+using static UrbanSystem.Common.ValidationConstants.Location;
+using static UrbanSystem.Common.ValidationStrings.Location;
 
 namespace UrbanSystem.Web.ViewModels.Suggestions
 {

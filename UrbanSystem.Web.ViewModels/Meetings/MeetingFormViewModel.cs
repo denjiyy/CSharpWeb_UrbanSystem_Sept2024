@@ -1,28 +1,29 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using UrbanSystem.Web.ViewModels.Locations;
+using static UrbanSystem.Common.ValidationStrings.Meeting;
 
 namespace UrbanSystem.Web.ViewModels.Meetings
 {
     public class MeetingFormViewModel
     {
-        [Required(ErrorMessage = "Title is required")]
-        [StringLength(200, ErrorMessage = "Title cannot be longer than 200 characters")]
+        [Required(ErrorMessage = TitleRequired)]
+        [StringLength(200, ErrorMessage = TitleMaxLength)]
         public string Title { get; set; } = null!;
-
-        [Required(ErrorMessage = "Description is required")]
-        [StringLength(1000, ErrorMessage = "Description cannot be longer than 1000 characters")]
+            
+        [Required(ErrorMessage = DescriptionRequired)]
+        [StringLength(1000, ErrorMessage = DescriptionMaxLength)]
         public string Description { get; set; } = null!;
 
-        [Required(ErrorMessage = "Scheduled date is required")]
-        [Display(Name = "Scheduled Date")]
+        [Required(ErrorMessage = ScheduledDateRequired)]
+        [Display(Name = ScheduledDateDisplayName)]
         public DateTime ScheduledDate { get; set; }
 
-        [Required(ErrorMessage = "Duration is required")]
-        [Display(Name = "Duration (hours)")]
-        [Range(0.5, 8, ErrorMessage = "Duration must be between 0.5 and 8 hours")]
+        [Required(ErrorMessage = DurationRequired)]
+        [Display(Name = DurationDisplayName)]
+        [Range(0.5, 8, ErrorMessage = DurationRange)]
         public double Duration { get; set; }
 
-        [Required(ErrorMessage = "Location is required")]
+        [Required(ErrorMessage = LocationRequired)]
         public Guid? LocationId { get; set; }
 
         public IEnumerable<CityOption> Cities { get; set; } = new List<CityOption>();

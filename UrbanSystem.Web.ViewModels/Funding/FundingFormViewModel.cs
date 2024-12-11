@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static UrbanSystem.Common.ValidationStrings.Funding;
 
 namespace UrbanSystem.Web.ViewModels.Funding
 {
@@ -14,12 +15,11 @@ namespace UrbanSystem.Web.ViewModels.Funding
         public decimal FundsRaised { get; set; }
 
         [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = AmountGreaterThanZero)]
         public decimal Amount { get; set; }
 
         [Required]
-        [Display(Name = "I confirm this funding amount")]
+        [Display(Name = ConfirmationDisplayName)]
         public bool IsConfirmed { get; set; }
     }
 }
-
