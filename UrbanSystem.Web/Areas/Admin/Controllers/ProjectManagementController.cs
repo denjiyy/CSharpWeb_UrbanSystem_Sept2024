@@ -45,54 +45,6 @@ namespace UrbanSystem.Web.Areas.Admin.Controllers
             return View(project);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Edit(string id)
-        {
-            Guid projectGuid = Guid.Empty;
-
-            if (!IsGuidIdValid(id, ref projectGuid))
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            var project = await _projectManagementService.GetProjectForEditAsync(projectGuid);
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            project.Cities = await CityList();
-            return View(project);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, ProjectFormViewModel model)
-        {
-            Guid projectGuid = Guid.Empty;
-
-            if (!IsGuidIdValid(id, ref projectGuid))
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (!ModelState.IsValid)
-            {
-                model.Cities = await CityList();
-                return View(model);
-            }
-
-            bool updateResult = await _projectManagementService.UpdateProjectAsync(projectGuid, model);
-            if (!updateResult)
-            {
-                ModelState.AddModelError("", "Failed to update the project. Please try again.");
-                model.Cities = await CityList();
-                return View(model);
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)

@@ -16,14 +16,14 @@ namespace UrbanSystem.Web.Controllers
             switch (statusCode)
             {
                 case 404:
-                    ViewBag.ErrorMessage = ValidationMessages.Error.PageNotFoundMessage;
+                    ViewBag.ErrorMessage = ValidationStrings.Error.PageNotFoundMessage;
                     ViewBag.ErrorCode = 404;
-                    return View(ValidationMessages.Error.NotFoundView);
+                    return View(ValidationStrings.Error.NotFoundView);
                 default:
                     break;
             }
 
-            return View(ValidationMessages.Error.ErrorView);
+            return View(ValidationStrings.Error.ErrorView);
         }
 
         [Route("Error")]
@@ -32,7 +32,7 @@ namespace UrbanSystem.Web.Controllers
         {
             var exceptionDetails = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            ViewBag.ErrorMessage = ValidationMessages.Error.GeneralErrorMessage;
+            ViewBag.ErrorMessage = ValidationStrings.Error.GeneralErrorMessage;
             ViewBag.ErrorCode = 500;
 
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

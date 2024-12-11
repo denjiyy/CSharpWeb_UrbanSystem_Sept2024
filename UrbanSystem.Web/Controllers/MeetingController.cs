@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using static UrbanSystem.Common.ValidationMessages.Meeting;
+using static UrbanSystem.Common.ValidationStrings.Meeting;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Meetings;
@@ -242,7 +242,7 @@ namespace UrbanSystem.Web.Controllers
                 }
 
                 await _meetingService.DeleteMeetingAsync(id);
-                _logger.LogInformation(ErrorDeletingMeeting, id, currentUser.Id);
+                _logger.LogInformation(ErrorDeletingMeeting!, id, currentUser.Id);
                 return RedirectToAction(nameof(All));
             }
             catch (ArgumentException)
@@ -327,6 +327,27 @@ namespace UrbanSystem.Web.Controllers
             {
                 _logger.LogError(ex, ErrorCancelingAttendance!, id);
                 return StatusCode(500, ErrorProcessingRequest);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyMeetings()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var viewModel = await _meetingService.GetUserAttendedMeetingsAsync(currentUser.UserName!);
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching attended meetings for user {UserId}", currentUser.Id);
+                return StatusCode(500, "An error occurred while processing your request.");
             }
         }
     }

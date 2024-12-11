@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
-using static UrbanSystem.Common.ValidationMessages.MySuggestionControllerMessages;
+using static UrbanSystem.Common.ValidationStrings.MySuggestionControllerMessages;
 
 namespace UrbanSystem.Web.Controllers
 {

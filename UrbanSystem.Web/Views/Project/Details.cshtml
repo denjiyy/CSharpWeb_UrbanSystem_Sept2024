@@ -19,7 +19,7 @@
                                 <strong>Funds Needed:</strong> @Model.DesiredSum.ToString("C")
                             </p>
                             <p>
-                                <strong>Created On:</strong> @Model.CreatedOn.ToString("yyyy-MM-dd")
+                                <strong>Created On:</strong> @Model.CreatedOn.ToString("dd/MM/yyyy")
                             </p>
                         </div>
                         <div class="col-sm-6">
@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div class="card-footer text-center">
-                    <a href="@Url.Action("Index", "Projects")" class="btn btn-secondary">
+                    <a href="@Url.Action("All", "Projects")" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Back to Projects
                     </a>
                 </div>

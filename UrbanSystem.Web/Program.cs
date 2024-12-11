@@ -54,7 +54,7 @@ namespace UrbanSystem.Web
             var app = builder.Build();
 
             // Configure the HTTP request pipeline
-            if (app.Environment.IsDevelopment())
+            if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
@@ -111,6 +111,7 @@ namespace UrbanSystem.Web
             builder.Services.AddScoped<ISuggestionManagementService, SuggestionManagementService>();
             builder.Services.AddScoped<IProjectManagementService, ProjectManagementService>();
             builder.Services.AddScoped<IMeetingManagementService, MeetingManagementService>();
+            builder.Services.AddScoped<ILocationManagementService, LocationManagementService>();
         }
 
         private static void ConfigureIdentity(IdentityOptions options, WebApplicationBuilder builder)

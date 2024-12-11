@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using UrbanSystem.Data.Models;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Suggestions;
-using static UrbanSystem.Common.ValidationMessages.SuggestionControllerMessages;
+using static UrbanSystem.Common.ValidationStrings.SuggestionControllerMessages;
 
 namespace UrbanSystem.Web.Controllers
 {
@@ -140,7 +140,7 @@ namespace UrbanSystem.Web.Controllers
 
             if (!result.IsSuccessful)
             {
-                _logger.LogWarning(UpdateSuggestionError, id, currentUser.Id, result.ErrorMessage);
+                _logger.LogWarning(UpdateSuggestionError!, id, currentUser.Id, result.ErrorMessage);
                 TempData["ErrorMessage"] = UpdateSuggestionError;
                 return View(model);
             }
@@ -184,7 +184,7 @@ namespace UrbanSystem.Web.Controllers
 
             if (!result.IsSuccessful)
             {
-                _logger.LogWarning(DeleteSuggestionLog, id, currentUser.Id, result.ErrorMessage);
+                _logger.LogWarning(DeleteSuggestionLog!, id, currentUser.Id, result.ErrorMessage);
                 TempData["ErrorMessage"] = DeleteSuggestionError;
                 return RedirectToAction(nameof(Details), new { id = id });
             }

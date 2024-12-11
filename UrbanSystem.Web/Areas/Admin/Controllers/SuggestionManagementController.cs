@@ -25,69 +25,6 @@ namespace UrbanSystem.Web.Areas.Admin.Controllers
             return View(suggestions);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Details(string id)
-        {
-            Guid suggestionGuid = Guid.Empty;
-
-            if (!IsGuidIdValid(id, ref suggestionGuid))
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            var suggestion = await _suggestionManagementService.GetSuggestionByIdAsync(suggestionGuid);
-            if (suggestion == null)
-            {
-                return NotFound();
-            }
-
-            return View(suggestion);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(string id)
-        {
-            Guid suggestionGuid = Guid.Empty;
-
-            if (!IsGuidIdValid(id, ref suggestionGuid))
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            var suggestion = await _suggestionManagementService.GetSuggestionForEditAsync(suggestionGuid);
-            if (suggestion == null)
-            {
-                return NotFound();
-            }
-
-            return View(suggestion);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, SuggestionFormViewModel model)
-        {
-            Guid suggestionGuid = Guid.Empty;
-
-            if (!IsGuidIdValid(id, ref suggestionGuid))
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            bool updateResult = await _suggestionManagementService.UpdateSuggestionAsync(suggestionGuid, model);
-            if (!updateResult)
-            {
-                return NotFound();
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)

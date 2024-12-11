@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Web.ViewModels.Locations;
 using static UrbanSystem.Common.ApplicationConstants;
-using static UrbanSystem.Common.ValidationMessages.LocationControllerMessages;
+using static UrbanSystem.Common.ValidationStrings.LocationControllerMessages;
 
 namespace UrbanSystem.Web.Controllers
 {

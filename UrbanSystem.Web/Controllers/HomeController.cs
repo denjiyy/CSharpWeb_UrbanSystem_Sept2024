@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using UrbanSystem.Common;
+using static UrbanSystem.Common.ValidationStrings.Home;
 using UrbanSystem.Web.ViewModels;
 
 namespace UrbanSystem.Web.Controllers
@@ -13,8 +13,8 @@ namespace UrbanSystem.Web.Controllers
 
         public IActionResult Index()
         {
-            ViewData[ValidationMessages.Home.TitleKey] = ValidationMessages.Home.TitleValue;
-            ViewData[ValidationMessages.Home.MessageKey] = ValidationMessages.Home.WelcomeMessage;
+            ViewData[TitleKey] = TitleValue;
+            ViewData[MessageKey] = WelcomeMessage;
             return View();
         }
 

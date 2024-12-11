@@ -4,7 +4,7 @@ using UrbanSystem.Services.Data.Contracts;
 using UrbanSystem.Services.Interfaces;
 using UrbanSystem.Web.ViewModels.Projects;
 using static UrbanSystem.Common.ApplicationConstants;
-using static UrbanSystem.Common.ValidationMessages.ProjectControllerMessages;
+using static UrbanSystem.Common.ValidationStrings.ProjectControllerMessages;
 
 namespace UrbanSystem.Web.Controllers
 {
@@ -56,7 +56,7 @@ namespace UrbanSystem.Web.Controllers
 
                 if (project == null)
                 {
-                    _logger.LogWarning(ProjectNotFoundError, id);
+                    _logger.LogWarning(ProjectNotFoundError!, id);
                     return NotFound(ProjectNotFoundError);
                 }
 

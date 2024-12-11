@@ -29,7 +29,7 @@
         <label asp-for="LocationId">Location</label>
         <select asp-for="LocationId" class="form-control">
             <option value="">Select a location</option>
-            @foreach (var city in Model.Cities)
+            @foreach (var city in Model.Cities.OrderBy(x => x.Text))
             {
                 <option value="@city.Value">@city.Text</option>
             }
